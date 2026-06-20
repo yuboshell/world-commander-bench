@@ -4,6 +4,31 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — Host the report for co-authors (unlisted GitHub Pages)
+
+**Goal:** give co-authors a clickable link to the report instead of git-pull-and-open.
+
+**Constraint:** the `DreamSoul-AI` org is on the free plan, so access-controlled
+(login-gated) GitHub Pages is unavailable — any Pages site is public-by-URL.
+Yubo chose the unlisted pattern (matches the research repo's proposal-article
+decision): a dedicated public repo with an opaque slug + `noindex`, link as a
+semi-secret password.
+
+**Actions:**
+1. Created a public repo with an opaque slug (under `yubohuangai`), pushed
+   `report.html` as `index.html` + `robots.txt` (Disallow) + `.nojekyll`,
+   enabled GitHub Pages. Verified live (HTTP 200, title, `noindex`, slider).
+2. Added `noindex` to the report template (`arena/viz.py`).
+3. `scripts/publish_report.sh` — repeatable publish; reads the target repo from
+   `WCB_REPORT_REPO` in `.env` so the opaque slug never lands in git (this repo
+   open-sources later). `.env.example` documents the optional var.
+4. URL recorded in `.env` + Claude memory only, **not** in committed files.
+
+**Outcome:** co-authors review by clicking a link; re-run + `publish_report.sh`
+updates it.
+
+---
+
 ## 2026-06-19 — Fix replay rendering; switch from video to a self-contained HTML report
 
 **Goal:** Yubo found the MP4 hard to follow (frames too fast) and noticed

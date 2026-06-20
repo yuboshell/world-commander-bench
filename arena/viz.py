@@ -153,6 +153,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
                f"{report['latency_ms_p50']:.0f} / p95 {report['latency_ms_p95']:.0f} ms")
     html = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <style>

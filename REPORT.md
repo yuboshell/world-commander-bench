@@ -47,6 +47,11 @@ The first real run gave **grounding 0.0, 100% deadline miss, ~4000 ms latency**.
   percentiles, and a per-command latency timeline coloured on-time vs miss.
 - Video is opt-in: `--mp4` writes `outputs/replay.mp4`; `--upload` pushes it to
   Google Drive. The default path produces no video.
+- **Hosted copy** for co-authors: `scripts/publish_report.sh` mirrors `report.html`
+  to an *unlisted* GitHub Pages site (opaque slug + `noindex`; link treated as a
+  semi-secret password). The URL is **not** committed here — it lives in `.env`
+  (`WCB_REPORT_REPO`) so it does not leak when this repo open-sources. Ask Yubo
+  for the link.
 
 ![latency metrics](assets/metrics.png)
 
