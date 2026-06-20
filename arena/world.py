@@ -73,6 +73,10 @@ class GridWorld:
             if not a.controlled:
                 self._move(a, self.rng.choice(list(DIRECTIONS)))
 
+    def snapshot(self) -> list[tuple[str, int, int, bool]]:
+        """A cheap (name, x, y, controlled) snapshot of every agent."""
+        return [(a.name, a.x, a.y, a.controlled) for a in self.agents]
+
     def render_text(self) -> str:
         """Compact text state for the model prompt."""
         ctrl = ", ".join(f"{a.name} at ({a.x},{a.y})" for a in self.controlled())

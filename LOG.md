@@ -4,6 +4,33 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — Visualization: metric plots + grid-replay MP4
+
+**Goal:** add visual output (Yubo chose plots + grid-replay MP4, transfer via
+Google Drive) and auto commit/push after each job.
+
+**Actions:**
+1. Added a `Stop` hook (`.claude/settings.json` → `.claude/hooks/auto-commit-push.sh`)
+   to auto-commit + push on a dirty tree. May need `/hooks` or a restart to load
+   this session (`.claude/` was created mid-session).
+2. TDD: `arena/recorder.py` (`Recorder`/`Frame`) + `GridWorld.snapshot()` +
+   optional `recorder=` param on `run_session`. New tests in `tests/test_recorder.py`.
+3. `arena/viz.py`: `plot_metrics` (PNG) + `render_replay` (MP4 via ffmpeg).
+   `scripts/visualize.py` ties it together with `--upload` to rclone Drive.
+4. Probed env: matplotlib installed into `.venv` (kept out of core
+   `requirements.txt`; added `requirements-viz.txt`); ffmpeg 7.0.2 present;
+   rclone `gdrive:` remote already configured.
+5. Real recorded run (120 cmds): grounding 1.00, deadline-miss 0.467, latency
+   mean 646 / p50 471 / p95 1102 ms. Wrote `assets/metrics.png` (committed),
+   `outputs/replay.mp4` → Google Drive.
+6. Finding: **bimodal latency** — group commands ~2× slower (more tokens),
+   cross the 500 ms tick; single commands stay under it. Correct-but-late.
+7. `pytest -q` → 8 passed.
+
+**Outcome:** visual review pipeline in place; images in git, video on Drive.
+
+---
+
 ## 2026-06-19 — First real grounding/latency run on amax41
 
 **Goal:** set up venv, confirm served vLLM model, write `.env`, run the arena (mock then real), report grounding/latency/deadline misses.

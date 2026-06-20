@@ -17,13 +17,15 @@ from .world import GridWorld
 
 
 def run_session(client, *, grid: int, agents: int, npcs: int,
-                tick_ms: int, n_commands: int, seed: int = 0) -> Metrics:
+                tick_ms: int, n_commands: int, seed: int = 0,
+                recorder=None) -> Metrics:
     rng = random.Random(seed)
     world = GridWorld.random_init(grid, agents, npcs, rng=rng)
     metrics = Metrics()
 
-    for _ in range(n_commands):
+    for step in range(n_commands):
         command = sample_command(world, rng)
+        before = world.snapshot() if recorder is not None else None
 
         t0 = time.perf_counter()
         action = client.act(world, command)              # the model (or mock)
@@ -38,6 +40,10 @@ def run_session(client, *, grid: int, agents: int, npcs: int,
         if not missed:
             world.apply(list(action))
         world.tick_npcs()                                # the clock advances regardless
+
+        if recorder is not None:
+            recorder.add(step, command.text, before, world.snapshot(),
+                         correct, missed, latency_ms)
 
         # TODO: concurrent clock — tick the world on a timer thread during act(),
         #       so a slow response sees a changed world, not just a dropped action.

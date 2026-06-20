@@ -19,8 +19,11 @@ Matches the `.env.example` default; `.env` written accordingly.
 |-----|----------|-----------|---------------|--------------|-----|-----|
 | Mock (`--mock`) | 50 | 0.90 | 0.00 | ~0 ms | ~0 | ~0 |
 | **Real, 500 ms tick** | **200** | **1.00** | **0.385** | **609 ms** | **444 ms** | **1079 ms** |
+| Real, recorded (for viz) | 120 | 1.00 | 0.467 | 646 ms | 471 ms | 1102 ms |
 
-Saved: `runs/qwen3-14b-awq_200.json` (gitignored).
+Saved: `runs/qwen3-14b-awq_200.json` (gitignored). Deadline-miss varies run to
+run (0.385–0.467) because latency is wall-clock on a GPU shared with the
+inventory bot.
 
 ### Reading the numbers
 - **Grounding 1.00** — at the current scale (8×8 grid, 4 agents, 4 NPCs) the model resolves every command (single-target and "all-except" group forms). Deterministic (temperature 0).
@@ -32,8 +35,31 @@ The first real run gave **grounding 0.0, 100% deadline miss, ~4000 ms latency**.
 
 **Fix:** `RealClient.act` now passes `extra_body={"chat_template_kwargs": {"enable_thinking": False}}`. Verified: the model then returns `[{"agent":"red","dir":"N"}]` in 12 tokens (`finish: stop`). Grounding 0.0 → 1.0; latency ~4000 ms → ~600 ms.
 
+## Visualization
+
+`python scripts/visualize.py --commands 120 --upload` records per-tick state and
+emits two artifacts:
+
+- **Metric plots** — `assets/metrics.png` (committed): latency histogram with the
+  tick budget + percentiles, and a per-command latency timeline coloured by
+  on-time vs deadline-miss.
+- **Grid replay** — `outputs/replay.mp4` (gitignored; uploaded to Google Drive):
+  the 8×8 grid evolving one command per video frame, colour-tagged agents +
+  grey NPCs, command text and outcome overlaid.
+  Drive link: https://drive.google.com/open?id=1zKvCLQGgEbTQPccxJsqJR35lPrF06IC6
+
+![latency metrics](assets/metrics.png)
+
+**Finding — bimodal latency.** The histogram splits cleanly: a tight on-time
+cluster ~400–470 ms and a second cluster ~850–1100 ms that misses the 500 ms
+tick. The slow cluster is the **group commands** ("every agent except the X
+one, move …"): more target agents → more output tokens → ~2× latency. Grounding
+stays 1.00 for both, so the model is *correct but late* on group orders — exactly
+the real-time-clock pressure the arena is built to expose. A natural next probe:
+report latency split by command type (single vs group).
+
 ## Validation
-- `pytest -q` → 5 passed.
+- `pytest -q` → 8 passed (world, grounding, recorder).
 
 ## Next steps (open TODOs from CLAUDE.md / code)
 - Concurrent clock (world ticks on a timer thread while the model thinks).
