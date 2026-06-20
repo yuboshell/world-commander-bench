@@ -18,12 +18,13 @@ Matches the `.env.example` default; `.env` written accordingly.
 | Run | Commands | Grounding | Deadline-miss | Latency mean | p50 | p95 |
 |-----|----------|-----------|---------------|--------------|-----|-----|
 | Mock (`--mock`) | 50 | 0.90 | 0.00 | ~0 ms | ~0 | ~0 |
-| **Real, 500 ms tick** | **200** | **1.00** | **0.385** | **609 ms** | **444 ms** | **1079 ms** |
-| Real, recorded (for viz) | 120 | 1.00 | 0.467 | 646 ms | 471 ms | 1102 ms |
+| Real, 500 ms tick (single+all-except mix) | 200 | 1.00 | 0.385 | 609 ms | 444 ms | 1079 ms |
+| **Real, recorded (3-form mix)** | **120** | **1.00** | **0.758** | **851 ms** | **927 ms** | **1237 ms** |
 
-Saved: `runs/qwen3-14b-awq_200.json` (gitignored). Deadline-miss varies run to
-run (0.385–0.467) because latency is wall-clock on a GPU shared with the
-inventory bot.
+Saved: `runs/qwen3-14b-awq_200.json` (gitignored). The 200-cmd run predates the
+positive-subset command form, so it is single-heavy; the 120-cmd run samples all
+three forms ~evenly, which is why its deadline-miss is much higher. Latency is
+wall-clock on a GPU shared with the inventory bot, so numbers vary run to run.
 
 ### Reading the numbers
 - **Grounding 1.00** — at the current scale (8×8 grid, 4 agents, 4 NPCs) the model resolves every command (single-target and "all-except" group forms). Deterministic (temperature 0).
@@ -63,13 +64,19 @@ rings the commanded agent(s) in gold — earlier frames hid agents under one
 another, which is why a "move the red one" frame could show no red. The grounding
 logic was always correct; only the drawing was lossy.
 
-**Finding — bimodal latency.** The histogram splits cleanly: a tight on-time
-cluster ~400–470 ms and a second cluster ~850–1100 ms that misses the 500 ms
-tick. The slow cluster is the **group commands** ("every agent except the X
-one, move …"): more target agents → more output tokens → ~2× latency. Grounding
-stays 1.00 for both, so the model is *correct but late* on group orders — exactly
-the real-time-clock pressure the arena is built to expose. A natural next probe:
-report latency split by command type (single vs group).
+**Finding — latency scales with how many agents a command names.** Split by form
+(3-form run): single-target 456 ms (miss 0.12); positive subset 1009 ms
+(miss 1.00); all-except group 991 ms (miss 1.00). Any **multi-agent** command —
+whether a positive subset ("the blue and green agents") or the all-except group —
+emits more tokens and reliably blows the 500 ms tick, while single-target stays
+under it. Grounding stays 1.00 throughout: the model is *correct but late* on
+multi-agent orders — exactly the real-time-clock pressure the arena exposes.
+A natural method probe: a terser output schema to pull multi-agent latency back
+under the tick.
+
+**Command forms.** The sampler issues three forms, sampled ~evenly: single-target,
+a positively named subset (sizes 2..N), and all-except. (Earlier runs only had
+single + all-except, missing positive subsets like "move the blue and green ones".)
 
 ## Validation
 - `pytest -q` → 8 passed (world, grounding, recorder).

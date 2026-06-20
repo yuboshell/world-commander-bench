@@ -166,17 +166,23 @@ def build_html_report(report: dict, metrics_png: str | Path,
                f"<b>{report['latency_ms_p50']:.0f}</b> / p95 "
                f"<b>{report['latency_ms_p95']:.0f}</b> ms")
 
-    # command-type breakdown (single-target vs compositional "all-except" group)
-    sn, sl, sm = _segment_stats([f for f in frames if len(f.targets) == 1])
-    gn, gl, gm = _segment_stats([f for f in frames if len(f.targets) > 1])
-    cmdtype_rows = (
-        f"<tr><td>single-target<br><span class='hint'>“Move the red agent north.”</span></td>"
-        f"<td>{sn}</td><td>{sl:.0f} ms</td><td>{sm:.2f}</td></tr>"
-    )
-    if gn:
+    # command-type breakdown across the three forms
+    single = [f for f in frames if len(f.targets) == 1]
+    allexcept = [f for f in frames if "except" in f.command_text.lower()]
+    subset = [f for f in frames if len(f.targets) >= 2 and "except" not in f.command_text.lower()]
+    rows_spec = [
+        ("single-target", "“Move the red agent north.”", single),
+        ("positive subset", "“Move the blue and green agents north.”", subset),
+        ("all-except group", "“Every agent except the red one, move north.”", allexcept),
+    ]
+    cmdtype_rows = ""
+    for label, example, fs in rows_spec:
+        if not fs:
+            continue
+        n, lat, miss = _segment_stats(fs)
         cmdtype_rows += (
-            f"<tr><td>group / compositional<br><span class='hint'>“Every agent except the red one, move north.”</span></td>"
-            f"<td>{gn}</td><td>{gl:.0f} ms</td><td>{gm:.2f}</td></tr>"
+            f"<tr><td>{label}<br><span class='hint'>{example}</span></td>"
+            f"<td>{n}</td><td>{lat:.0f} ms</td><td>{miss:.2f}</td></tr>"
         )
 
     m = meta
@@ -253,9 +259,10 @@ concedes to an opponent in a real game.</p>
 </dl>
 
 <h2>Latency by command type</h2>
-<p>The arena issues two command forms. Group (compositional) orders name more
-agents, so the model emits more tokens and takes longer — the usual source of a
-high-latency cluster.</p>
+<p>The arena issues three command forms: single-target, a positively named
+multi-agent subset (“the blue and green agents”), and the all-except group.
+Multi-agent orders name more agents, so the model emits more tokens and takes
+longer — the usual source of a high-latency cluster.</p>
 <table>
   <tr><th>Command type</th><th>count</th><th>mean latency</th><th>deadline miss</th></tr>
   {cmdtype_rows}

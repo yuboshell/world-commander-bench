@@ -4,6 +4,28 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — Add positive multi-agent command form (coverage gap)
+
+**Goal:** Yubo noticed the sampler only issued single-target and all-except
+commands — never a positive subset like "move the blue and green agents".
+
+**Actions:**
+1. TDD (`tests/test_commands.py`): added the positive-subset form to
+   `arena/commands.py` (`_join_names` for natural lists; sampler now picks
+   ~evenly among single / subset(2..N) / all-except).
+2. Report breakdown now splits three forms (`arena/viz.py`).
+3. Regenerated + published the report.
+
+**Result (3-form run, 120 cmds):** grounding 1.00, deadline-miss **0.76** (up
+from ~0.46 — multi-agent commands are now 72% of the stream). By form:
+single 456 ms / miss 0.12; positive subset 1009 ms / miss 1.00; all-except
+991 ms / miss 1.00. Any multi-agent order reliably blows the 500 ms tick;
+single-target stays under. Grounding stays 1.00.
+
+**Tests:** 13 passed.
+
+---
+
 ## 2026-06-19 — report.html becomes the self-contained primary report
 
 **Goal:** make the web page stand alone as the report Yubo reviews — explain the
