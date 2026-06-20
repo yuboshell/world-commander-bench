@@ -42,8 +42,8 @@ def run_session(client, *, grid: int, agents: int, npcs: int,
         world.tick_npcs()                                # the clock advances regardless
 
         if recorder is not None:
-            recorder.add(step, command.text, before, world.snapshot(),
-                         correct, missed, latency_ms)
+            recorder.add(step, command.text, command.targets, before,
+                         world.snapshot(), correct, missed, latency_ms)
 
         # TODO: concurrent clock — tick the world on a timer thread during act(),
         #       so a slow response sees a changed world, not just a dropped action.

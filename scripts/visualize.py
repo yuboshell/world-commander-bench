@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 """Run a recorded arena session and emit visualizations.
 
-    python scripts/visualize.py --mock --commands 60        # offline
-    python scripts/visualize.py --commands 120 --upload     # real model + Drive
+    python scripts/visualize.py --mock --commands 60          # offline
+    python scripts/visualize.py --commands 120                # real model
 
-Writes <outdir>/metrics.png and <outdir>/replay.mp4. With --upload, pushes the
-MP4 to the configured rclone Google Drive remote and prints a shareable link
-(the PNG stays in git; video does not).
+Default output (in <outdir>): metrics.png and a self-contained report.html
+(metrics plot + an interactive grid-replay viewer with slider / step / play at
+an adjustable speed). Open report.html in a browser — no server needed.
+
+Video is opt-in: --mp4 writes replay.mp4; --upload pushes it to the rclone
+Google Drive remote. The default path needs no Drive at all.
 """
 from __future__ import annotations
 
@@ -25,13 +28,10 @@ from arena import viz                          # noqa: E402
 
 
 def upload_to_drive(path: Path, remote: str, folder: str) -> str:
-    """rclone-copy a file to Drive and return a shareable link (or '')."""
     dest = f"{remote}:{folder}"
     subprocess.run(["rclone", "copy", str(path), dest], check=True)
-    out = subprocess.run(
-        ["rclone", "link", f"{dest}/{path.name}"],
-        capture_output=True, text=True,
-    )
+    out = subprocess.run(["rclone", "link", f"{dest}/{path.name}"],
+                         capture_output=True, text=True)
     return out.stdout.strip() if out.returncode == 0 else ""
 
 
@@ -46,8 +46,9 @@ def main() -> None:
     p.add_argument("--tick-ms", type=int, default=cfg.tick_ms)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--outdir", type=str, default="outputs")
-    p.add_argument("--fps", type=int, default=3)
-    p.add_argument("--upload", action="store_true", help="push the MP4 to Google Drive")
+    p.add_argument("--mp4", action="store_true", help="also write an MP4 (needs ffmpeg)")
+    p.add_argument("--fps", type=int, default=2)
+    p.add_argument("--upload", action="store_true", help="push the MP4 to Google Drive (implies --mp4)")
     p.add_argument("--drive-remote", type=str, default="gdrive")
     p.add_argument("--drive-folder", type=str, default="world-commander-bench")
     args = p.parse_args()
@@ -72,14 +73,17 @@ def main() -> None:
     outdir.mkdir(parents=True, exist_ok=True)
     png = viz.plot_metrics(report, metrics.latencies_ms, rec.frames,
                            args.tick_ms, outdir / "metrics.png")
-    mp4 = viz.render_replay(rec.frames, args.grid, args.tick_ms,
-                            outdir / "replay.mp4", fps=args.fps)
-    print(f"wrote {png}\nwrote {mp4}")
+    uris = viz.frame_data_uris(rec.frames, args.grid)
+    html = viz.build_html_report(report, png, uris, outdir / "report.html")
+    print(f"wrote {png}\nwrote {html}")
 
-    if args.upload:
-        link = upload_to_drive(mp4, args.drive_remote, args.drive_folder)
-        print(f"uploaded MP4 -> {args.drive_remote}:{args.drive_folder}")
-        print(f"link: {link}" if link else "link: (rclone link returned nothing)")
+    if args.mp4 or args.upload:
+        mp4 = viz.render_replay(rec.frames, args.grid, args.tick_ms,
+                                outdir / "replay.mp4", fps=args.fps)
+        print(f"wrote {mp4}")
+        if args.upload:
+            link = upload_to_drive(mp4, args.drive_remote, args.drive_folder)
+            print(f"uploaded MP4 -> link: {link or '(rclone link returned nothing)'}")
 
 
 if __name__ == "__main__":

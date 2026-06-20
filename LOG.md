@@ -4,6 +4,35 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — Fix replay rendering; switch from video to a self-contained HTML report
+
+**Goal:** Yubo found the MP4 hard to follow (frames too fast) and noticed
+"move the red one" frames with no red shown; Drive download was inconvenient.
+
+**Diagnosis:** not a model/grounding bug. The world has no collision rule, so
+agents co-locate (51/120 frames); the renderer drew one marker per agent and
+z-order hid co-located ones (12 frames hid the *commanded* agent). Grounding was
+always 1.00 — only the drawing was lossy.
+
+**Actions:**
+1. TDD: added `Frame.targets` (commanded agents) so the renderer can highlight them.
+2. `arena/viz.py` rewrite: fan co-located agents out within their cell; gold ring
+   on the commanded agent(s); new `frame_data_uris` + `build_html_report`.
+3. Output is now a self-contained `report.html` (committed) with an interactive
+   grid viewer (slider / step / play at adjustable speed) — open after `git pull`,
+   no Drive. Video is opt-in (`--mp4`, `--upload`).
+4. Real recorded run (120 cmds): grounding 1.00, deadline-miss 0.49, latency
+   mean 669 / p50 490 / p95 1100 ms. Wrote `report.html` (3.1 MB) + `assets/metrics.png`.
+5. `pytest -q` → 9 passed.
+
+**Outcome:** review is now offline, paced by the user, and faithful (every agent
+visible). Drive video retired from the default path.
+
+**Tradeoff noted:** `report.html` embeds 120 frames (~3 MB) and is re-committed
+each run, so repo history grows. Trim frame count or move to git-LFS if it bites.
+
+---
+
 ## 2026-06-19 — Visualization: metric plots + grid-replay MP4
 
 **Goal:** add visual output (Yubo chose plots + grid-replay MP4, transfer via

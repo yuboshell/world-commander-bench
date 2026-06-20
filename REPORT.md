@@ -37,18 +37,24 @@ The first real run gave **grounding 0.0, 100% deadline miss, ~4000 ms latency**.
 
 ## Visualization
 
-`python scripts/visualize.py --commands 120 --upload` records per-tick state and
-emits two artifacts:
+`python scripts/visualize.py --commands 120` records per-tick state and emits:
 
-- **Metric plots** — `assets/metrics.png` (committed): latency histogram with the
-  tick budget + percentiles, and a per-command latency timeline coloured by
-  on-time vs deadline-miss.
-- **Grid replay** — `outputs/replay.mp4` (gitignored; uploaded to Google Drive):
-  the 8×8 grid evolving one command per video frame, colour-tagged agents +
-  grey NPCs, command text and outcome overlaid.
-  Drive link: https://drive.google.com/open?id=1zKvCLQGgEbTQPccxJsqJR35lPrF06IC6
+- **`report.html`** (committed, self-contained) — open it in a browser after a
+  `git pull`; no server, no Drive. Contains the metrics plot plus an interactive
+  grid-replay viewer: a slider, prev/next step buttons, and play/pause at an
+  adjustable speed, so you control the pace.
+- **`assets/metrics.png`** (committed) — latency histogram with the tick budget +
+  percentiles, and a per-command latency timeline coloured on-time vs miss.
+- Video is opt-in: `--mp4` writes `outputs/replay.mp4`; `--upload` pushes it to
+  Google Drive. The default path produces no video.
 
 ![latency metrics](assets/metrics.png)
+
+**Rendering note.** The world has no collision rule, so agents can share a cell
+(~half of frames). The renderer fans co-located agents out within their cell and
+rings the commanded agent(s) in gold — earlier frames hid agents under one
+another, which is why a "move the red one" frame could show no red. The grounding
+logic was always correct; only the drawing was lossy.
 
 **Finding — bimodal latency.** The histogram splits cleanly: a tight on-time
 cluster ~400–470 ms and a second cluster ~850–1100 ms that misses the 500 ms

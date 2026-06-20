@@ -16,6 +16,7 @@ AgentState = tuple[str, int, int, bool]
 class Frame:
     step: int
     command_text: str
+    targets: list[str]          # controlled agents the command names (for highlight)
     before: list[AgentState]
     after: list[AgentState]
     correct: bool
@@ -27,8 +28,8 @@ class Frame:
 class Recorder:
     frames: list[Frame] = field(default_factory=list)
 
-    def add(self, step: int, command_text: str, before: list[AgentState],
-            after: list[AgentState], correct: bool, missed: bool,
-            latency_ms: float) -> None:
-        self.frames.append(Frame(step, command_text, before, after,
-                                 correct, missed, latency_ms))
+    def add(self, step: int, command_text: str, targets: list[str],
+            before: list[AgentState], after: list[AgentState], correct: bool,
+            missed: bool, latency_ms: float) -> None:
+        self.frames.append(Frame(step, command_text, list(targets), before,
+                                 after, correct, missed, latency_ms))
