@@ -52,7 +52,9 @@ run_model() {
   teardown
 }
 
+run_model 0.6B Qwen/Qwen3-0.6B ""
 run_model 1.7B Qwen/Qwen3-1.7B ""
 run_model 4B Qwen/Qwen3-4B-AWQ "--quantization awq"
 run_model 8B Qwen/Qwen3-8B-AWQ "--quantization awq"
+run_model 14B Qwen/Qwen3-14B-AWQ "--quantization awq"
 echo "=== $(date +%H:%M:%S) SWEEP DONE ==="
