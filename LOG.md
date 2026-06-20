@@ -4,6 +4,29 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — report.html becomes the self-contained primary report
+
+**Goal:** make the web page stand alone as the report Yubo reviews — explain the
+experiment, the grey agents, and every chart/metric.
+
+**Actions:**
+1. Rewrote `build_html_report` (`arena/viz.py`) into a descriptive page: intro
+   ("what this is"), run-configuration table (model/grid/agents/NPCs/tick/seed),
+   metric definitions (grounding, latency, deadline miss), a grid legend
+   (coloured = controlled, grey = NPC on its own clock, gold ring = commanded,
+   fanned markers = same cell), both charts captioned, and a footer.
+2. Added a **latency-by-command-type** table computed from the run.
+3. Threaded run `meta` into the report; verified the rendered page with a headless
+   browser screenshot (favicon 404 is the only console noise).
+4. Regenerated + published to the unlisted Pages link.
+
+**Result (120-cmd real run):** grounding 1.00, deadline-miss 0.46. Breakdown —
+single-target: 76 cmds, mean 471 ms, miss 0.14; group/compositional: 44 cmds,
+mean 1020 ms, **miss 1.00**. Every group command misses the 500 ms tick: the
+bimodal latency is the compositional-addressing cost, now quantified.
+
+---
+
 ## 2026-06-19 — Host the report for co-authors (unlisted GitHub Pages)
 
 **Goal:** give co-authors a clickable link to the report instead of git-pull-and-open.

@@ -22,3 +22,7 @@ outputs/
 .DS_Store
 .idea/
 .vscode/
+
+# browser-verification artifacts
+.playwright-mcp/
+*-fullpage.png

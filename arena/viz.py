@@ -139,18 +139,47 @@ def _data_uri_from_file(path: str | Path) -> str:
     return "data:image/png;base64," + base64.b64encode(data).decode()
 
 
+def _segment_stats(frames: list[Frame]) -> tuple[int, float, float]:
+    """(count, mean latency ms, deadline-miss rate) for a subset of frames."""
+    n = len(frames)
+    if not n:
+        return 0, 0.0, 0.0
+    return (n,
+            statistics.mean(f.latency_ms for f in frames),
+            sum(f.missed for f in frames) / n)
+
+
 def build_html_report(report: dict, metrics_png: str | Path,
                       frame_uris: list[str], out_path: str | Path,
-                      title: str = "World Commander — arena run") -> Path:
-    """Write a single self-contained HTML page: metrics plot + a frame viewer
-    with slider, step buttons, and play/pause at an adjustable speed."""
+                      meta: dict, frames: list[Frame],
+                      title: str = "World Commander — command arena report") -> Path:
+    """Write a single, self-explanatory HTML report: what the experiment is, the
+    run configuration, every metric defined, a grid legend, the charts explained,
+    and an interactive replay (slider / step / play at an adjustable speed)."""
     out_path = Path(out_path)
     metrics_uri = _data_uri_from_file(metrics_png)
     frames_js = "[\n" + ",\n".join(f'"{u}"' for u in frame_uris) + "\n]"
-    summary = (f"{report['commands']} commands · grounding "
-               f"{report['grounding_accuracy']:.2f} · deadline miss "
-               f"{report['deadline_miss_rate']:.2f} · latency p50 "
-               f"{report['latency_ms_p50']:.0f} / p95 {report['latency_ms_p95']:.0f} ms")
+
+    summary = (f"{report['commands']} commands &middot; grounding "
+               f"<b>{report['grounding_accuracy']:.2f}</b> &middot; deadline miss "
+               f"<b>{report['deadline_miss_rate']:.2f}</b> &middot; latency p50 "
+               f"<b>{report['latency_ms_p50']:.0f}</b> / p95 "
+               f"<b>{report['latency_ms_p95']:.0f}</b> ms")
+
+    # command-type breakdown (single-target vs compositional "all-except" group)
+    sn, sl, sm = _segment_stats([f for f in frames if len(f.targets) == 1])
+    gn, gl, gm = _segment_stats([f for f in frames if len(f.targets) > 1])
+    cmdtype_rows = (
+        f"<tr><td>single-target<br><span class='hint'>“Move the red agent north.”</span></td>"
+        f"<td>{sn}</td><td>{sl:.0f} ms</td><td>{sm:.2f}</td></tr>"
+    )
+    if gn:
+        cmdtype_rows += (
+            f"<tr><td>group / compositional<br><span class='hint'>“Every agent except the red one, move north.”</span></td>"
+            f"<td>{gn}</td><td>{gl:.0f} ms</td><td>{gm:.2f}</td></tr>"
+        )
+
+    m = meta
     html = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
@@ -158,24 +187,100 @@ def build_html_report(report: dict, metrics_png: str | Path,
 <title>{title}</title>
 <style>
   body {{ font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 920px;
-         color: #1a1a1a; padding: 0 1rem; }}
-  h1 {{ font-size: 1.3rem; }} h2 {{ font-size: 1.05rem; margin-top: 2rem; }}
-  .summary {{ background:#f3f5f7; border-radius:8px; padding:.6rem .9rem; font-size:.95rem; }}
+         color: #1a1a1a; line-height: 1.5; padding: 0 1rem; }}
+  h1 {{ font-size: 1.4rem; margin-bottom: .2rem; }}
+  h2 {{ font-size: 1.1rem; margin-top: 2.2rem; border-bottom: 1px solid #eee; padding-bottom: .2rem; }}
+  .summary {{ background:#f3f5f7; border-radius:8px; padding:.7rem 1rem; font-size:1rem; }}
+  table {{ border-collapse: collapse; margin:.6rem 0; font-size:.92rem; }}
+  th, td {{ border:1px solid #e3e3e3; padding:.35rem .6rem; text-align:left; vertical-align:top; }}
+  th {{ background:#f7f8fa; }}
+  dl {{ margin:.4rem 0; }} dt {{ font-weight:600; margin-top:.5rem; }} dd {{ margin:0 0 .2rem 1rem; }}
   img.metrics {{ width:100%; border:1px solid #e2e2e2; border-radius:6px; }}
+  .legend {{ list-style:none; padding:0; }}
+  .legend li {{ margin:.25rem 0; }}
+  .dot {{ display:inline-block; width:.85rem; height:.85rem; border-radius:50%;
+          border:1px solid #333; vertical-align:middle; margin-right:.4rem; }}
+  .ring {{ display:inline-block; width:.85rem; height:.85rem; border-radius:50%;
+           border:3px solid gold; vertical-align:middle; margin-right:.4rem; }}
   .viewer {{ text-align:center; }}
-  #frame {{ width:440px; max-width:100%; border:1px solid #e2e2e2; border-radius:6px; }}
+  #frame {{ width:460px; max-width:100%; border:1px solid #e2e2e2; border-radius:6px; }}
   .controls {{ display:flex; gap:.5rem; align-items:center; justify-content:center;
                flex-wrap:wrap; margin:.7rem 0; }}
   button {{ font-size:1rem; padding:.3rem .7rem; cursor:pointer; }}
   input[type=range] {{ width:60%; }}
   .hint {{ color:#666; font-size:.85rem; }}
+  footer {{ margin-top:3rem; color:#777; font-size:.82rem; border-top:1px solid #eee; padding-top:.6rem; }}
 </style></head>
 <body>
 <h1>{title}</h1>
+<p class="hint">Natural-language command of agents in real time, under a latency budget. Phase-1 warm-up of the World Commander program.</p>
 <div class="summary">{summary}</div>
 
-<h2>Metrics</h2>
+<h2>What this is</h2>
+<p>The <b>command arena</b> is a minimal grid world that stress-tests one thing:
+can a language model turn streamed natural-language orders into the right moves
+<i>fast enough to matter</i>. Each step, one order is issued (e.g.
+“Move the red agent north”); the model reads the world state and replies with the
+moves. One order is trivial by design — the test is the <b>stream</b>, many and
+fast. Crucially the clock <b>never pauses</b>: uncontrolled agents move on their
+own every step, so a late command concedes ground, exactly as a slow decision
+concedes to an opponent in a real game.</p>
+
+<h2>Run configuration</h2>
+<table>
+  <tr><th>Model</th><td>{m.get('model','?')}</td></tr>
+  <tr><th>Grid</th><td>{m.get('grid','?')} × {m.get('grid','?')}</td></tr>
+  <tr><th>Controlled agents</th><td>{m.get('agents','?')} (colour-tagged: red, blue, green, yellow)</td></tr>
+  <tr><th>Uncontrolled agents (NPCs)</th><td>{m.get('npcs','?')} (grey; move one random step each tick)</td></tr>
+  <tr><th>Tick budget</th><td>{m.get('tick_ms','?')} ms — the per-command deadline</td></tr>
+  <tr><th>Commands in this run</th><td>{report['commands']}</td></tr>
+  <tr><th>Seed</th><td>{m.get('seed','?')} (world + command stream are reproducible)</td></tr>
+</table>
+
+<h2>Metrics — what each number means</h2>
+<dl>
+  <dt>Grounding accuracy</dt>
+  <dd>Fraction of commands where the model’s move set <b>exactly matches</b> the
+      ground-truth move set (right agents, right direction). Measures
+      understanding, independent of speed.</dd>
+  <dt>Command-to-action latency</dt>
+  <dd>Wall-clock time (ms) from issuing the command to the model returning its
+      action. Reported as mean, median (p50), and 95th percentile (p95).</dd>
+  <dt>Deadline miss rate</dt>
+  <dd>Fraction of commands whose latency exceeded the <b>{m.get('tick_ms','?')} ms tick budget</b>.
+      A late action is <b>dropped</b> — it simply does not happen — and the world
+      ticks on regardless. This is the real-time penalty: correct but late still loses.</dd>
+</dl>
+
+<h2>Latency by command type</h2>
+<p>The arena issues two command forms. Group (compositional) orders name more
+agents, so the model emits more tokens and takes longer — the usual source of a
+high-latency cluster.</p>
+<table>
+  <tr><th>Command type</th><th>count</th><th>mean latency</th><th>deadline miss</th></tr>
+  {cmdtype_rows}
+</table>
+
+<h2>The charts</h2>
 <img class="metrics" src="{metrics_uri}" alt="latency metrics">
+<p class="hint"><b>Top — latency distribution.</b> Histogram of per-command
+latency. The dashed red line is the {m.get('tick_ms','?')} ms tick budget;
+everything to its right is a deadline miss. Dotted lines mark mean / p50 / p95.
+A split (bimodal) shape means two populations of commands — typically fast
+single-target vs slower group orders.<br>
+<b>Bottom — latency over the stream.</b> One dot per command in issue order;
+green = on time, red = deadline miss. Shows whether misses are scattered or
+clustered as the stream runs.</p>
+
+<h2>How to read the grid</h2>
+<ul class="legend">
+  <li><span class="dot" style="background:red"></span><span class="dot" style="background:blue"></span><span class="dot" style="background:green"></span><span class="dot" style="background:gold"></span>
+      <b>Coloured agents</b> — the ones you command (red, blue, green, yellow). The letter is the colour’s initial.</li>
+  <li><span class="dot" style="background:#999"></span><b>Grey agents</b> — uncontrolled NPCs (marked “·”). They move one random step every tick on their own clock; you cannot command them. They are what makes a late command cost something.</li>
+  <li><span class="ring"></span><b>Gold ring</b> — the agent(s) the current command targets.</li>
+  <li><b>Fanned-out markers in one cell</b> — several agents on the same square (the world has no collision rule), spread apart so none is hidden.</li>
+  <li><b>Axes</b> — x is the column (0–{int(m.get('grid',1))-1}, left→right), y is the row (top→bottom); “north” decreases y. The title shows the command, whether it was grounded, and its latency.</li>
+</ul>
 
 <h2>Grid replay <span class="hint">(you control the speed — drag the slider or press Play)</span></h2>
 <div class="viewer">
@@ -226,6 +331,13 @@ slider.oninput = () => {{ stop(); show(parseInt(slider.value, 10)); }};
 speed.onchange = () => {{ if (timer) play(); }};
 show(0);
 </script>
+
+<footer>
+World Commander — Phase-1 command arena. Model: {m.get('model','?')}.
+Self-contained report (images and frames embedded); regenerate with
+<code>scripts/visualize.py</code>. Grounding/latency are real measurements; a
+late action is dropped under the unpausable clock.
+</footer>
 </body></html>
 """
     out_path.write_text(html)

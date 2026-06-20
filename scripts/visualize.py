@@ -74,7 +74,11 @@ def main() -> None:
     png = viz.plot_metrics(report, metrics.latencies_ms, rec.frames,
                            args.tick_ms, outdir / "metrics.png")
     uris = viz.frame_data_uris(rec.frames, args.grid)
-    html = viz.build_html_report(report, png, uris, outdir / "report.html")
+    meta = {"model": "mock" if args.mock else cfg.model, "grid": args.grid,
+            "agents": args.agents, "npcs": args.npcs, "tick_ms": args.tick_ms,
+            "seed": args.seed}
+    html = viz.build_html_report(report, png, uris, outdir / "report.html",
+                                 meta, rec.frames)
     print(f"wrote {png}\nwrote {html}")
 
     if args.mp4 or args.upload:

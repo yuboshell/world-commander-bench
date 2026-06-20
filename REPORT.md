@@ -39,10 +39,12 @@ The first real run gave **grounding 0.0, 100% deadline miss, ~4000 ms latency**.
 
 `python scripts/visualize.py --commands 120` records per-tick state and emits:
 
-- **`report.html`** (committed, self-contained) — open it in a browser after a
-  `git pull`; no server, no Drive. Contains the metrics plot plus an interactive
-  grid-replay viewer: a slider, prev/next step buttons, and play/pause at an
-  adjustable speed, so you control the pace.
+- **`report.html`** (committed, self-contained) — **the primary report**: open it
+  in a browser after a `git pull` (or via the hosted link). It is fully
+  self-explanatory — what the arena is, the run configuration, every metric
+  defined, a latency-by-command-type breakdown, a grid legend (what the grey
+  agents and gold rings mean), the charts explained, and an interactive
+  grid-replay viewer (slider / step / play at adjustable speed).
 - **`assets/metrics.png`** (committed) — latency histogram with the tick budget +
   percentiles, and a per-command latency timeline coloured on-time vs miss.
 - Video is opt-in: `--mp4` writes `outputs/replay.mp4`; `--upload` pushes it to
