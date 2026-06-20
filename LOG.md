@@ -4,6 +4,30 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-20 (overnight autonomous) — first real SC2 LLM latency numbers
+
+**Correction to the prior entry:** the "2s3z smoke, 120 LLM actions" did NOT
+exercise the LLM (those were camera-calibration moves; vLLM saw 0 requests).
+
+**Debug + fix:** SMAC camera calibration never converges on SC2 4.10, so the agent
+never reached the LLM decision phase. Added a calibration cap
+(`WCB_SC2_CALIB_CAP`) in `main_agent_funcs.py` to force-proceed after N steps;
+raised `MAX_LLM_QUERY_TIMES`; added per-decision metric logging (latency, tokens)
+to `gpt_query_runtime` → `outputs/sc2_*.jsonl`. (pvz maps segfault SC2 4.10 —
+version mismatch; SMAC loads fine.)
+
+**First real SC2 numbers (Qwen3-4B-AWQ, 2s3z, 9 decisions, 0 errors):**
+~6 s per decision (6149 / 5578 ms …), **~4000 input tokens** (state + wiki) /
+~230 output tokens. SC2 context makes a decision ~10x the arena (~0.5 s) — the
+efficiency wall the program targets, now measured. Win-rate not yet meaningful
+(calibration capped → imperfect centering); latency/tokens are valid. Recipe +
+caveats in `SC2.md`. Synchronous clock (game waits for model) — real-time layer next.
+
+**Next (this session):** accumulate more decisions, build an SC2 latency report
+section, then schema/model sweeps at SC2 context scale.
+
+---
+
 ## 2026-06-20 — StarCraft II bring-up: 2s3z smoke test passing
 
 **Milestone:** the SC2 testbed runs end-to-end against our own vLLM.

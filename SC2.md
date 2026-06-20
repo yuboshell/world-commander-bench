@@ -4,8 +4,27 @@ Reproducible recipe for running the SC2 testbed against our **own** vLLM. The
 harness code is vendored (gitignored) in `reference/LLM-PySC2`; the integration
 **patches below live only in that copy**, so re-apply them if you re-clone it.
 
-Status: **smoke test passing** (2026-06-20) — `2s3z` runs headless on amax41
-against Qwen3-4B-AWQ on GPU 2; 120 LLM-driven actions, 0 errors, replay saved.
+Status (2026-06-20): **LLM decisions firing end-to-end** in `2s3z` against
+Qwen3-4B-AWQ on GPU 2. First real numbers: ~6 s per decision, ~4000 input tokens
+(SC2 state + wiki) / ~230 output tokens, 0 errors. SC2's long context makes a
+decision ~10x slower than the arena — the core efficiency problem, now measured.
+
+**Correction:** an earlier note claimed a "smoke test passing" with 120 LLM
+actions. That was wrong — those were rule-based camera-calibration moves; vLLM saw
+0 requests. The LLM only fires after the fix below.
+
+**Two integration issues found:**
+- SMAC camera calibration does not converge on SC2 4.10, so the agent never
+  reached the LLM. Worked around with a **calibration cap** (`WCB_SC2_CALIB_CAP`,
+  patch in `main_agent_funcs.py`) that forces the agent to proceed after N steps.
+  Win-rate is therefore not yet meaningful (centering imperfect); latency/token
+  metrics are valid. Proper calibration is a later fix.
+- The `pvz_task*` custom maps segfault SC2 4.10 (`-11`) — they likely need a
+  different game version. SMAC maps load fine.
+
+**Clock caveat:** LLM-PySC2 is synchronous (the game waits for the model), so this
+measures per-decision latency honestly but does not yet enforce the unpausable
+clock — that is our real-time layer, still to add.
 
 ## Components
 - **Game**: SC2 4.10 Linux (`Base75689`), from `http://blzdistsc2-a.akamaihd.net/Linux/SC2.4.10.zip`
