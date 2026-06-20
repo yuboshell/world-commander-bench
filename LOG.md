@@ -4,6 +4,29 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-20 — StarCraft II bring-up: 2s3z smoke test passing
+
+**Milestone:** the SC2 testbed runs end-to-end against our own vLLM.
+
+**Done:**
+1. Installed SC2 4.10 Linux (`Base75689`) at `/mnt/yubo/StarCraftII`; copied
+   LLM-PySC2's `llm_smac`/`llm_pysc2` maps into `$SC2PATH/Maps`.
+2. conda `llm-pysc2` (py3.9) + `pip install -e reference/LLM-PySC2` + `sniffio anyio`.
+3. Patched the vendored repo (see `SC2.md`): Qwen3 no-think + max_tokens in the
+   OpenAI call; FACTORY fallback to GptClient for arbitrary served ids;
+   `2s3z.py` points at our vLLM (env-overridable).
+4. Served Qwen3-4B-AWQ on GPU 2 (port 8001), ran `2s3z` headless.
+
+**Result:** SC2 launched headless, the LLM agent issued **120 actions, 0 errors /
+fallbacks / thinking-mode blowups**, episode completed, replay saved, clean exit.
+Pipeline confirmed: SC2 ↔ pysc2 ↔ LLM-PySC2 ↔ our vLLM. Recipe in `SC2.md`.
+
+**Not yet:** this is a "does the loop drive the game" smoke test, not the
+benchmark. Next: port the arena's real-time layer (wall-clock deadline, drop late
+actions, VRAM ceiling, metrics) onto it; scale the model for win-rate; KV-cache sweep.
+
+---
+
 ## 2026-06-19 — Our own vLLM up; model-size frontier overlay
 
 **Goal:** overlay frontiers across model sizes — needs our own controllable vLLM.
