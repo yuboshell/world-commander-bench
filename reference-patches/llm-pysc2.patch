@@ -1,0 +1,146 @@
+diff --git a/llm_pysc2/agents/llm_pysc2_agent.py b/llm_pysc2/agents/llm_pysc2_agent.py
+index 5b2c72d..dd94b06 100644
+--- a/llm_pysc2/agents/llm_pysc2_agent.py
++++ b/llm_pysc2/agents/llm_pysc2_agent.py
+@@ -60,7 +60,7 @@ class LLMAgent:
+     self.translator_o = llm_observation.FACTORY[self.race][translator_o](name, log_id, config)
+     self.communicator = llm_communicate.FACTORY[self.race][communicator](name, log_id, config)
+ 
+-    self.client = llm_client.FACTORY[self.model_name](name, log_id, config)  # edit it to change llm client
++    self.client = llm_client.FACTORY.get(self.model_name, llm_client.GptClient)(name, log_id, config)  # edit it to change llm client
+     self.client.system_prompt = self.basic_prompt.sp
+     self.client.example_i_prompt = self.basic_prompt.eip
+     self.client.example_o_prompt = self.basic_prompt.eop
+@@ -578,7 +578,7 @@ class Customized_LLMAgent(LLMAgent):
+     self.translator_o = llm_observation.FACTORY[self.race][translator_o](name, log_id, config)
+     self.communicator = llm_communicate.FACTORY[self.race][communicator](name, log_id, config)
+ 
+-    self.client = llm_client.FACTORY[self.model_name](name, log_id, config)
++    self.client = llm_client.FACTORY.get(self.model_name, llm_client.GptClient)(name, log_id, config)
+     self.client.system_prompt = self.basic_prompt.sp
+     self.client.example_i_prompt = self.basic_prompt.eip
+     self.client.example_o_prompt = self.basic_prompt.eop
+diff --git a/llm_pysc2/agents/main_agent_funcs.py b/llm_pysc2/agents/main_agent_funcs.py
+index 5a68a87..83d3a98 100644
+--- a/llm_pysc2/agents/main_agent_funcs.py
++++ b/llm_pysc2/agents/main_agent_funcs.py
+@@ -234,25 +234,27 @@ def main_agent_func0(self, obs):
+         unit_r = unit
+     self.world_xy_calibration = True
+     if unit_f is not None:
+-      offset_min = 0.5 * 128 / self.size_screen
+-      offset_x = (SCREEN_WORLD_GRID / 4) * abs(unit_f.x - self.size_screen / 2) / self.size_screen
+-      offset_y = (SCREEN_WORLD_GRID / 4) * abs(unit_f.y - self.size_screen / 2) / self.size_screen
+-      if unit_f.x > self.size_screen * 0.53:
+-        self.world_x_offset += max(offset_min, offset_x)
+-        self.world_xy_calibration = False
+-        logger.debug("a1 unit_f.x > self.size_screen * 0.52")
+-      if unit_f.x < self.size_screen * 0.47:
+-        self.world_x_offset -= max(offset_min, offset_x)
+-        self.world_xy_calibration = False
+-        logger.debug("b1 unit_f.x < self.size_screen * 0.48")
+-      if unit_f.y > self.size_screen * 0.53:
+-        self.world_y_offset -= max(offset_min, offset_y)
+-        self.world_xy_calibration = False
+-        logger.debug("c1 unit_f.y > self.size_screen * 0.52")
+-      if unit_f.y < self.size_screen * 0.47:
+-        self.world_y_offset += max(offset_min, offset_y)
+-        self.world_xy_calibration = False
+-        logger.debug("d1 unit_f.y < self.size_screen * 0.48")
++      # World Commander — analytic one-shot calibration. Replaces the quarter-step
++      # iteration that never converged on SC2 4.10: ~0.5-world-unit fine steps are
++      # below the camera's move granularity, so unit_f froze just outside the tight
++      # +-3% window. Instead compute the EXACT world-offset correction from the
++      # on-screen error in one shot (screen px -> world units via
++      # SCREEN_WORLD_GRID/size_screen), and accept once within a realistic tolerance
++      # (the camera grid is ~size_screen/SCREEN_WORLD_GRID px per world unit, so +-3%
++      # is unreachable) or after a few corrections (robust to a moving combat unit).
++      # The offset is then analytically correct, so the world->screen mapping used
++      # for clicks is right even when residual centering is approximate.
++      err_x = unit_f.x - self.size_screen / 2
++      err_y = unit_f.y - self.size_screen / 2
++      tol = self.size_screen * 0.06
++      world_per_px = SCREEN_WORLD_GRID / self.size_screen
++      self._wcb_calib_n = getattr(self, '_wcb_calib_n', 0) + 1
++      if abs(err_x) <= tol and abs(err_y) <= tol:
++        self.world_xy_calibration = True
++      else:
++        self.world_x_offset += err_x * world_per_px
++        self.world_y_offset -= err_y * world_per_px
++        self.world_xy_calibration = self._wcb_calib_n >= 4
+       logger.info(
+         f"[ID {self.log_id}] 2.2 正在校准xy世界坐标：校准完成{self.world_xy_calibration} x偏移量{self.world_x_offset} y偏移量{self.world_y_offset}")
+       logger.info(f"[ID {self.log_id}] 2.2                 unit_f.x={unit_f.x} unit_f.y={unit_f.y}")
+diff --git a/llm_pysc2/bin/llm_pysc2/pvz_task1.py b/llm_pysc2/bin/llm_pysc2/pvz_task1.py
+index b48a1db..001d4ce 100644
+--- a/llm_pysc2/bin/llm_pysc2/pvz_task1.py
++++ b/llm_pysc2/bin/llm_pysc2/pvz_task1.py
+@@ -20,6 +20,10 @@ import os
+ class MainAgentLLMPysc2(MainAgent):
+   def __init__(self):
+     config = ConfigPysc2_Harass()
++    config.reset_llm(
++      model_name=os.environ.get('WCB_SC2_MODEL', 'Qwen/Qwen3-4B-AWQ'),
++      api_base=os.environ.get('WCB_SC2_API_BASE', 'http://127.0.0.1:8001/v1'),
++      api_key='EMPTY')
+     for team in config.AGENTS['CombatGroup7']['team']:
+       team['task'] = [
+         {'time': None, 'pos': [52, 32], 'info': "Go to minimap coordinate [52, 32], and try to avoid been detected or attacked before arrival."},
+diff --git a/llm_pysc2/bin/llm_smac/2s3z.py b/llm_pysc2/bin/llm_smac/2s3z.py
+index 158e909..aecfb43 100644
+--- a/llm_pysc2/bin/llm_smac/2s3z.py
++++ b/llm_pysc2/bin/llm_smac/2s3z.py
+@@ -20,6 +20,12 @@ import os
+ class MainAgentLLMSmac(MainAgent):
+   def __init__(self):
+     config = ConfigSmac_2s3z()
++    # Point at our own vLLM (OpenAI-compatible); override via env.
++    config.reset_llm(
++      model_name=os.environ.get('WCB_SC2_MODEL', 'Qwen/Qwen3-4B-AWQ'),
++      api_base=os.environ.get('WCB_SC2_API_BASE', 'http://127.0.0.1:8001/v1'),
++      api_key='EMPTY')
++    config.MAX_LLM_QUERY_TIMES = int(os.environ.get('WCB_SC2_MAX_QUERIES', '100'))
+     super(MainAgentLLMSmac, self).__init__(config, LLMAgent)
+ 
+   def step(self, obs):
+diff --git a/llm_pysc2/lib/llm_client.py b/llm_pysc2/lib/llm_client.py
+index 178a781..2233d80 100644
+--- a/llm_pysc2/lib/llm_client.py
++++ b/llm_pysc2/lib/llm_client.py
+@@ -25,14 +25,35 @@ import time
+ 
+ 
+ def gpt_query_runtime(self, ):
++  import time as _time, os as _os, json as _json
++  _t0 = _time.perf_counter()
+   llm_response = openai.ChatCompletion.create(
+     model=self.model_name,
+     messages=self.messages,
+-    temperature=self.temperature
++    temperature=self.temperature,
++    max_tokens=512,
++    # vLLM passes this through to the chat template; disables Qwen3 <think> so the
++    # model emits the action directly instead of burning the budget on reasoning.
++    chat_template_kwargs={"enable_thinking": False},
+   )
++  _lat_ms = (_time.perf_counter() - _t0) * 1000.0
+   self.query_token_in = llm_response["usage"]["prompt_tokens"]
+   self.query_token_out = llm_response["usage"]["completion_tokens"]
+   self.llm_response = llm_response["choices"][0]["message"]["content"]
++  # World Commander real-time instrumentation: per-decision latency + tokens.
++  _mp = _os.environ.get("WCB_SC2_METRICS")
++  if _mp:
++    try:
++      with open(_mp, "a") as _f:
++        _f.write(_json.dumps({
++          "latency_ms": _lat_ms,
++          "tokens_in": self.query_token_in,
++          "tokens_out": self.query_token_out,
++          "model": self.model_name,
++          "agent": getattr(self, "agent_name", "?"),
++        }) + "\n")
++    except Exception:
++      pass
+ 
+ def claude_query_runtime(self, ):
+   llm_response = openai.ChatCompletion.create(
