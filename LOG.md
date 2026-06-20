@@ -4,6 +4,16 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-20 (overnight) — ⚠️ GitHub account suspended; switched to local-only
+
+`git push` failed: "Your account is suspended." Account-level, needs Yubo to
+contact GitHub Support. See `ALERT-github-suspended.md`. No data lost — work keeps
+committing locally (ahead of origin); the published report is frozen at the last
+successful publish. The loop continues local experiments + local commits and tries
+one push per iteration to detect reinstatement, then resumes push/publish.
+
+---
+
 ## 2026-06-20 (overnight autonomous) — first real SC2 LLM latency numbers
 
 **Correction to the prior entry:** the "2s3z smoke, 120 LLM actions" did NOT
