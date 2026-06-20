@@ -4,6 +4,25 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — Deadline-frontier curve added to the report
+
+**Goal:** answer "is 500 ms too strict?" with a curve instead of a single number.
+
+**Actions (TDD):**
+1. `arena/metrics.py` — `miss_rate(latencies, deadline)` (post-hoc threshold;
+   `tests/test_metrics.py`). The whole frontier is free from one run's latencies.
+2. `arena/viz.py` — `plot_deadline_frontier` (miss rate vs budget, split all /
+   single-target / multi-agent, with the current-deadline marker). New
+   "Deadline frontier" section in `report.html`; `assets/frontier.png` committed.
+3. `scripts/visualize.py` wires it in. Regenerated + published.
+
+**Finding:** single-target commands are feasible at ~500 ms; multi-agent commands
+need ~1500 ms. 500 ms is a *discriminating* point (singles pass, multi fail), not
+necessarily "too strict" — the point is to report the frontier, not one deadline.
+18 tests pass.
+
+---
+
 ## 2026-06-19 — Concurrent clock implemented (the world no longer pauses)
 
 **Goal:** make the arena's clock truly unpausable — the world advances while the

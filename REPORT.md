@@ -78,6 +78,16 @@ under the tick.
 a positively named subset (sizes 2..N), and all-except. (Earlier runs only had
 single + all-except, missing positive subsets like "move the blue and green ones".)
 
+**Deadline frontier.** The 500 ms deadline is the scaffold default (it matches
+AVA's ~2 Hz VLM-commander cadence), not a derived value. Since a miss is just
+`latency > deadline`, the whole miss-rate-vs-budget curve is computable post-hoc
+from one run — this is the benchmark's real output (performance vs budget), not a
+single number. On this setup, single-target commands are feasible at ~500 ms
+while multi-agent commands need ~1500 ms. The curve shifts with model size, GPU,
+and output verbosity.
+
+![deadline frontier](assets/frontier.png)
+
 ## Validation
 - `pytest -q` → 8 passed (world, grounding, recorder).
 

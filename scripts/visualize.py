@@ -73,13 +73,15 @@ def main() -> None:
     outdir.mkdir(parents=True, exist_ok=True)
     png = viz.plot_metrics(report, metrics.latencies_ms, rec.frames,
                            args.tick_ms, outdir / "metrics.png")
+    frontier = viz.plot_deadline_frontier(rec.frames, args.tick_ms,
+                                           outdir / "frontier.png")
     uris = viz.frame_data_uris(rec.frames, args.grid)
     meta = {"model": "mock" if args.mock else cfg.model, "grid": args.grid,
             "agents": args.agents, "npcs": args.npcs, "tick_ms": args.tick_ms,
             "seed": args.seed}
     html = viz.build_html_report(report, png, uris, outdir / "report.html",
-                                 meta, rec.frames)
-    print(f"wrote {png}\nwrote {html}")
+                                 meta, rec.frames, frontier_png=frontier)
+    print(f"wrote {png}\nwrote {frontier}\nwrote {html}")
 
     if args.mp4 or args.upload:
         mp4 = viz.render_replay(rec.frames, args.grid, args.tick_ms,

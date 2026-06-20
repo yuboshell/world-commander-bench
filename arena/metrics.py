@@ -5,6 +5,15 @@ import statistics
 from dataclasses import dataclass, field
 
 
+def miss_rate(latencies_ms: list[float], deadline_ms: float) -> float:
+    """Fraction of commands that exceed a deadline. A deadline miss is just a
+    threshold on the measured latency, so any deadline's miss rate (the whole
+    frontier) is computable post-hoc from one run — no re-inference needed."""
+    if not latencies_ms:
+        return 0.0
+    return sum(l > deadline_ms for l in latencies_ms) / len(latencies_ms)
+
+
 @dataclass
 class Metrics:
     n: int = 0

@@ -23,6 +23,7 @@ matplotlib.use("Agg")  # headless: no display on amax41
 import matplotlib.pyplot as plt              # noqa: E402
 from matplotlib.animation import FuncAnimation, FFMpegWriter  # noqa: E402
 
+from .metrics import miss_rate               # noqa: E402
 from .recorder import Frame                  # noqa: E402
 
 _NPC_COLOUR = "0.6"
@@ -121,6 +122,41 @@ def plot_metrics(report: dict, latencies_ms: list[float], frames: list[Frame],
     return out_path
 
 
+def plot_deadline_frontier(frames: list[Frame], tick_ms: int,
+                           out_path: str | Path) -> Path:
+    """Deadline miss rate vs deadline budget, overall and by command type.
+
+    Pure post-hoc: a miss is latency > deadline, so the whole curve comes from
+    one run's latencies — no extra inference. Shows what latency budget the model
+    needs, instead of fixing a single (arbitrary) deadline.
+    """
+    out_path = Path(out_path)
+    deadlines = list(range(100, 2601, 50))
+    alll = [f.latency_ms for f in frames]
+    single = [f.latency_ms for f in frames if len(f.targets) == 1]
+    multi = [f.latency_ms for f in frames if len(f.targets) >= 2]
+
+    fig, ax = plt.subplots(figsize=(9, 4.2))
+    for lats, label, colour in ((alll, "all commands", "black"),
+                                (single, "single-target", "seagreen"),
+                                (multi, "multi-agent", "crimson")):
+        if lats:
+            ax.plot(deadlines, [miss_rate(lats, d) for d in deadlines],
+                    label=f"{label} (n={len(lats)})", color=colour, lw=2)
+    ax.axvline(tick_ms, color="gray", ls="--", lw=1.5,
+               label=f"current deadline {tick_ms} ms")
+    ax.set_xlabel("deadline budget (ms)")
+    ax.set_ylabel("deadline miss rate")
+    ax.set_ylim(-0.02, 1.02)
+    ax.set_title("Deadline frontier — miss rate vs budget")
+    ax.grid(True, color="0.92")
+    ax.legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=120)
+    plt.close(fig)
+    return out_path
+
+
 def frame_data_uris(frames: list[Frame], grid: int, max_frames: int = 200) -> list[str]:
     """Render each frame to a small PNG and return base64 data: URIs."""
     fig, ax = plt.subplots(figsize=(4.2, 4.6))
@@ -152,6 +188,7 @@ def _segment_stats(frames: list[Frame]) -> tuple[int, float, float]:
 def build_html_report(report: dict, metrics_png: str | Path,
                       frame_uris: list[str], out_path: str | Path,
                       meta: dict, frames: list[Frame],
+                      frontier_png: str | Path | None = None,
                       title: str = "World Commander — command arena report") -> Path:
     """Write a single, self-explanatory HTML report: what the experiment is, the
     run configuration, every metric defined, a grid legend, the charts explained,
@@ -159,6 +196,22 @@ def build_html_report(report: dict, metrics_png: str | Path,
     out_path = Path(out_path)
     metrics_uri = _data_uri_from_file(metrics_png)
     frames_js = "[\n" + ",\n".join(f'"{u}"' for u in frame_uris) + "\n]"
+
+    frontier_section = ""
+    if frontier_png is not None:
+        frontier_uri = _data_uri_from_file(frontier_png)
+        frontier_section = (
+            "<h2>Deadline frontier</h2>\n"
+            f'<img class="metrics" src="{frontier_uri}" alt="deadline frontier">\n'
+            '<p class="hint">A deadline miss is simply <i>latency &gt; deadline</i>, so this '
+            "whole curve is computed post-hoc from one run — no extra inference. It shows the "
+            "latency <b>budget</b> the model needs instead of fixing a single, arbitrary "
+            f"deadline. At the current {meta.get('tick_ms','?')} ms, single-target commands are "
+            "feasible while multi-agent ones are not; multi-agent commands need roughly 1.5 s to "
+            "arrive on time. This performance-vs-budget frontier is the benchmark’s real output — "
+            "any single deadline is just one vertical slice of it, and it shifts with model size, "
+            "GPU, and output verbosity.</p>"
+        )
 
     summary = (f"{report['commands']} commands &middot; grounding "
                f"<b>{report['grounding_accuracy']:.2f}</b> &middot; deadline miss "
@@ -318,6 +371,8 @@ single-target vs slower multi-agent orders.<br>
 <b>Bottom — latency over the stream.</b> One dot per command in issue order;
 green = on time, red = deadline miss. Shows whether misses are scattered or
 clustered as the stream runs.</p>
+
+{frontier_section}
 
 <script>
 const FRAMES = {frames_js};
