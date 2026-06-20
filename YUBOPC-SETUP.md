@@ -16,7 +16,7 @@ My GitHub account (`yubohuangai`) is **suspended** — use **GitLab** only
 
 ## Steps
 
-**1. Repos (GitLab).** Install/auth `glab` first (`winget install GitLab.GLab`, or in
+**1. Repos (GitLab).** Install/auth `glab` first (`winget install GLab.GLab`, or in
 WSL2; then `glab auth login`). Clone:
 - `https://gitlab.com/worldcommander/world-commander-bench.git`  ← this repo
 - `https://gitlab.com/worldcommander/world-commander.git`  (research docs)
