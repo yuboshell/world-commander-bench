@@ -4,6 +4,33 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — Concurrent clock implemented (the world no longer pauses)
+
+**Goal:** make the arena's clock truly unpausable — the world advances while the
+model thinks, the shared real-time primitive SC2 needs.
+
+**Actions (TDD, `tests/test_clock.py`):**
+1. `arena/clock.py` — `ConcurrentClock`: a daemon thread that ticks NPCs every
+   `tick_ms` of wall-clock time; tracks `ticks`; clean start/stop.
+2. `arena/world.py` — `GridWorld` now thread-safe (an `RLock` guards
+   apply/tick_npcs/render_text/snapshot).
+3. `arena/harness.py` — `run_session` starts the clock and runs commands while it
+   ticks; **separate RNGs** for the command stream vs NPC moves so the two threads
+   never share random state. `concurrent=True` by default; `concurrent=False`
+   keeps the deterministic one-tick-per-command fallback.
+4. Regenerated + published the report (replay now shows NPCs drifting during the
+   model's think, not frozen between commands).
+
+**Effect:** a slow response now *concedes ground* — the NPCs move during the
+~0.5–1 s think, so the next decision faces a changed world, not just a dropped
+action. 17 tests pass.
+
+**Decision logged** in the research repo's DECISIONS.md (SC2-readiness +
+sequencing: arena concurrent clock first, then LLM-PySC2 bring-up, then our
+real-time layer; efficiency sweep needs our own vLLM).
+
+---
+
 ## 2026-06-19 — Report reordered (figure-first); SC2 reference codebases vendored
 
 **Actions:**

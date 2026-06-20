@@ -82,7 +82,12 @@ single + all-except, missing positive subsets like "move the blue and green ones
 - `pytest -q` → 8 passed (world, grounding, recorder).
 
 ## Next steps (open TODOs from CLAUDE.md / code)
-- Concurrent clock (world ticks on a timer thread while the model thinks).
+- ~~Concurrent clock~~ **done** — the world now ticks NPCs on a real timer
+  thread during the model's think (`arena/clock.py`); a slow response sees a
+  changed world. Pass `concurrent=False` for the old one-tick-per-command mode.
+- ~~Positive multi-agent command form~~ **done**; ~~per-tick capture for viz~~ **done**.
+- Explicit command-rate control (issue at a target rate, queue overruns).
 - Memory / region commands.
+- StarCraft II bring-up: install SC2 Linux + maps; stand up `reference/LLM-PySC2`
+  pointed at our vLLM; port the real-time deadline layer on top.
 - Efficiency sweep (KV-cache policy, VRAM budgets) — needs our **own** controllable vLLM, not the shared instance.
-- Optional: per-tick state capture for visualization (see LOG.md discussion).

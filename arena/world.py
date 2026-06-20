@@ -7,6 +7,7 @@ ground). Coordinates are (x, y) with the origin at the top-left; N decreases y.
 from __future__ import annotations
 
 import random
+import threading
 from dataclasses import dataclass, field
 
 DIRECTIONS = {"N": (0, -1), "S": (0, 1), "E": (1, 0), "W": (-1, 0)}
@@ -26,6 +27,10 @@ class GridWorld:
     size: int
     agents: list[Agent] = field(default_factory=list)
     rng: random.Random = field(default_factory=random.Random)
+    # Guards agent positions: the concurrent clock ticks NPCs on another thread
+    # while the main thread reads (render/snapshot) and applies moves.
+    _lock: threading.RLock = field(default_factory=threading.RLock,
+                                   repr=False, compare=False)
 
     @classmethod
     def random_init(cls, size: int, n_controlled: int, n_npcs: int,
@@ -62,26 +67,30 @@ class GridWorld:
 
     def apply(self, moves: list[tuple[str, str]]) -> None:
         """Apply (agent_name, direction) moves — controlled agents only."""
-        for name, direction in moves:
-            a = self.by_name(name)
-            if a is not None and a.controlled and direction in DIRECTIONS:
-                self._move(a, direction)
+        with self._lock:
+            for name, direction in moves:
+                a = self.by_name(name)
+                if a is not None and a.controlled and direction in DIRECTIONS:
+                    self._move(a, direction)
 
     def tick_npcs(self) -> None:
         """Advance the uncontrolled agents one random step (the unpausing clock)."""
-        for a in self.agents:
-            if not a.controlled:
-                self._move(a, self.rng.choice(list(DIRECTIONS)))
+        with self._lock:
+            for a in self.agents:
+                if not a.controlled:
+                    self._move(a, self.rng.choice(list(DIRECTIONS)))
 
     def snapshot(self) -> list[tuple[str, int, int, bool]]:
         """A cheap (name, x, y, controlled) snapshot of every agent."""
-        return [(a.name, a.x, a.y, a.controlled) for a in self.agents]
+        with self._lock:
+            return [(a.name, a.x, a.y, a.controlled) for a in self.agents]
 
     def render_text(self) -> str:
         """Compact text state for the model prompt."""
-        ctrl = ", ".join(f"{a.name} at ({a.x},{a.y})" for a in self.controlled())
-        npcs = ", ".join(f"{a.name} at ({a.x},{a.y})"
-                         for a in self.agents if not a.controlled)
+        with self._lock:
+            ctrl = ", ".join(f"{a.name} at ({a.x},{a.y})" for a in self.controlled())
+            npcs = ", ".join(f"{a.name} at ({a.x},{a.y})"
+                             for a in self.agents if not a.controlled)
         return (f"Grid {self.size}x{self.size} (x:0-{self.size - 1} left to right, "
                 f"y:0-{self.size - 1} top to bottom; N decreases y).\n"
                 f"Your agents: {ctrl}.\n"
