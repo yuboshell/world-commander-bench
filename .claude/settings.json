@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/auto-commit-push.sh\"",
+            "timeout": 60,
+            "statusMessage": "auto-commit + push"
+          }
+        ]
+      }
+    ]
+  }
+}

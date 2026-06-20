@@ -61,6 +61,10 @@ class RealClient:
             ],
             temperature=0.0,
             max_tokens=128,
+            # Reasoning models (Qwen3 etc.) otherwise spend the whole token
+            # budget on <think> and never emit the JSON. The arena wants a
+            # direct action under a real-time clock, so turn thinking off.
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
         )
         return parse_moves(resp.choices[0].message.content or "")
 
