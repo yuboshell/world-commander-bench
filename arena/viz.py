@@ -197,6 +197,42 @@ def plot_schema_frontiers(results: list[dict], tick_ms: int,
     return out_path
 
 
+def plot_sc2_latency(rows: list[dict], out_path: str | Path) -> Path:
+    """SC2 decision latency: histogram + deadline frontier, from metric rows
+    ({latency_ms, tokens_in, tokens_out, ...} per LLM decision)."""
+    out_path = Path(out_path)
+    lat = [r["latency_ms"] for r in rows]
+    deadlines = list(range(250, 10001, 250))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.2))
+
+    ax1.hist(lat, bins=20, color="indianred", edgecolor="white")
+    ax1.axvline(statistics.median(lat), color="black", ls=":", lw=1,
+                label=f"p50 {statistics.median(lat):.0f} ms")
+    for d, lab in ((500, "0.5 s"), (2000, "2 s")):
+        ax1.axvline(d, color="gray", ls="--", lw=1)
+        ax1.text(d, ax1.get_ylim()[1] * 0.9, f" {lab}", fontsize=8, rotation=90, va="top")
+    ax1.set_xlabel("decision latency (ms)")
+    ax1.set_ylabel("decisions")
+    ax1.set_title("SC2 decision latency")
+    ax1.legend(fontsize=8)
+
+    ax2.plot(deadlines, [miss_rate(lat, d) for d in deadlines], color="crimson", lw=2)
+    ax2.axvline(2000, color="gray", ls="--", lw=1, label="2 s")
+    ax2.set_xlabel("deadline budget (ms)")
+    ax2.set_ylabel("deadline miss rate")
+    ax2.set_ylim(-0.02, 1.02)
+    ax2.set_title("SC2 deadline frontier")
+    ax2.grid(True, color="0.92")
+    ax2.legend(fontsize=8)
+
+    ti = statistics.mean(r["tokens_in"] for r in rows)
+    fig.suptitle(f"StarCraft II — {len(rows)} decisions, ~{ti:.0f} input tokens each")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=120)
+    plt.close(fig)
+    return out_path
+
+
 def frame_data_uris(frames: list[Frame], grid: int, max_frames: int = 200) -> list[str]:
     """Render each frame to a small PNG and return base64 data: URIs."""
     fig, ax = plt.subplots(figsize=(4.2, 4.6))

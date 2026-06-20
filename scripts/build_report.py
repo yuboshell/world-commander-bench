@@ -133,6 +133,39 @@ def main() -> None:
             "accuracy here. The frontier is hardware-dependent.",
         })
 
+    # --- StarCraft II testbed (if metrics exist) ---
+    sc2_path = outdir / "sc2_2s3z_4B.jsonl"
+    if sc2_path.exists():
+        sc2_rows = [json.loads(l) for l in open(sc2_path) if l.strip()]
+        if sc2_rows:
+            sc2_png = viz.plot_sc2_latency(sc2_rows, outdir / "sc2_latency.png")
+            lat = [r["latency_ms"] for r in sc2_rows]
+            budget10 = next((d for d in range(250, 20001, 250)
+                             if miss_rate(lat, d) <= 0.10), ">20000")
+            sc2_table = (
+                "<table>\n<tr><th>decisions</th><th>p50 latency</th>"
+                "<th>input tokens (mean)</th><th>output tokens (mean)</th>"
+                "<th>miss@2s</th><th>budget for &lt;10% miss</th></tr>\n"
+                f"<tr><td>{len(sc2_rows)}</td><td>{_median(lat):.0f} ms</td>"
+                f"<td>{statistics.mean(r['tokens_in'] for r in sc2_rows):.0f}</td>"
+                f"<td>{statistics.mean(r['tokens_out'] for r in sc2_rows):.0f}</td>"
+                f"<td>{miss_rate(lat, 2000):.2f}</td><td>{budget10} ms</td></tr></table>")
+            sections.append({
+                "title": "StarCraft II testbed — first decision-latency numbers",
+                "png": sc2_png, "table": sc2_table,
+                "intro": "<p>The same streaming-command core, scaled up to StarCraft II "
+                "(LLM-PySC2, headless, our own vLLM). Each decision now carries the full "
+                "game state plus unit/ability wiki — <b>~3000+ input tokens</b> vs ~200 in "
+                "the arena — so a single decision takes <b>seconds</b>, not milliseconds. "
+                "This is the efficiency wall the program exists to attack.</p>",
+                "caption": "First real SC2 numbers (Qwen3-4B-AWQ, 2s3z). The model needs "
+                "an ~8 s budget to land most decisions on time; at any real-time deadline "
+                "(≤2 s) it misses every one. Win-rate is not yet meaningful here "
+                "(camera calibration is capped to reach the LLM, so unit centering is "
+                "imperfect) and the clock is synchronous (the game waits for the model) — "
+                "both are next on the list. Latency and token counts are valid measurements.",
+            })
+
     # --- body from the json baseline run ---
     rep = base_m.report()
     png = viz.plot_metrics(rep, base_m.latencies_ms, base_rec.frames,
@@ -155,6 +188,8 @@ def main() -> None:
                   (s_overlay, "assets/schema_frontier.png")]
         if mresults:
             copies.append((outdir / "model_frontier.png", "assets/model_frontier.png"))
+        if (outdir / "sc2_latency.png").exists():
+            copies.append((outdir / "sc2_latency.png", "assets/sc2_latency.png"))
         for src, dst in copies:
             (repo / dst).write_bytes(Path(src).read_bytes())
         subprocess.run(["bash", "scripts/publish_report.sh"], cwd=repo, check=True)
