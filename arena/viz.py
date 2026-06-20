@@ -269,6 +269,40 @@ def plot_sc2_model_overlay(results: list[dict], out_path: str | Path) -> Path:
     return out_path
 
 
+def plot_rate_frontier(models: list[dict], deadline_ms: float, out_path: str | Path,
+                       title: str = "Command-stream load — deadline misses vs arrival rate") -> Path:
+    """Per-model load curves: x = command arrival rate (Hz). Left: % of commands
+    that produced no on-time action (late or dropped). Right: p95 response time
+    (queue wait + service). Each model's service rate (1/mean-latency) is drawn as
+    a vertical dotted line — the knee where backlog starts to run away."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.3))
+    for m in models:
+        rows = m["rows"]
+        x = [r["rate_hz"] for r in rows]
+        ax1.plot(x, [r["unmet_rate"] * 100 for r in rows], marker=".", label=m["label"])
+        color = ax1.lines[-1].get_color()
+        ax1.axvline(m["service_hz"], color=color, ls=":", alpha=0.5)
+        ax2.plot(x, [r["p95_response_ms"] for r in rows], marker=".", color=color, label=m["label"])
+    ax1.set_xlabel("command arrival rate (Hz)")
+    ax1.set_ylabel("unmet commands (%)")
+    ax1.set_title(f"Deadline misses (deadline {deadline_ms:.0f} ms)")
+    ax1.set_ylim(-2, 102)
+    ax1.grid(alpha=0.3)
+    ax1.legend(fontsize=8, title="model (dotted = its service rate)")
+    ax2.axhline(deadline_ms, color="k", ls="--", alpha=0.5, label=f"deadline {deadline_ms:.0f} ms")
+    ax2.set_xlabel("command arrival rate (Hz)")
+    ax2.set_ylabel("p95 response (ms, log)")
+    ax2.set_title("Tail response under load")
+    ax2.set_yscale("log")
+    ax2.grid(alpha=0.3, which="both")
+    ax2.legend(fontsize=8)
+    fig.suptitle(title)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=120)
+    plt.close(fig)
+    return Path(out_path)
+
+
 def frame_data_uris(frames: list[Frame], grid: int, max_frames: int = 200) -> list[str]:
     """Render each frame to a small PNG and return base64 data: URIs."""
     fig, ax = plt.subplots(figsize=(4.2, 4.6))

@@ -5,7 +5,28 @@ response time is queue-wait + service (model latency); it misses if that exceeds
 the deadline. With a bounded queue, overruns are dropped. All expected values
 below are hand-computed.
 """
-from arena.rate import simulate_stream
+from arena.rate import load_curve, simulate_stream
+
+
+def test_load_curve_summarizes_each_rate():
+    rows = load_curve([100.0] * 6, [1.0, 20.0], deadline_ms=200.0)
+    assert [r["rate_hz"] for r in rows] == [1.0, 20.0]
+    # 1 Hz: no queue, nothing unmet
+    assert rows[0]["unmet_rate"] == 0.0
+    assert rows[0]["stable"] is True
+    # 20 Hz: backlog -> last 3 of 6 miss
+    assert rows[1]["miss_rate"] == 0.5
+    assert rows[1]["drop_rate"] == 0.0
+    assert rows[1]["unmet_rate"] == 0.5
+    assert rows[1]["stable"] is False
+
+
+def test_load_curve_counts_drops_as_unmet():
+    rows = load_curve([100.0] * 6, [20.0], deadline_ms=10_000.0, queue_cap=2)
+    # 2 dropped of 6, none late -> unmet is the drops
+    assert rows[0]["drop_rate"] == 2 / 6
+    assert rows[0]["miss_rate"] == 0.0
+    assert rows[0]["unmet_rate"] == 2 / 6
 
 
 def test_no_queue_when_arrivals_slower_than_service():

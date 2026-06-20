@@ -14,6 +14,7 @@ in-system bound are dropped (overrun) rather than queued unboundedly.
 """
 from __future__ import annotations
 
+import math
 from collections import deque
 from dataclasses import dataclass
 
@@ -78,3 +79,37 @@ def simulate_stream(latencies_ms, rate_hz: float, deadline_ms: float,
     mean_service = sum(latencies_ms) / n if n else 0.0
     stable = mean_service == 0.0 or interarrival > mean_service
     return StreamResult(arrivals, responses, missed, dropped, max_in_system, stable)
+
+
+def _percentile(xs: list[float], q: float) -> float:
+    if not xs:
+        return 0.0
+    s = sorted(xs)
+    idx = max(0, math.ceil(q / 100.0 * len(s)) - 1)
+    return s[idx]
+
+
+def load_curve(latencies_ms, rates_hz, deadline_ms: float,
+               queue_cap: int | None = None) -> list[dict]:
+    """Replay `latencies_ms` at each rate in `rates_hz`; return one summary row
+    per rate. `unmet_rate` = commands that produced no on-time action (late OR
+    dropped) — the headline load metric."""
+    latencies_ms = list(latencies_ms)
+    n = len(latencies_ms) or 1
+    rows = []
+    for rate in rates_hz:
+        r = simulate_stream(latencies_ms, rate, deadline_ms, queue_cap)
+        n_miss = sum(r.missed)
+        n_drop = sum(r.dropped)
+        served_resp = [x for x in r.responses if x is not None]
+        rows.append({
+            "rate_hz": rate,
+            "miss_rate": n_miss / n,
+            "drop_rate": n_drop / n,
+            "unmet_rate": (n_miss + n_drop) / n,
+            "served": r.served,
+            "max_in_system": r.max_in_system,
+            "stable": r.stable,
+            "p95_response_ms": _percentile(served_resp, 95),
+        })
+    return rows
