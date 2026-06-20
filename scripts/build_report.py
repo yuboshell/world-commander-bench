@@ -127,10 +127,54 @@ def main() -> None:
         sections.append({
             "title": "Model-size comparison", "png": m_overlay,
             "table": model_table(mresults, args.tick_ms),
-            "caption": "Same task, different model sizes (verbose JSON schema). "
-            "Smaller models lose grounding; on this single-GPU 2080 Ti they are not "
-            "much faster (fixed per-call overhead dominates), so size mainly trades "
-            "accuracy here. The frontier is hardware-dependent.",
+            "caption": "Controlled back-to-back runs on a dedicated GPU 2. 4B is the "
+            "sweet spot — top grounding and lowest latency; below 4B grounding "
+            "collapses (0.41–0.54) and latency is actually <b>worse</b> (output is "
+            "~2.5 tokens for every model, so the small ones are not rambling — they "
+            "just run slower kernels). 8B matches 4B for no gain; 14B-AWQ will not serve "
+            "on one 2080 Ti. The frontier is hardware-dependent.",
+        })
+
+        # --- command-stream load curve (replays model latencies, no extra GPU) ---
+        from arena.rate import load_curve
+        rate_models, services = [], []
+        for r in mresults:
+            lat = [f.latency_ms for f in r["frames"]]
+            svc = 1000.0 / (sum(lat) / len(lat))
+            services.append(svc)
+            rate_models.append({"label": r["name"], "service_hz": svc, "_lat": lat})
+        lo, hi = 0.2 * min(services), 2.0 * max(services)
+        rates = [lo + i * (hi - lo) / 24 for i in range(25)]
+        rate_deadline = 2000.0
+        for rm in rate_models:
+            rm["rows"] = load_curve(rm["_lat"], rates, rate_deadline)
+            ok = [row["rate_hz"] for row in rm["rows"] if row["unmet_rate"] <= 0.1]
+            rm["sustainable_hz"] = max(ok) if ok else 0.0
+        rate_models.sort(key=lambda m: m["service_hz"], reverse=True)
+        rate_png = viz.plot_rate_frontier(rate_models, rate_deadline,
+                                          outdir / "rate_frontier.png")
+        rrows = "".join(
+            f"<tr><td>{m['label']}</td><td>{m['service_hz']:.2f} Hz</td>"
+            f"<td>{m['sustainable_hz']:.2f} Hz</td></tr>" for m in rate_models)
+        rate_table = ("<table>\n<tr><th>model</th><th>service rate (1/mean latency)</th>"
+                      "<th>sustainable rate (&le;10% unmet @2s)</th></tr>\n"
+                      f"{rrows}</table>")
+        sections.append({
+            "title": "Command-stream load — how fast can commands arrive?",
+            "png": rate_png,
+            "intro": "<p>The arena's real test is the <b>stream</b>: commands arrive at "
+            "some rate while one model serves them one at a time. Arriving faster than the "
+            "model answers, they <b>queue</b> — and a command's deadline runs from "
+            "when it <b>arrived</b>, not when the model reached it. We replay each model's "
+            "recorded latencies through a single-server queue (<code>arena/rate.py</code>) "
+            "at rising arrival rates — no extra GPU.</p>",
+            "table": rate_table,
+            "caption": "Left: share of commands with no on-time action (late or dropped) "
+            "vs arrival rate; each dotted line is a model's service rate, where backlog "
+            "runs away. Right: p95 response (queue wait + service). Sustainable command "
+            "rate tracks model speed (~2 Hz for 4B/8B). Shown at a generous 2 s deadline "
+            "to isolate the load limit; at the arena's 500 ms deadline per-command latency "
+            "already binds.",
         })
 
     # --- StarCraft II testbed (if metrics exist) ---
