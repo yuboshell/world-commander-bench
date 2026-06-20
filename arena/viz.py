@@ -260,6 +260,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
         uri = _data_uri_from_file(sec["png"])
         extra_sections_html += (
             f"<h2>{sec['title']}</h2>\n"
+            f"{sec.get('intro', '')}\n"          # raw HTML, rendered before the figure
             f'<img class="metrics" src="{uri}" alt="{sec["title"]}">\n'
             f"{sec.get('table', '')}\n"
             f'<p class="hint">{sec.get("caption", "")}</p>\n'
@@ -402,6 +403,13 @@ where the time goes.</p>
       A late action is <b>dropped</b> — it simply does not happen — and the world
       ticks on regardless. This is the real-time penalty: correct but late still loses.</dd>
 </dl>
+<p class="hint"><b>Why {m.get('tick_ms','?')} ms?</b> It is a real-time commander
+cadence — about two decisions per second, matching screenshot-driven VLM
+commanders for StarCraft II such as AVA (~2&nbsp;Hz). It is deliberately one
+operating point, not a hard truth: a single deadline that everything passes (or
+fails) measures nothing, whereas {m.get('tick_ms','?')} ms is discriminating here.
+The right deliverable is the whole <i>deadline frontier</i> below — performance vs
+budget — of which any single deadline is just one vertical slice.</p>
 
 <h2>Latency by command type</h2>
 <p>The arena issues three command forms: single-target, a positively named

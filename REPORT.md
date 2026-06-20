@@ -88,8 +88,11 @@ and output verbosity.
 
 ![deadline frontier](assets/frontier.png)
 
-**Output schema is the dominant latency lever (method result).** Running the same
-task under three reply formats (`scripts/schema_sweep.py`), all at grounding 1.00:
+**Output schema is the dominant latency lever (method result).** A model generates
+its reply one *output token* at a time (a token ≈ ¾ of a word), one forward pass
+each, so latency grows with the number of output tokens. An *output schema* is the
+required reply format (a system-prompt instruction + a parser). Running the same
+task under three schemas (`scripts/schema_sweep.py`), all at grounding 1.00:
 
 | schema | example | p50 latency | miss@500ms |
 |---|---|---|---|

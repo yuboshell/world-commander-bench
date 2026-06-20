@@ -96,8 +96,24 @@ def main() -> None:
 
     # --- model-size overlay (from disk) ---
     mresults = load_model_results(outdir)
+    schema_intro = (
+        "<p>A language model writes its reply one <b>output token</b> at a time "
+        "(a token is a short chunk of text, very roughly &frac34; of a word), one "
+        "forward pass each, so <b>latency grows with the number of output tokens</b>. "
+        "An <b>output schema</b> is the format we require the reply to take (a "
+        "system-prompt instruction plus a parser). Same task, fewer tokens out, "
+        "lower latency. We compare three:</p>\n"
+        "<ul>\n"
+        "<li><b>json</b> (verbose baseline): <code>[{&quot;agent&quot;:&quot;red&quot;,"
+        "&quot;dir&quot;:&quot;N&quot;}]</code> — explicit keys per move, most tokens.</li>\n"
+        "<li><b>pairs</b> (terse): <code>red:N blue:N</code> — one agent:dir token per move.</li>\n"
+        "<li><b>grouped</b> (terse, exploits structure): <code>N: red blue</code> — the "
+        "direction once, then the agents moving it. Shortest, since every command shares "
+        "one direction across its targets.</li>\n"
+        "</ul>"
+    )
     sections = [{
-        "title": "Output-schema comparison", "png": s_overlay,
+        "title": "Output-schema comparison", "png": s_overlay, "intro": schema_intro,
         "table": build_schema_table(sresults, args.tick_ms),
         "caption": "Same task, different reply formats. A terser schema emits "
         "fewer output tokens, so its frontier sits to the left. Largest effect on "
