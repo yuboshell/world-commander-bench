@@ -302,7 +302,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
                       meta: dict, frames: list[Frame],
                       frontier_png: str | Path | None = None,
                       extra_sections: list[dict] | None = None,
-                      title: str = "World Commander — command arena report") -> Path:
+                      title: str = "World Commander — benchmark report (command arena + StarCraft II)") -> Path:
     """Write a single, self-explanatory HTML report: what the experiment is, the
     run configuration, every metric defined, a grid legend, the charts explained,
     and an interactive replay (slider / step / play at an adjustable speed)."""
