@@ -14,6 +14,28 @@ def miss_rate(latencies_ms: list[float], deadline_ms: float) -> float:
     return sum(l > deadline_ms for l in latencies_ms) / len(latencies_ms)
 
 
+def deadline_report(latencies_ms: list[float], deadline_ms: float) -> dict:
+    """Real-time accounting for a measured decision stream at a given deadline:
+    how many actions land in time vs are dropped (late), plus the synchronous
+    decision throughput (decisions per real second). The first piece of the
+    real-time layer — applies to both arena and SC2 latency logs, post-hoc."""
+    n = len(latencies_ms)
+    if n == 0:
+        return {"n": 0, "deadline_ms": deadline_ms, "missed": 0, "on_time": 0,
+                "miss_rate": 0.0, "mean_ms": 0.0, "throughput_hz": 0.0}
+    missed = sum(l > deadline_ms for l in latencies_ms)
+    mean_ms = statistics.mean(latencies_ms)
+    return {
+        "n": n,
+        "deadline_ms": deadline_ms,
+        "missed": missed,
+        "on_time": n - missed,
+        "miss_rate": missed / n,
+        "mean_ms": mean_ms,
+        "throughput_hz": 1000.0 / mean_ms if mean_ms else 0.0,
+    }
+
+
 @dataclass
 class Metrics:
     n: int = 0
