@@ -26,6 +26,39 @@ positive-subset command form, so it is single-heavy; the 120-cmd run samples all
 three forms ~evenly, which is why its deadline-miss is much higher. Latency is
 wall-clock on a GPU shared with the inventory bot, so numbers vary run to run.
 
+## Controlled model-size + command-rate sweep (2026-06-20)
+
+Re-ran the model-size sweep **back-to-back on a dedicated GPU 2** (our *own* vLLM,
+not the shared `:8000` instance), 120 commands each, identical conditions — so the
+cross-model numbers are comparable (the earlier overnight numbers were collected
+under varying shared-GPU load and are not).
+
+| model | grounding | mean ms | p50 | p95 | sustainable cmd rate\* |
+|---|---|---|---|---|---|
+| **4B-AWQ** | **1.00** | **499** | 555 | 722 | **1.98 Hz** |
+| 8B-AWQ | 1.00 | 511 | 563 | 755 | 1.98 Hz |
+| 1.7B | 0.41 | 770 | 700 | 1624 | 0.88 Hz |
+| 0.6B | 0.54 | 749 | 916 | 1007 | 1.20 Hz |
+
+\*highest command arrival rate with ≤10% unmet (late *or* dropped) at a 2 s
+deadline, from the single-server queue model (`arena/rate.py`,
+`scripts/rate_sweep.py`) — replays each model's recorded latencies, no extra GPU.
+
+**Findings:**
+- **4B is the sweet spot** — top accuracy *and* lowest latency *and* highest
+  sustainable command rate. 8B matches it but costs more for no gain.
+- **Smaller is not faster, and it's less accurate.** Output is ~2.5 tokens for
+  *every* model (the terse schema works regardless), yet 0.6B/1.7B are *slower*
+  than 4B/8B (likely AWQ-kernel / Turing attention-backend effects) and their
+  grounding collapses (0.41–0.54) — a capability cliff below 4B.
+- **Command-rate ceiling:** even at a generous 2 s deadline, throughput caps near
+  each model's service rate (~2 Hz for 4B/8B); past it, backlog pushes responses
+  over the deadline. At the real 500 ms deadline every model already misses
+  one-at-a-time, so the binding limit there is per-command latency, not arrival rate.
+- **14B-AWQ won't serve** on a single 2080 Ti with this vLLM (EngineCore init fails —
+  FlashInfer/FA2 needs sm≥8.0; Turing is sm_75). Use the multi-GPU shared `:8000`
+  instance or a newer GPU for 14B.
+
 ### Reading the numbers
 - **Grounding 1.00** — at the current scale (8×8 grid, 4 agents, 4 NPCs) the model resolves every command (single-target and "all-except" group forms). Deterministic (temperature 0).
 - **Deadline misses ~0.39** — ~40% of commands exceed the 500 ms tick budget. p50 (444 ms) sits right on the line, so the rate is sensitive and wobbles run-to-run (observed 0.385–0.425) under shared-GPU contention. p95 ~1080 ms is the tail.
