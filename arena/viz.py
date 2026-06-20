@@ -233,6 +233,42 @@ def plot_sc2_latency(rows: list[dict], out_path: str | Path) -> Path:
     return out_path
 
 
+def plot_sc2_model_overlay(results: list[dict], out_path: str | Path) -> Path:
+    """Overlay SC2 deadline frontiers per model size. results = [{name, rows}],
+    rows = metric dicts with latency_ms. Left: miss-vs-budget per model. Right:
+    p50 latency by model (latency is monotone in size at SC2 context scale)."""
+    out_path = Path(out_path)
+    deadlines = list(range(250, 10001, 250))
+    colours = ["seagreen", "steelblue", "crimson", "darkorange", "purple"]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.3))
+
+    p50s = []
+    for r, c in zip(results, colours):
+        lat = [x["latency_ms"] for x in r["rows"]]
+        ax1.plot(deadlines, [miss_rate(lat, d) for d in deadlines],
+                 label=f"{r['name']} (n={len(lat)})", color=c, lw=2)
+        p50s.append((r["name"], statistics.median(lat), c))
+    ax1.axvline(2000, color="gray", ls="--", lw=1.5, label="2 s")
+    ax1.set_xlabel("deadline budget (ms)")
+    ax1.set_ylabel("deadline miss rate")
+    ax1.set_ylim(-0.02, 1.02)
+    ax1.set_title("SC2 deadline frontier per model")
+    ax1.grid(True, color="0.92")
+    ax1.legend(fontsize=8, title="model")
+
+    ax2.bar([n for n, _, _ in p50s], [v for _, v, _ in p50s],
+            color=[c for _, _, c in p50s])
+    ax2.set_ylabel("p50 decision latency (ms)")
+    ax2.set_title("SC2 p50 latency by model size")
+    ax2.grid(True, axis="y", color="0.92")
+
+    fig.suptitle("StarCraft II — latency vs model size (~3000-token context)")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=120)
+    plt.close(fig)
+    return out_path
+
+
 def frame_data_uris(frames: list[Frame], grid: int, max_frames: int = 200) -> list[str]:
     """Render each frame to a small PNG and return base64 data: URIs."""
     fig, ax = plt.subplots(figsize=(4.2, 4.6))
