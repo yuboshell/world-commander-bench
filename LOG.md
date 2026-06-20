@@ -4,6 +4,28 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — Our own vLLM up; model-size frontier overlay
+
+**Goal:** overlay frontiers across model sizes — needs our own controllable vLLM.
+
+**Actions:**
+1. Stood up our own vLLM on the free **GPU 2** (port 8001), separate from the
+   shared inventory-bot instance (GPUs 0/1, port 8000).
+2. `scripts/serve_sweep.sh` — serve each size on GPU 2, run the arena, tear down
+   (teardown scoped to GPU 2 + port 8001 only, never the shared server).
+   `scripts/run_one_model.py` runs one endpoint -> compact JSON.
+3. Generalized the report: `build_html_report` takes stackable `extra_sections`;
+   the overlay plot takes generic titles. `scripts/build_report.py` assembles the
+   full report (baseline body + schema overlay + model-size overlay) and publishes.
+4. Sized Qwen3 0.6B/1.7B (fp16) + 4B/8B (AWQ) on GPU 2 + 14B (shared).
+
+**Result (90 cmds, JSON schema):** 0.6B g=0.58/966ms; 1.7B g=0.41/737ms;
+**4B g=1.00/560ms**; 8B g=1.00/567ms; 14B g=1.00/936ms. Grounding collapses below
+4B; latency is not monotone in size (4B/8B on a dedicated GPU beat the shared
+TP=2 14B). **4B dominates** on this hardware. 22 tests pass.
+
+---
+
 ## 2026-06-19 — Output-schema comparison: overlaid frontiers (first method result)
 
 **Goal:** overlay deadline frontiers for different output schemas to test whether

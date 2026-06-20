@@ -80,7 +80,9 @@ def main() -> None:
 
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
-    overlay = viz.plot_schema_frontiers(results, args.tick_ms, outdir / "schema_frontier.png")
+    overlay = viz.plot_schema_frontiers(
+        results, args.tick_ms, outdir / "schema_frontier.png",
+        suptitle="Output-schema comparison — frontier per schema", legend_title="schema")
     table = build_schema_table(results, args.tick_ms)
 
     # primary run = first schema; add the schema-comparison section
@@ -93,9 +95,17 @@ def main() -> None:
     uris = viz.frame_data_uris(base["frames"], args.grid)
     meta = {"model": cfg.model, "grid": args.grid, "agents": args.agents,
             "npcs": args.npcs, "tick_ms": args.tick_ms, "seed": args.seed}
+    schema_section = {
+        "title": "Output-schema comparison", "png": overlay, "table": table,
+        "caption": "The same task run under different reply formats. A terser "
+        "schema emits fewer output tokens, so its frontier sits to the left (the "
+        "model meets tighter deadlines). The effect is largest on multi-agent "
+        "commands, whose latency is dominated by output length. Watch grounding "
+        "too: a format the model follows less reliably trades accuracy for speed.",
+    }
     html = viz.build_html_report(rep, png, uris, outdir / "report.html", meta,
                                  base["frames"], frontier_png=frontier,
-                                 schema_png=overlay, schema_table=table)
+                                 extra_sections=[schema_section])
     print(f"wrote {overlay}\nwrote {html}")
 
     if args.publish:

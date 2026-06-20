@@ -158,13 +158,16 @@ def plot_deadline_frontier(frames: list[Frame], tick_ms: int,
 
 
 def plot_schema_frontiers(results: list[dict], tick_ms: int,
-                          out_path: str | Path) -> Path:
-    """Overlay deadline frontiers for several output schemas on shared axes.
+                          out_path: str | Path, suptitle: str | None = None,
+                          legend_title: str = "schema") -> Path:
+    """Overlay deadline frontiers for several variants on shared axes.
 
-    Each result is {"name": str, "frames": [Frame, ...]}. Two panels: all
-    commands, and multi-agent commands only (where output length matters most).
-    A terser schema emits fewer tokens, so its curve sits to the left (cheaper).
+    Each result is {"name": str, "frames": [Frame-like, ...]} (needs .latency_ms
+    and .targets). Two panels: all commands, and multi-agent commands only (where
+    output length matters most). Used for both schema and model-size overlays.
     """
+    if suptitle is None:
+        suptitle = "Frontier per variant"
     out_path = Path(out_path)
     deadlines = list(range(100, 2601, 50))
     colours = ["steelblue", "darkorange", "seagreen", "crimson", "purple"]
@@ -185,10 +188,9 @@ def plot_schema_frontiers(results: list[dict], tick_ms: int,
         ax.set_title(title)
         ax.set_ylim(-0.02, 1.02)
         ax.grid(True, color="0.92")
-        ax.legend(fontsize=8, title="schema")
+        ax.legend(fontsize=8, title=legend_title)
     ax_all.set_ylabel("deadline miss rate")
-    fig.suptitle(f"Output-schema comparison — frontier per schema "
-                 f"(dashed = current {tick_ms} ms)")
+    fig.suptitle(f"{suptitle}  (dashed = current {tick_ms} ms)")
     fig.tight_layout()
     fig.savefig(out_path, dpi=120)
     plt.close(fig)
@@ -227,7 +229,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
                       frame_uris: list[str], out_path: str | Path,
                       meta: dict, frames: list[Frame],
                       frontier_png: str | Path | None = None,
-                      schema_png: str | Path | None = None, schema_table: str = "",
+                      extra_sections: list[dict] | None = None,
                       title: str = "World Commander — command arena report") -> Path:
     """Write a single, self-explanatory HTML report: what the experiment is, the
     run configuration, every metric defined, a grid legend, the charts explained,
@@ -252,19 +254,15 @@ def build_html_report(report: dict, metrics_png: str | Path,
             "GPU, and output verbosity.</p>"
         )
 
-    schema_section = ""
-    if schema_png is not None:
-        schema_uri = _data_uri_from_file(schema_png)
-        schema_section = (
-            "<h2>Output-schema comparison</h2>\n"
-            f'<img class="metrics" src="{schema_uri}" alt="schema frontier overlay">\n'
-            f"{schema_table}\n"
-            '<p class="hint">The same task run under different reply formats. A '
-            "terser schema emits fewer output tokens, so its frontier sits to the "
-            "left (the model meets tighter deadlines). The effect is largest on "
-            "multi-agent commands, whose latency is dominated by output length. "
-            "Watch grounding too: a format the model follows less reliably trades "
-            "accuracy for speed.</p>"
+    # extra comparison sections, each {title, png, table (html), caption}
+    extra_sections_html = ""
+    for sec in (extra_sections or []):
+        uri = _data_uri_from_file(sec["png"])
+        extra_sections_html += (
+            f"<h2>{sec['title']}</h2>\n"
+            f'<img class="metrics" src="{uri}" alt="{sec["title"]}">\n'
+            f"{sec.get('table', '')}\n"
+            f'<p class="hint">{sec.get("caption", "")}</p>\n'
         )
 
     summary = (f"{report['commands']} commands &middot; grounding "
@@ -428,7 +426,7 @@ clustered as the stream runs.</p>
 
 {frontier_section}
 
-{schema_section}
+{extra_sections_html}
 
 <script>
 const FRAMES = {frames_js};

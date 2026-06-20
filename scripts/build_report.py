@@ -1,0 +1,148 @@
+#!/usr/bin/env python
+"""Assemble the full report: a baseline run, the output-schema overlay, and the
+model-size overlay (read from outputs/model_*.json produced by serve_sweep.sh).
+
+    python scripts/build_report.py --commands 90 --publish
+
+Schemas are run live against the served model; model-size results are loaded from
+disk (each size is served separately by serve_sweep.sh). One report.html with all
+sections.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import statistics
+import subprocess
+import sys
+from collections import namedtuple
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from arena.config import load_config           # noqa: E402
+from arena.harness import run_session          # noqa: E402
+from arena.metrics import miss_rate            # noqa: E402
+from arena.model_client import RealClient      # noqa: E402
+from arena.recorder import Recorder            # noqa: E402
+from arena import viz                          # noqa: E402
+from schema_sweep import build_schema_table    # noqa: E402
+
+Shim = namedtuple("Shim", "latency_ms targets")
+SIZE_ORDER = {"0.6B": 0.6, "1.7B": 1.7, "4B": 4, "8B": 8, "14B": 14, "32B": 32}
+
+
+def _median(xs):
+    return statistics.median(xs) if xs else 0.0
+
+
+def load_model_results(outdir: Path) -> list[dict]:
+    res = []
+    for jf in outdir.glob("model_*.json"):
+        d = json.loads(jf.read_text())
+        frames = [Shim(r["lat"], [None] * r["nt"]) for r in d["rows"]]
+        res.append({"name": d["label"], "frames": frames, "report": d["report"]})
+    res.sort(key=lambda r: SIZE_ORDER.get(r["name"], 999))
+    return res
+
+
+def model_table(results: list[dict], tick_ms: int) -> str:
+    rows = ""
+    for r in results:
+        alll = [f.latency_ms for f in r["frames"]]
+        multi = [f.latency_ms for f in r["frames"] if len(f.targets) >= 2]
+        rep = r["report"]
+        rows += (
+            f"<tr><td>{r['name']}</td><td>{rep['grounding_accuracy']:.2f}</td>"
+            f"<td>{_median(alll):.0f} ms</td><td>{miss_rate(alll, tick_ms):.2f}</td>"
+            f"<td>{_median(multi):.0f} ms</td><td>{miss_rate(multi, tick_ms):.2f}</td></tr>"
+        )
+    return ("<table>\n<tr><th>model</th><th>grounding</th><th>p50 latency</th>"
+            f"<th>miss@{tick_ms}ms</th><th>multi p50</th><th>multi miss@{tick_ms}ms</th></tr>\n"
+            f"{rows}</table>")
+
+
+def main() -> None:
+    cfg = load_config()
+    p = argparse.ArgumentParser()
+    p.add_argument("--commands", type=int, default=90)
+    p.add_argument("--grid", type=int, default=cfg.grid)
+    p.add_argument("--agents", type=int, default=cfg.agents)
+    p.add_argument("--npcs", type=int, default=cfg.npcs)
+    p.add_argument("--tick-ms", type=int, default=cfg.tick_ms)
+    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--outdir", type=str, default="outputs")
+    p.add_argument("--publish", action="store_true")
+    args = p.parse_args()
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    # --- schema sweep (live, against the served model) ---
+    sresults, base_rec, base_m = [], None, None
+    for name in ("json", "pairs", "grouped"):
+        client = RealClient(cfg.base_url, cfg.api_key, cfg.model, schema=name)
+        rec = Recorder()
+        m = run_session(client, grid=args.grid, agents=args.agents, npcs=args.npcs,
+                        tick_ms=args.tick_ms, n_commands=args.commands, seed=args.seed,
+                        recorder=rec)
+        sresults.append({"name": name, "frames": rec.frames, "metrics": m})
+        print(f"[schema {name}] {m.report()}")
+        if name == "json":
+            base_rec, base_m = rec, m
+    s_overlay = viz.plot_schema_frontiers(
+        sresults, args.tick_ms, outdir / "schema_frontier.png",
+        suptitle="Output-schema comparison — frontier per schema", legend_title="schema")
+
+    # --- model-size overlay (from disk) ---
+    mresults = load_model_results(outdir)
+    sections = [{
+        "title": "Output-schema comparison", "png": s_overlay,
+        "table": build_schema_table(sresults, args.tick_ms),
+        "caption": "Same task, different reply formats. A terser schema emits "
+        "fewer output tokens, so its frontier sits to the left. Largest effect on "
+        "multi-agent commands. Watch grounding: a format the model follows less "
+        "reliably trades accuracy for speed.",
+    }]
+    if mresults:
+        m_overlay = viz.plot_schema_frontiers(
+            mresults, args.tick_ms, outdir / "model_frontier.png",
+            suptitle="Model-size comparison — frontier per model", legend_title="model")
+        sections.append({
+            "title": "Model-size comparison", "png": m_overlay,
+            "table": model_table(mresults, args.tick_ms),
+            "caption": "Same task, different model sizes (verbose JSON schema). "
+            "Smaller models lose grounding; on this single-GPU 2080 Ti they are not "
+            "much faster (fixed per-call overhead dominates), so size mainly trades "
+            "accuracy here. The frontier is hardware-dependent.",
+        })
+
+    # --- body from the json baseline run ---
+    rep = base_m.report()
+    png = viz.plot_metrics(rep, base_m.latencies_ms, base_rec.frames,
+                           args.tick_ms, outdir / "metrics.png")
+    frontier = viz.plot_deadline_frontier(base_rec.frames, args.tick_ms,
+                                          outdir / "frontier.png")
+    uris = viz.frame_data_uris(base_rec.frames, args.grid)
+    meta = {"model": cfg.model, "grid": args.grid, "agents": args.agents,
+            "npcs": args.npcs, "tick_ms": args.tick_ms, "seed": args.seed}
+    html = viz.build_html_report(rep, png, uris, outdir / "report.html", meta,
+                                 base_rec.frames, frontier_png=frontier,
+                                 extra_sections=sections)
+    print(f"wrote {html}")
+
+    if args.publish:
+        repo = Path(__file__).resolve().parent.parent
+        copies = [(outdir / "report.html", "report.html"),
+                  (outdir / "metrics.png", "assets/metrics.png"),
+                  (outdir / "frontier.png", "assets/frontier.png"),
+                  (s_overlay, "assets/schema_frontier.png")]
+        if mresults:
+            copies.append((outdir / "model_frontier.png", "assets/model_frontier.png"))
+        for src, dst in copies:
+            (repo / dst).write_bytes(Path(src).read_bytes())
+        subprocess.run(["bash", "scripts/publish_report.sh"], cwd=repo, check=True)
+
+
+if __name__ == "__main__":
+    main()

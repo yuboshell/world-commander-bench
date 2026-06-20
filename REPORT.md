@@ -104,6 +104,29 @@ artifact of JSON verbosity, not the task. The whole frontier shifts left:
 
 ![schema frontier overlay](assets/schema_frontier.png)
 
+**Model size — 4B is the sweet spot (our own vLLM on GPU 2).** Sweeping Qwen3
+sizes (verbose JSON schema, 90 cmds; ≤1.7B fp16, ≥4B AWQ on one 2080 Ti, 14B from
+the shared TP=2 instance):
+
+| model | grounding | p50 latency | miss@500ms |
+|---|---|---|---|
+| 0.6B | 0.58 | 966 ms | 0.70 |
+| 1.7B | 0.41 | 737 ms | 0.68 |
+| **4B** | **1.00** | **560 ms** | 0.60 |
+| 8B | 1.00 | 567 ms | 0.62 |
+| 14B | 1.00 | 936 ms | 0.71 |
+
+Two findings: (1) **grounding collapses below 4B** — 0.6B/1.7B cannot reliably
+follow commands, while 4B and up are perfect; (2) on this hardware **latency is
+not monotone in size** — 4B/8B (AWQ, dedicated GPU) are *faster* than 14B (bigger,
+TP=2, shared with the inventory bot), and the tiny fp16 models aren't fast either.
+So 4B dominates: smallest model that keeps grounding, and the lowest latency. The
+frontier is hardware-specific (it will move on a 4060/H100), which is exactly why
+results are reported vs budget. (The frontier curve below reflects latency only;
+read it together with the grounding column.)
+
+![model-size frontier overlay](assets/model_frontier.png)
+
 ## Validation
 - `pytest -q` → 8 passed (world, grounding, recorder).
 
