@@ -220,7 +220,40 @@ def build_html_report(report: dict, metrics_png: str | Path,
 <body>
 <h1>{title}</h1>
 <p class="hint">Natural-language command of agents in real time, under a latency budget. Phase-1 warm-up of the World Commander program.</p>
-<div class="summary">{summary}</div>
+
+<p>Below is the arena in motion: coloured agents follow streamed natural-language
+orders while grey agents wander on their own clock. <b>Press Play</b> (or drag
+the slider) to watch what happens — then read on for what is measured.</p>
+
+<h2>Grid replay <span class="hint">(you control the speed — drag the slider or press Play)</span></h2>
+<div class="viewer">
+  <img id="frame" alt="grid frame">
+  <div class="controls">
+    <button id="prev">◀ Prev</button>
+    <button id="play">▶ Play</button>
+    <button id="next">Next ▶</button>
+    <label>speed
+      <select id="speed">
+        <option value="2000">slow (0.5/s)</option>
+        <option value="1000" selected>1/s</option>
+        <option value="500">2/s</option>
+        <option value="250">fast (4/s)</option>
+      </select>
+    </label>
+  </div>
+  <input id="slider" type="range" min="0" value="0">
+  <div class="hint">command <span id="idx">0</span> / <span id="total">0</span></div>
+</div>
+
+<h2>How to read the grid</h2>
+<ul class="legend">
+  <li><span class="dot" style="background:red"></span><span class="dot" style="background:blue"></span><span class="dot" style="background:green"></span><span class="dot" style="background:gold"></span>
+      <b>Coloured agents</b> — the ones you command (red, blue, green, yellow). The letter is the colour’s initial.</li>
+  <li><span class="dot" style="background:#999"></span><b>Grey agents</b> — uncontrolled NPCs (marked “·”). They move one random step every tick on their own clock; you cannot command them. They are what makes a late command cost something.</li>
+  <li><span class="ring"></span><b>Gold ring</b> — the agent(s) the current command targets.</li>
+  <li><b>Fanned-out markers in one cell</b> — several agents on the same square (the world has no collision rule), spread apart so none is hidden.</li>
+  <li><b>Axes</b> — x is the column (0–{int(m.get('grid',1))-1}, left→right), y is the row (top→bottom); “north” decreases y. The title shows the command, whether it was grounded, and its latency.</li>
+</ul>
 
 <h2>What this is</h2>
 <p>The <b>command arena</b> is a minimal grid world that stress-tests one thing:
@@ -228,9 +261,16 @@ can a language model turn streamed natural-language orders into the right moves
 <i>fast enough to matter</i>. Each step, one order is issued (e.g.
 “Move the red agent north”); the model reads the world state and replies with the
 moves. One order is trivial by design — the test is the <b>stream</b>, many and
-fast. Crucially the clock <b>never pauses</b>: uncontrolled agents move on their
-own every step, so a late command concedes ground, exactly as a slow decision
+fast. Crucially the clock <b>never pauses</b>: the grey agents move on their own
+every step, so a late command concedes ground, exactly as a slow decision
 concedes to an opponent in a real game.</p>
+
+<h2>Results at a glance</h2>
+<div class="summary">{summary}</div>
+<p class="hint"><b>Grounding</b> is whether the moves were correct; <b>deadline
+miss</b> is whether they arrived within the tick budget. The model is accurate
+but often late — the definitions and the per-command-type breakdown below show
+where the time goes.</p>
 
 <h2>Run configuration</h2>
 <table>
@@ -274,40 +314,10 @@ longer — the usual source of a high-latency cluster.</p>
 latency. The dashed red line is the {m.get('tick_ms','?')} ms tick budget;
 everything to its right is a deadline miss. Dotted lines mark mean / p50 / p95.
 A split (bimodal) shape means two populations of commands — typically fast
-single-target vs slower group orders.<br>
+single-target vs slower multi-agent orders.<br>
 <b>Bottom — latency over the stream.</b> One dot per command in issue order;
 green = on time, red = deadline miss. Shows whether misses are scattered or
 clustered as the stream runs.</p>
-
-<h2>How to read the grid</h2>
-<ul class="legend">
-  <li><span class="dot" style="background:red"></span><span class="dot" style="background:blue"></span><span class="dot" style="background:green"></span><span class="dot" style="background:gold"></span>
-      <b>Coloured agents</b> — the ones you command (red, blue, green, yellow). The letter is the colour’s initial.</li>
-  <li><span class="dot" style="background:#999"></span><b>Grey agents</b> — uncontrolled NPCs (marked “·”). They move one random step every tick on their own clock; you cannot command them. They are what makes a late command cost something.</li>
-  <li><span class="ring"></span><b>Gold ring</b> — the agent(s) the current command targets.</li>
-  <li><b>Fanned-out markers in one cell</b> — several agents on the same square (the world has no collision rule), spread apart so none is hidden.</li>
-  <li><b>Axes</b> — x is the column (0–{int(m.get('grid',1))-1}, left→right), y is the row (top→bottom); “north” decreases y. The title shows the command, whether it was grounded, and its latency.</li>
-</ul>
-
-<h2>Grid replay <span class="hint">(you control the speed — drag the slider or press Play)</span></h2>
-<div class="viewer">
-  <img id="frame" alt="grid frame">
-  <div class="controls">
-    <button id="prev">◀ Prev</button>
-    <button id="play">▶ Play</button>
-    <button id="next">Next ▶</button>
-    <label>speed
-      <select id="speed">
-        <option value="2000">slow (0.5/s)</option>
-        <option value="1000" selected>1/s</option>
-        <option value="500">2/s</option>
-        <option value="250">fast (4/s)</option>
-      </select>
-    </label>
-  </div>
-  <input id="slider" type="range" min="0" value="0">
-  <div class="hint">command <span id="idx">0</span> / <span id="total">0</span></div>
-</div>
 
 <script>
 const FRAMES = {frames_js};

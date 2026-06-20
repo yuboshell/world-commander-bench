@@ -26,3 +26,6 @@ outputs/
 # browser-verification artifacts
 .playwright-mcp/
 *-fullpage.png
+
+# vendored reference codebases (TextStarCraft II, LLM-PySC2)
+reference/

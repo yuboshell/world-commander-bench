@@ -4,6 +4,26 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — Report reordered (figure-first); SC2 reference codebases vendored
+
+**Actions:**
+1. Reordered `report.html` so the **grid replay comes first** (see it move),
+   then the legend, then "what this is", results, config, metric definitions,
+   breakdown, and charts last — intuition before jargon (`arena/viz.py`).
+2. Vendored SC2 reference repos into gitignored `reference/`:
+   `LLM-PySC2` (NKAI/NUDT; full PySC2 action space, async constant-latency query)
+   and `TextStarCraftII` (Chain-of-Summarization; beats built-in AI to Lv5).
+3. Added `pytest.ini` (`testpaths = tests`) so pytest ignores the vendored repos.
+4. Regenerated + published the report. 13 tests pass.
+
+**SC2 readiness (assessment):** not ready to run today, but well-positioned. Gaps:
+install SC2 Linux + maps on amax41; stand up LLM-PySC2 (py3.9 env) pointed at our
+vLLM; add our real-time layer (wall-clock deadline + drop late actions + VRAM
+ceiling) on top — the arena's concurrent-clock TODO is the cheap rehearsal of it.
+The efficiency sweep still needs our own controllable vLLM, not the shared one.
+
+---
+
 ## 2026-06-19 — Add positive multi-agent command form (coverage gap)
 
 **Goal:** Yubo noticed the sampler only issued single-target and all-except
