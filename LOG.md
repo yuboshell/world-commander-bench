@@ -4,6 +4,27 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-06-19 — Output-schema comparison: overlaid frontiers (first method result)
+
+**Goal:** overlay deadline frontiers for different output schemas to test whether
+a terser reply format beats the latency wall.
+
+**Actions (TDD):**
+1. `arena/model_client.py` — schema registry (json / pairs / grouped) with system
+   prompt + parser each; `RealClient(schema=...)`. Parsers TDD'd
+   (`tests/test_schemas.py`): `parse_pairs` ("red:N"), `parse_grouped` ("N: red blue").
+2. `arena/viz.py` — `plot_schema_frontiers` (overlay, all + multi-agent panels);
+   `build_html_report` gained an optional "Output-schema comparison" section.
+3. `scripts/schema_sweep.py` — runs each schema on the same command stream,
+   builds the overlay + table, regenerates + publishes the report.
+
+**Result (90 cmds/schema, all grounding 1.00):** json p50 919 ms, miss@500 0.70;
+pairs p50 298 ms, miss 0.03; grouped p50 259 ms, miss 0.01. Terse schemas are
+**~3.5× faster with no grounding loss** — the "multi-agent infeasible" wall was
+JSON verbosity, not the task. 22 tests pass.
+
+---
+
 ## 2026-06-19 — Deadline-frontier curve added to the report
 
 **Goal:** answer "is 500 ms too strict?" with a curve instead of a single number.

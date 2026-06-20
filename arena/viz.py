@@ -157,6 +157,44 @@ def plot_deadline_frontier(frames: list[Frame], tick_ms: int,
     return out_path
 
 
+def plot_schema_frontiers(results: list[dict], tick_ms: int,
+                          out_path: str | Path) -> Path:
+    """Overlay deadline frontiers for several output schemas on shared axes.
+
+    Each result is {"name": str, "frames": [Frame, ...]}. Two panels: all
+    commands, and multi-agent commands only (where output length matters most).
+    A terser schema emits fewer tokens, so its curve sits to the left (cheaper).
+    """
+    out_path = Path(out_path)
+    deadlines = list(range(100, 2601, 50))
+    colours = ["steelblue", "darkorange", "seagreen", "crimson", "purple"]
+    fig, (ax_all, ax_multi) = plt.subplots(1, 2, figsize=(11, 4.2), sharey=True)
+
+    for r, colour in zip(results, colours):
+        alll = [f.latency_ms for f in r["frames"]]
+        multi = [f.latency_ms for f in r["frames"] if len(f.targets) >= 2]
+        ax_all.plot(deadlines, [miss_rate(alll, d) for d in deadlines],
+                    label=r["name"], color=colour, lw=2)
+        if multi:
+            ax_multi.plot(deadlines, [miss_rate(multi, d) for d in deadlines],
+                          label=r["name"], color=colour, lw=2)
+
+    for ax, title in ((ax_all, "all commands"), (ax_multi, "multi-agent commands")):
+        ax.axvline(tick_ms, color="gray", ls="--", lw=1.5)
+        ax.set_xlabel("deadline budget (ms)")
+        ax.set_title(title)
+        ax.set_ylim(-0.02, 1.02)
+        ax.grid(True, color="0.92")
+        ax.legend(fontsize=8, title="schema")
+    ax_all.set_ylabel("deadline miss rate")
+    fig.suptitle(f"Output-schema comparison — frontier per schema "
+                 f"(dashed = current {tick_ms} ms)")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=120)
+    plt.close(fig)
+    return out_path
+
+
 def frame_data_uris(frames: list[Frame], grid: int, max_frames: int = 200) -> list[str]:
     """Render each frame to a small PNG and return base64 data: URIs."""
     fig, ax = plt.subplots(figsize=(4.2, 4.6))
@@ -189,6 +227,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
                       frame_uris: list[str], out_path: str | Path,
                       meta: dict, frames: list[Frame],
                       frontier_png: str | Path | None = None,
+                      schema_png: str | Path | None = None, schema_table: str = "",
                       title: str = "World Commander — command arena report") -> Path:
     """Write a single, self-explanatory HTML report: what the experiment is, the
     run configuration, every metric defined, a grid legend, the charts explained,
@@ -211,6 +250,21 @@ def build_html_report(report: dict, metrics_png: str | Path,
             "arrive on time. This performance-vs-budget frontier is the benchmark’s real output — "
             "any single deadline is just one vertical slice of it, and it shifts with model size, "
             "GPU, and output verbosity.</p>"
+        )
+
+    schema_section = ""
+    if schema_png is not None:
+        schema_uri = _data_uri_from_file(schema_png)
+        schema_section = (
+            "<h2>Output-schema comparison</h2>\n"
+            f'<img class="metrics" src="{schema_uri}" alt="schema frontier overlay">\n'
+            f"{schema_table}\n"
+            '<p class="hint">The same task run under different reply formats. A '
+            "terser schema emits fewer output tokens, so its frontier sits to the "
+            "left (the model meets tighter deadlines). The effect is largest on "
+            "multi-agent commands, whose latency is dominated by output length. "
+            "Watch grounding too: a format the model follows less reliably trades "
+            "accuracy for speed.</p>"
         )
 
     summary = (f"{report['commands']} commands &middot; grounding "
@@ -373,6 +427,8 @@ green = on time, red = deadline miss. Shows whether misses are scattered or
 clustered as the stream runs.</p>
 
 {frontier_section}
+
+{schema_section}
 
 <script>
 const FRAMES = {frames_js};

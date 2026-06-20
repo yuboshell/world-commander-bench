@@ -88,6 +88,22 @@ and output verbosity.
 
 ![deadline frontier](assets/frontier.png)
 
+**Output schema is the dominant latency lever (method result).** Running the same
+task under three reply formats (`scripts/schema_sweep.py`), all at grounding 1.00:
+
+| schema | example | p50 latency | miss@500ms |
+|---|---|---|---|
+| json (verbose) | `[{"agent":"red","dir":"N"}]` | 919 ms | 0.70 |
+| pairs | `red:N blue:N` | 298 ms | 0.03 |
+| grouped | `N: red blue` | 259 ms | 0.01 |
+
+Switching from verbose JSON to a terse format cuts latency **~3.5×** with **no loss
+of grounding**, pulling almost all commands (including multi-agent) back under the
+500 ms deadline. The earlier "multi-agent commands are infeasible" result was an
+artifact of JSON verbosity, not the task. The whole frontier shifts left:
+
+![schema frontier overlay](assets/schema_frontier.png)
+
 ## Validation
 - `pytest -q` → 8 passed (world, grounding, recorder).
 
