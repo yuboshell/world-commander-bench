@@ -1,31 +1,12 @@
 #!/usr/bin/env bash
-# Publish report.html to the unlisted GitHub Pages mirror as index.html.
+# RETIRED. This pushed report.html to a public GitHub Pages repo; that pattern
+# (auto-created public repo + frequent automated pushes) triggered a GitHub
+# account suspension on 2026-06-20. Do not use.
 #
-#   scripts/publish_report.sh [report.html]
-#
-# The target repo (an opaque-slug public repo) is read from WCB_REPORT_REPO so
-# the "secret" URL never lands in this repo's git history (it open-sources later).
-# report.html already carries a noindex meta; the slug is the soft password.
-set -euo pipefail
-
-# load .env (for WCB_REPORT_REPO) if present
-if [ -f .env ]; then set -a; . ./.env; set +a; fi
-
-src="${1:-report.html}"
-repo="${WCB_REPORT_REPO:-}"
-[ -n "$repo" ] || { echo "set WCB_REPORT_REPO=owner/slug in .env first"; exit 1; }
-[ -f "$src" ] || { echo "no $src — run scripts/visualize.py first"; exit 1; }
-
-tmp="$(mktemp -d)"
-trap 'rm -rf "$tmp"' EXIT
-git clone -q "https://github.com/$repo.git" "$tmp"
-cp "$src" "$tmp/index.html"
-touch "$tmp/.nojekyll"
-git -C "$tmp" add -A
-if git -C "$tmp" diff --cached --quiet; then
-  echo "no change to publish"
-  exit 0
-fi
-git -C "$tmp" commit -q -m "Update arena report"
-git -C "$tmp" push -q
-echo "published -> https://${repo%%/*}.github.io/${repo#*/}/"
+# The report is now served PRIVATELY:
+#   - Local SSH tunnel:     scripts/serve_report.sh   (zero pushes)
+#   - Private GitLab Pages: push report.html to GitLab; .gitlab-ci.yml deploys it,
+#                           restricted to project members (pages_access_level=private).
+echo "publish_report.sh is RETIRED (caused a GitHub suspension). Use scripts/serve_report.sh"
+echo "for a local private view, or push to GitLab (private Pages via .gitlab-ci.yml)."
+exit 1

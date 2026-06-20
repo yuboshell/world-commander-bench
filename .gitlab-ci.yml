@@ -1,0 +1,15 @@
+# Private GitLab Pages: publishes the self-contained report.html as the site,
+# restricted to project members (set pages_access_level=private on the project).
+# report.html embeds all images, so the "build" is just a copy — no toolchain.
+image: alpine:latest
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp report.html public/index.html
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
