@@ -80,14 +80,16 @@ episodes/point (hand-off).
 **Drop-late frontier (3s5z) — declining, vs the flat soft one:**
 | MAX_WAIT | drop-late win | discards | note |
 |---|---|---|---|
-| 60 s | 14/16 (87%) | 0 | inert — replies on-time (= soft) |
-| 15 s | _running_ | | |
+| 60 s | 14/16 (87%) | 0 | LLM acts on-time (= soft) |
+| 15 s | (12/16) | 0 | *invalid* — calibration didn't bootstrap → 0 LLM calls (auto-attack run) |
 | 10 s | 5/8 (62%) | 13 | replies dropped → ~auto-attack |
 
-Auto-attack floor = 14/24 (58%). So **drop-late traces a *declining* frontier** (~87% → ~60% as
-the deadline crosses the ~25 s latency), where the **soft deadline was flat** (~75%) — the clock
-only bites once it's enforced as true drop-late. (8/16-ep CIs are wide; directional, hand-off
-for a high-n curve.)
+Auto-attack floor = 14/24 (58%). On the **valid** points (@60 LLM-on-time vs @10 LLM-dropped),
+**drop-late traces a declining frontier — ~87% → ~62%** as the deadline crosses the ~25 s
+latency, where the **soft deadline stayed flat (~75%)**: the clock only bites once it's enforced
+as true drop-late. **Caveat:** the camera calibration is *run-fragile* — the @15 batch (and the
+earlier 2s_vs_1sc / 1c3s5z) never queried the LLM at all, so a clean high-n drop-late curve is
+**blocked until the calibration/centering is made reliable**. Directional result; hand-off.
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
