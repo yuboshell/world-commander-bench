@@ -196,6 +196,25 @@ move that makes progress toward a target). So the cliff is **planning, not perce
 reference** — and that's exactly what the hierarchy should escalate to the big model (or
 decompose into reference-sized steps).
 
+## Decompose macro: classify intent (LLM) + execute geometry (code) (2026-06-21)
+
+The cliff is planning, not perception — and the macro geometry (converge/scatter/home/
+flee) is trivially computable in code (`toward_dirs`/`away_dirs` *are* the planner). So
+instead of the LLM doing per-agent geometry (0.38), have it only **classify the order
+into a primitive**; code executes exactly. `scripts/intent_decompose.py`.
+
+**4B intent-classification accuracy (4 primitives, 120 orders): `1.00`** — perfect, clean
+confusion matrix. Execution is exact code, so **effective macro grounding under
+decomposition ≈ 1.00, vs 0.38 when the LLM does the geometry.**
+
+**Conclusion — don't make the LLM plan geometry.** It is perfect at *intent* (1.00) and
+*reference* (named 1.00, spatial 0.97); put the deterministic geometry in code. That
+dissolves the macro capability cliff for goal-primitive macros **on a small/fast model —
+no big model needed**, and refines the hierarchy: route to *code* for computable goals,
+not just to a bigger LLM. (Caveat: covers macros that reduce to a known primitive set;
+open-ended goals that don't reduce to computable primitives still need real planning —
+the genuine frontier.)
+
 ### Reading the numbers
 - **Grounding 1.00** — at the current scale (8×8 grid, 4 agents, 4 NPCs) the model resolves every command (single-target and "all-except" group forms). Deterministic (temperature 0).
 - **Deadline misses ~0.39** — ~40% of commands exceed the 500 ms tick budget. p50 (444 ms) sits right on the line, so the rate is sensitive and wobbles run-to-run (observed 0.385–0.425) under shared-GPU contention. p95 ~1080 ms is the tail.

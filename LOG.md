@@ -371,3 +371,10 @@ Next: combined micro+macro capability curve, or memory/region commands.
 4B fresh (n=120): micro 1.00, region 0.97, macro 0.38. Spatial *reference* (top half /
 nearest centre) is ~solved; goal *planning* is the cliff. Refines "macro is hard" ->
 planning, not perception. REGION_FORMS + granularity_grid.py. (milestone push)
+
+### result — CAPSTONE: decompose macro (classify intent + code geometry)
+4B classifies macro intent into primitive at 1.00 (120 orders, clean confusion). With
+exact code execution, macro grounding via decomposition ~1.00 vs 0.38 LLM-does-geometry.
+Conclusion: don't make the LLM plan geometry — it's perfect at intent (1.00) + reference
+(1.00/0.97); put deterministic geometry in code. Dissolves the macro cliff on a small
+model. intent_decompose.py. (milestone push)
