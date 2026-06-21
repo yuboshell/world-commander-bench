@@ -49,6 +49,18 @@ def test_micro_is_exact_match():
     assert not cmd.is_correct({(gt[0][0], bad)} | set(gt[1:]))
 
 
+def test_agent_grounding_gives_partial_credit():
+    cmd = Command(text="x", granularity="macro",
+                  acceptable={"red": {"E", "S"}, "green": {"N", "W"}, "yellow": {"W"}})
+    # red ok, green ok, yellow wrong; blue is extra (not movable) -> ignored
+    c, t = cmd.agent_grounding({("red", "E"), ("green", "W"), ("yellow", "N"), ("blue", "S")})
+    assert (c, t) == (2, 3)
+    # an omitted movable agent counts as wrong, not ignored
+    assert cmd.agent_grounding({("red", "E")}) == (1, 3)
+    # empty action -> nothing right
+    assert cmd.agent_grounding(set()) == (0, 3)
+
+
 def test_sample_command_selects_by_form_pool():
     w = GridWorld.random_init(8, 4, 2, rng=random.Random(5))
     assert sample_command(w, random.Random(0)).granularity == "micro"

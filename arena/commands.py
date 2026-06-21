@@ -42,10 +42,20 @@ class Command:
         return {(n, sorted(ds)[0]) for n, ds in self.acceptable.items() if ds}
 
     def is_correct(self, action: set[tuple[str, str]]) -> bool:
-        """Exactly the commanded agents moved, and each move is acceptable."""
+        """Strict: exactly the commanded agents moved, each move acceptable.
+        (Micro reduces to exact match; macro all-or-nothing — see agent_grounding
+        for the fairer per-agent score.)"""
         if {n for n, _ in action} != set(self.acceptable):
             return False
         return all(d in self.acceptable.get(n, set()) for n, d in action)
+
+    def agent_grounding(self, action: set[tuple[str, str]]) -> tuple[int, int]:
+        """Per-agent acceptable-set credit: (agents moved acceptably, movable agents).
+        Agents that can't make progress aren't in `acceptable`, so moving them (or
+        not) neither helps nor hurts; an omitted movable agent counts as wrong."""
+        chosen = dict(action)
+        correct = sum(1 for n, ds in self.acceptable.items() if chosen.get(n) in ds)
+        return correct, len(self.acceptable)
 
 
 # --- geometry: which single steps make progress toward / away from a point ---
