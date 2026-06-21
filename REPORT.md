@@ -116,11 +116,6 @@ escaped**: the capability only arrives with a bigger, slower model (14B p50 1.1 
 **Coordinate-convention hypothesis — rejected.** An A/B of the raw `xy` framing
 ("N decreases y") vs an intuitive `map` framing (north = up = larger number) showed
 no reliable effect: `map` helped 4B (+0.10) but *hurt* 14B (−0.12) — small and
-sign-flipping within noise. The convention is not the barrier; macro is just hard.
-
-**Coordinate-convention hypothesis — rejected.** An A/B of the raw `xy` framing
-("N decreases y") vs an intuitive `map` framing (north = up = larger number) showed
-no reliable effect: `map` helped 4B (+0.10) but *hurt* 14B (−0.12) — small and
 sign-flipping within n=60 noise. The convention is not the barrier; macro is just hard.
 
 **Methodology lesson (and a correction).** An earlier run reported macro 0.21 /
