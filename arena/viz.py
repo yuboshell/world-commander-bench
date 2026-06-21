@@ -527,9 +527,10 @@ can a language model turn streamed natural-language orders into the right moves
 <i>fast enough to matter</i>. Each step, one order is issued (e.g.
 “Move the red agent north”); the model reads the world state and replies with the
 moves. One order is trivial by design — the test is the <b>stream</b>, many and
-fast. Crucially the clock <b>never pauses</b>: the grey agents move on their own
-every step, so a late command concedes ground, exactly as a slow decision
-concedes to an opponent in a real game.</p>
+fast. Crucially, the clock <b>never pauses</b>: the grey (uncontrolled) agents keep
+moving while the model is still thinking, so a command that arrives late acts on a
+world that has already changed — just as a slow decision falls behind a live
+opponent.</p>
 
 <h2>Results at a glance</h2>
 <div class="summary">{summary}</div>

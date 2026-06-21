@@ -198,12 +198,12 @@ def main() -> None:
                 f"<td>{p['macro_pc']:.2f}</td><td>{p['lat_p50']:.0f} ms</td></tr>"
                 for p in sorted(pts, key=lambda p: p["size"]))
             sections.append({
-                "title": "Macro vs micro — the granularity axis",
+                "title": "Macro vs micro — specific vs abstract commands",
                 "png": cap_png,
                 "table": ("<table>\n<tr><th>model</th><th>micro grounding</th>"
                           "<th>macro (per-agent)</th><th>macro (per-command)</th>"
                           f"<th>macro p50 latency</th></tr>\n{crows}</table>"),
-                "intro": "<p>Commands span two granularities through one channel. "
+                "intro": "<p>Commands span two levels — specific vs abstract — through one channel. "
                 "<b>Micro</b> names agents explicitly (\"move the red agent north\") — "
                 "reference resolution. <b>Macro</b> is a goal whose per-agent moves must be "
                 "computed from the world (\"everyone toward the center\", \"flee the nearest "
@@ -280,13 +280,14 @@ def main() -> None:
                     "the LLM does the geometry. Don't make the LLM plan geometry: it's perfect at "
                     "intent and reference; put deterministic geometry in code.")
         sections.append({
-            "title": "Granularity spectrum — reference is solved, planning is the cliff",
+            "title": "Command types — from naming a unit to setting a goal",
             "png": None,
-            "intro": "<p>The command taxonomy, 4B on fresh states: <b>micro</b> (named "
-            "reference), <b>region</b> (spatial reference — \"the top half\"), <b>memory</b> "
-            "(temporal reference — \"the ones I sent west earlier\"), <b>macro</b> (goal "
-            "planning). Per-agent acceptable-set grounding.</p>",
-            "table": ("<table>\n<tr><th>granularity</th><th>grounding</th><th>p50 latency</th>"
+            "intro": "<p>The four command types, 4B on fresh states: <b>micro</b> (name a unit — "
+            "\"the red agent\"), <b>region</b> (describe by location — \"the top half\"), <b>memory</b> "
+            "(refer back in time — \"the ones I sent west earlier\"), <b>macro</b> (set a goal — "
+            "\"everyone toward the centre\"). The first three are different ways to <i>refer</i> to "
+            "units; the last asks the model to <i>plan</i>. Per-agent acceptable-set grounding.</p>",
+            "table": ("<table>\n<tr><th>command type</th><th>grounding</th><th>p50 latency</th>"
                       f"</tr>\n{grows}</table>"),
             "caption": "Reference — named, spatial, <b>and temporal</b> — is solved (~0.97–1.00); "
             "only goal planning (~0.37) is the cliff. So it's planning, not perception/memory/"
