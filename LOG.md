@@ -29,9 +29,16 @@ research repo's `DECISIONS.md`. ~12 milestone pushes; tests 43 green.
    the geometry exactly → macro **~1.00 on a small model** (vs 0.38 LLM-geometry). Don't
    make the LLM plan geometry; classify intent + execute in code.
 
-**Cross-check with yubopc:** its synchronous SC2 run (60 s wait, no latency pressure) still
-gets **0/8 win-rate → a capability wall**, matching our "planning is the cliff" finding at
-SC2 scale.
+**Cross-check with yubopc (SC2 5.0.15, final high-n verdict):** win-rate is
+capability/matchup-bound — 2s3z 0/8 (unwinnable for the force), 3s5z winnable but the 4B LLM's
+edge over the auto-attack baseline is only **~+10 pp, NOT significant** (it shrank +22→+17→+10 pp
+as n grew; commands are sensible but redundant with auto-attack). yubopc also **implemented the
+hard drop-late clock**: with late replies *dropped* (not applied late) the win-rate frontier
+**declines** with the deadline (~87%→62%), unlike the flat soft-deadline curve — the real-time
+effect, exactly as predicted, and mirroring the arena's deadline frontier. **Takeaway:** the
+durable SC2 result is the drop-late *mechanism*, not a win-rate number; the **command arena is
+the cleaner primary instrument** (no auto-attack confound, no tiny-n noise). Full trail in the
+bench repo's `results/sc2/sweep_2s3z_4B.md` and the research `DECISIONS.md`.
 
 **Caveats:** numbers preliminary (n=60–200, single GPU, mostly 4B); macro decomposition
 covers goals reducing to a known primitive set — open-ended planning is the real frontier.
