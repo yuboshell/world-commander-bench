@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~07:40 MDT (added latency/real-time-viability: ~27s/decision, ~25× too slow; + qualitative)
+**Last updated:** 2026-06-21 ~08:45 MDT (~10 h window complete; capability+clock characterized; smaller-model latency test blocked by vLLM UVA — needs AWQ)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -193,3 +193,8 @@ validatable unattended, since failures are silent (the LLM simply never gets que
 - Then **drop-late** is ready (`WCB_SC2_DROP_LATE=1`, already implemented + validated): re-run the
   3s5z sweep at high n for a clean true frontier.
 - More episodes/point to tighten CIs; a stronger model for 2s3z (won't fit 8 GB here).
+- **Efficiency / latency sweep** (the real-time lever from the latency section): smaller models +
+  shrunk observation prompt + KV-cache reuse across ticks. *Practical blocker found:* serving an
+  **unquantized** model in this WSL2/vLLM env fails at engine init with `RuntimeError: UVA is not
+  available` (the 4B's **AWQ** path avoids it). So a smaller-model latency test needs an **AWQ**
+  quant — no official `Qwen3-1.7B-AWQ` exists, so source/build one (or debug the vLLM UVA path).
