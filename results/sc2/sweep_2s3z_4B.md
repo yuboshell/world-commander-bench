@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~05:30 MDT (drop-late implemented+validated; calibration bootstrap diagnosed)
+**Last updated:** 2026-06-21 ~06:05 MDT (drop-late frontier: mechanism robust, fine curve noise-limited)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -77,19 +77,22 @@ in time) to ~58% (tight, LLM dropped = auto-attack) — unlike the flat soft-dea
 The gap is the LLM's contribution (~+20 pp), which is small/noisy, so a clean curve needs many
 episodes/point (hand-off).
 
-**Drop-late frontier (3s5z) — declining, vs the flat soft one:**
+**Drop-late frontier (3s5z) — mechanism robust, fine curve noise-limited:**
 | MAX_WAIT | drop-late win | discards | note |
 |---|---|---|---|
-| 60 s | 14/16 (87%) | 0 | LLM acts on-time (= soft) |
-| 15 s | (12/16) | 0 | *invalid* — calibration didn't bootstrap → 0 LLM calls (auto-attack run) |
+| 60 s | 14/16 (87%) | 0 | LLM acts on-time |
+| 30 s | 4/8 (50%) | 0 | LLM acts on-time (0 drops) |
+| 15 s | (12/16) | 0 | *invalid* — no bootstrap (0 LLM calls → auto-attack) |
 | 10 s | 5/8 (62%) | 13 | replies dropped → ~auto-attack |
 
-Auto-attack floor = 14/24 (58%). On the **valid** points (@60 LLM-on-time vs @10 LLM-dropped),
-**drop-late traces a declining frontier — ~87% → ~62%** as the deadline crosses the ~25 s
-latency, where the **soft deadline stayed flat (~75%)**: the clock only bites once it's enforced
-as true drop-late. **Caveat:** the camera calibration is *run-fragile* — the @15 batch (and the
-earlier 2s_vs_1sc / 1c3s5z) never queried the LLM at all, so a clean high-n drop-late curve is
-**blocked until the calibration/centering is made reliable**. Directional result; hand-off.
+Auto-attack floor = 14/24 (58%). **The fine-grained frontier is noise-limited.** @60 (87%) and
+@30 (50%) both have the LLM acting on-time with **0 drops**, yet differ by 37 pp — that spread is
+**pure 8-episode sampling noise** (binomial ±~17–35 pp). At feasible n the noise **swamps** both
+the LLM effect (~20 pp) and any deadline effect, so points bounce (87/50/62%) instead of tracing
+a clean curve. **What *is* robust:** the drop-late *mechanism* (validated @10: 13/13 discarded,
+attacks 45→1, win-rate → auto-attack) and the **extreme contrast** (no-drop LLM-acts vs
+all-dropped LLM≈auto-attack). A clean curve needs **high n/point**, blocked by both sampling
+noise *and* run-fragile calibration (~20–30% of runs never bootstrap). Hand-off.
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
