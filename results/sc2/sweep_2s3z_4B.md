@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~08:45 MDT (~10 h window complete; capability+clock characterized; smaller-model latency test blocked by vLLM UVA — needs AWQ)
+**Last updated:** 2026-06-21 ~11:50 MDT (supervised calibration fix: world_range guard + calib-cap; bootstrap rescue confirmed, but force-proceed on failed calib degrades play — ~75% of runs clean)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -174,18 +174,26 @@ but ~25× too slow to act in real time.*
   this measures the **pipeline**, not 4B micro in isolation.
 - 2s_vs_1sc calibration-bootstrap bug unresolved (no LLM data for that map).
 
-## Calibration bootstrap — diagnosis (the main hand-off)
-The camera/perception bootstrap is **multi-point fragile** — different maps stick at different
-stages, and a single force-proceed cap does **not** fix it (validated: an env-gated cap at the
-calibration loop fired 0× on 2s_vs_1sc because it sticks *upstream* — cap reverted):
-- **2s_vs_1sc:** stuck in the **world_range** computation (`main_agent_funcs.py:220`:
-  `round(int((size_minimap/minimap_x_predict)*unit_raw_x)/32)*32` → **0** for this geometry) —
-  stage "2.1" ran 1114× in 4 episodes, never reaching calibration (2.2/2.3 = 0) → 0 LLM calls.
-- **some 3s5z runs / 1c3s5z:** the Path-A/B calibration loop (line 226+) never converges.
-- **per-unit centering** (`get_camera_func_smart`, line 358) is a third gate that can loop.
-Fixing this reliably needs supervised, multi-stage work (guard `world_range==0`; a convergence
-cap covering *all* stages; verify centering isn't garbage after force-proceed) — not safely
-validatable unattended, since failures are silent (the LLM simply never gets queried).
+## Calibration bootstrap — diagnosis + partial fix (supervised, 2026-06-21)
+The camera/perception bootstrap is **multi-point fragile** — three independent gates, hit
+intermittently run-to-run (each can leave the LLM never queried → 0-LLM auto-attack "data"):
+- **(1) world_range==0** (`main_agent_funcs.py:220`): the heuristic computes 0 for some geometry
+  (deterministic on 2s_vs_1sc) → stage 2.1 loops forever. **Fixed:** guard → fall back to the SMAC
+  default 32 (`WCB_SC2_WORLD_RANGE`).
+- **(2) coarse calibration never converges** (the 3s5z ~25% case): Path B (minimap) oscillates and
+  never settles → stage 2.3 loops *thousands* of times → 0 LLM. **Mitigated:** `WCB_SC2_CALIB_CAP`
+  force-proceeds to the LLM after N attempts.
+- **(3) per-unit centering** (`get_camera_func_smart`) — a third gate that can loop after (2).
+
+**What the cap buys (validated together):** it **guarantees bootstrap** — a forced-bad-calibration
+test showed the cap fires and the LLM *is* queried past all gates (24 calls, 176 attacks). **But**
+with *genuinely failed* calibration (offset 0,0) the LLM **lost 0/2** — mis-calibrated coords →
+mis-clicks → bad play. So the cap converts a **0-LLM hang** into **degraded** data, not clean data.
+Good news: natural convergence is fast (**<10 attempts**), so **~75% of runs calibrate fine** (cap
+silent) → clean data. **Recipe:** run with `WCB_SC2_CALIB_CAP=50` to prevent hangs, but use
+**cap-silent** runs for the clean win-rate (filter out cap-fired). **The real fix** — make Path B
+converge (likely: do the analytic calibration from `unit_r`/raw coords so it doesn't need the unit
+on-screen) — is the remaining deeper step.
 
 ## Suggested next steps (supervised session)
 - **Fix the bootstrap fragility** (above) so every run reliably queries the LLM — unblocks a
