@@ -46,6 +46,8 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--tag", default="model")
     ap.add_argument("--styles", default="xy,map")
+    ap.add_argument("--fresh", action="store_true",
+                    help="fresh random world per command (unbiased states, no trajectory entanglement)")
     ap.add_argument("--outdir", default="outputs")
     a = ap.parse_args()
 
@@ -57,8 +59,13 @@ def main() -> None:
                                       rng=random.Random(a.seed + 1))
         ca = ta = cmd_ok = 0
         lats = []
-        for _ in range(a.commands):
-            cmd = sample_command(world, cmd_rng, forms=MACRO_FORMS)
+        for i in range(a.commands):
+            if a.fresh:  # independent state per command, identical across styles
+                world = GridWorld.random_init(cfg.grid, cfg.agents, cfg.npcs,
+                                              rng=random.Random(a.seed + 1000 + i))
+                cmd = sample_command(world, random.Random(a.seed + 5000 + i), forms=MACRO_FORMS)
+            else:
+                cmd = sample_command(world, cmd_rng, forms=MACRO_FORMS)
             t0 = time.perf_counter()
             action = client.act(world, cmd)
             lats.append((time.perf_counter() - t0) * 1000.0)
@@ -66,8 +73,9 @@ def main() -> None:
             ca += c
             ta += t
             cmd_ok += int(cmd.is_correct(action))
-            world.apply(list(cmd.ground_truth()))          # deterministic evolution (style-independent)
-            world.tick_npcs()
+            if not a.fresh:
+                world.apply(list(cmd.ground_truth()))      # deterministic evolution (style-independent)
+                world.tick_npcs()
         row = {"style": style, "n": a.commands,
                "grounding_per_agent": round(ca / max(1, ta), 3),
                "grounding_per_command": round(cmd_ok / a.commands, 3),
