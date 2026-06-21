@@ -75,7 +75,19 @@ to auto-attack. So drop-late works: a deadline below the ~25 s latency removes t
 **Implication:** the *true* drop-late frontier should fall from ~78% (loose deadline, LLM acts
 in time) to ~58% (tight, LLM dropped = auto-attack) — unlike the flat soft-deadline frontier.
 The gap is the LLM's contribution (~+20 pp), which is small/noisy, so a clean curve needs many
-episodes/point (hand-off). Endpoints being sketched (drop-late @60 vs @15).
+episodes/point (hand-off).
+
+**Drop-late frontier (3s5z) — declining, vs the flat soft one:**
+| MAX_WAIT | drop-late win | discards | note |
+|---|---|---|---|
+| 60 s | 14/16 (87%) | 0 | inert — replies on-time (= soft) |
+| 15 s | _running_ | | |
+| 10 s | 5/8 (62%) | 13 | replies dropped → ~auto-attack |
+
+Auto-attack floor = 14/24 (58%). So **drop-late traces a *declining* frontier** (~87% → ~60% as
+the deadline crosses the ~25 s latency), where the **soft deadline was flat** (~75%) — the clock
+only bites once it's enforced as true drop-late. (8/16-ep CIs are wide; directional, hand-off
+for a high-n curve.)
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
