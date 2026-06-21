@@ -177,6 +177,25 @@ unique prompts + caching disabled.)
   cacheable* cost (~1 s at 5 k tokens here); the bigger latency driver is **output
   length × decode speed** (hence the arena's terse-schema win, and CUDA graphs for SC2).
 
+## Region commands — spatial *reference* is solved; *planning* is the cliff (2026-06-21)
+
+Added region commands (select agents by a spatial predicate — "the top half", "nearest
+the centre" — then move them; `REGION_FORMS`, `scripts/granularity_grid.py`). 4B on
+fresh states (n=120):
+
+| granularity | grounding (per-agent) | p50 lat |
+|---|---|---|
+| micro (named reference) | 1.00 | 558 ms |
+| region (spatial reference) | 0.97 | 726 ms |
+| macro (goal planning) | 0.38 | 745 ms |
+
+**Refines the capability story.** It is *not* spatial reasoning broadly that 4B lacks:
+it reads positions and applies a predicate ("which agents are in the top half") at 0.97,
+nearly as well as named reference. What collapses is **goal-directed planning** (pick the
+move that makes progress toward a target). So the cliff is **planning, not perception/
+reference** — and that's exactly what the hierarchy should escalate to the big model (or
+decompose into reference-sized steps).
+
 ### Reading the numbers
 - **Grounding 1.00** — at the current scale (8×8 grid, 4 agents, 4 NPCs) the model resolves every command (single-target and "all-except" group forms). Deterministic (temperature 0).
 - **Deadline misses ~0.39** — ~40% of commands exceed the 500 ms tick budget. p50 (444 ms) sits right on the line, so the rate is sensitive and wobbles run-to-run (observed 0.385–0.425) under shared-GPU contention. p95 ~1080 ms is the tail.

@@ -366,3 +366,8 @@ Next: KV/VRAM concurrency or combined micro+macro capability curve (item 4).
 per decision (`scripts/prefix_cache_sweep.py`). Concrete SC2 lever (static system+wiki
 prefix). Consistent with the context-latency curve. (milestone push)
 Next: combined micro+macro capability curve, or memory/region commands.
+
+### result — region commands: reference solved, planning is the cliff
+4B fresh (n=120): micro 1.00, region 0.97, macro 0.38. Spatial *reference* (top half /
+nearest centre) is ~solved; goal *planning* is the cliff. Refines "macro is hard" ->
+planning, not perception. REGION_FORMS + granularity_grid.py. (milestone push)
