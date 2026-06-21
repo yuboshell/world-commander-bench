@@ -15,9 +15,18 @@ Win/loss from the `obs-list-episode<N>-{win,lose,tie}.pkl` suffix; **~25.5 s/dec
 ## Win-rate by map (synchronous, MAX_WAIT=60 s, 8 episodes)
 | map | win | lose | tie | LLM queried? | note |
 |---|---|---|---|---|---|
-| **3s5z** | **8** | 0 | 0 | yes | 4B wins every game (real victories) |
-| **2s3z** | 0 | **8** | 0 | yes | LLM controls units, loses every game |
-| 2s_vs_1sc | 0 | 0 | **8** | **no** | camera calibration never bootstrapped → idle → timeout ties |
+| **3s5z** | **8** | 0 | 0 | yes (19 dec) | wins — but is it the LLM or auto-attack? (control below) |
+| **2s3z** | 0 | **8** | 0 | yes (15 dec) | LLM controls units, loses every game |
+| **1c3s5z** | **8** | 0 | 0 | **no (0 dec)** | 8/8 win with the LLM never queried — **auto-attack alone wins** |
+| 2s_vs_1sc | 0 | 0 | **8** | **no (0 dec)** | calibration never bootstrapped → idle → timeout ties |
+
+### ⚠️ Auto-attack confound (control in progress)
+1c3s5z (8/8 win) and 2s_vs_1sc (8 ties) both resolved with the **LLM never queried**
+(calibration didn't bootstrap). So SC2's default **auto-attack** decides some maps with no LLM
+at all — a strong force auto-wins, a stalemate auto-ties. A raw "win" therefore does **not**
+prove LLM skill. A **no-LLM control (MAX_QUERIES=0) on 3s5z and 2s3z is running**: if 3s5z
+auto-wins without the LLM, its ~75% is auto-attack, not 4B capability. Treat the win-rates
+above as provisional until the controls land.
 
 ## 2s3z — deadline sweep (8 eps/point): flat at 0
 | MAX_WAIT | win/8 | timeouts |
