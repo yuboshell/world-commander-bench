@@ -35,14 +35,26 @@ symptoms. **Win-rate is therefore not achievable on amax41**; do it on yubopc.
   4.10; replaced with an **analytic one-shot offset** (converges in ~4 steps —
   `校准完成True`). The fix is correct and carries to 5.0.x, but on 4.10 it's gated
   behind the broken downstream centering above, so it doesn't yet yield win-rate.
-- **Win-rate:** blocked on SC2 version → pending yubopc (5.0.x).
+- **Win-rate (yubopc, SC2 5.0.15 / Base96883):** pipeline now runs end-to-end and the
+  **LLM is actually queried** (unlike 4.10). vLLM = Qwen3-4B-AWQ on the RTX 4060 (8 GB),
+  `awq_marlin` + `--enforce-eager` + `--gpu-memory-utilization 0.65`, served in WSL2
+  (mirrored networking; reached from the Windows pysc2 process at `localhost:8001`).
+  Measured **~25.4 s/decision** (8 calls, 24.5–26.8 s; ~2710 in / ~166 out tokens,
+  ~7 tok/s — slow because no CUDA graphs). Calibration *can* bootstrap past the
+  camera-centering gate but is **flaky/slow** (stuck within a 120-step run; cleared in
+  a 1500-step run). **Win-rate still ~0**: the agent's `MAX_LLM_WAITING_TIME=15`
+  (~15 s) is shorter than the 25 s latency, so decisions time out to `no_op` and the
+  late responses are unusable. For a real win-rate, drop `--enforce-eager` (CUDA
+  graphs, ~2× faster decode) and/or raise the deadline (effectively synchronous).
 - *History/correction:* an earlier note claimed a "120-action smoke test"; those
   were camera moves, not LLM calls. The earlier `WCB_SC2_CALIB_CAP` force-proceed
   hack has been **removed** in favor of the analytic fix.
 
-**Clock caveat:** LLM-PySC2 is synchronous (the game waits for the model) — honest
-per-decision latency, but it does not yet enforce the unpausable real-time clock
-(our layer, still to add).
+**Clock caveat (corrected on yubopc):** LLM-PySC2 v0.1 is actually **async with a
+real-time deadline**, not synchronous — it fires the query, keeps ticking the game,
+and `no_op`s if no response arrives within `MAX_LLM_WAITING_TIME` (default 15)
+game-loops. So it already enforces a basic unpausable clock; our layer would refine it
+(wall-clock deadlines, explicit drop-late accounting, VRAM ceiling) and sweep the deadline.
 
 ## Components
 - **Game**: amax41 → SC2 4.10 Linux (`Base75689`), from
