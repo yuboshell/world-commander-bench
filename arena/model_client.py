@@ -21,8 +21,8 @@ SYSTEM = (
 )
 
 
-def build_prompt(world: GridWorld, command: Command) -> str:
-    return f"{world.render_text()}\nOrder: \"{command.text}\"\nMoves:"
+def build_prompt(world: GridWorld, command: Command, style: str = "xy") -> str:
+    return f"{world.render_text(style)}\nOrder: \"{command.text}\"\nMoves:"
 
 
 def parse_moves(reply: str) -> set[tuple[str, str]]:
@@ -94,19 +94,21 @@ class RealClient:
     """OpenAI-compatible chat client (vLLM, etc.). `schema` selects the output
     format (system prompt + parser) so different schemas can be compared."""
 
-    def __init__(self, base_url: str, api_key: str, model: str, schema: str = "json"):
+    def __init__(self, base_url: str, api_key: str, model: str, schema: str = "json",
+                 render_style: str = "xy"):
         from openai import OpenAI  # imported lazily so --mock needs no install
 
         self.client = OpenAI(base_url=base_url, api_key=api_key)
         self.model = model
         self.schema = SCHEMAS[schema] if isinstance(schema, str) else schema
+        self.render_style = render_style
 
     def act(self, world: GridWorld, command: Command) -> set[tuple[str, str]]:
         resp = self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {"role": "system", "content": self.schema.system},
-                {"role": "user", "content": build_prompt(world, command)},
+                {"role": "user", "content": build_prompt(world, command, self.render_style)},
             ],
             temperature=0.0,
             max_tokens=128,

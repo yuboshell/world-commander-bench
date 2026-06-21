@@ -85,13 +85,33 @@ class GridWorld:
         with self._lock:
             return [(a.name, a.x, a.y, a.controlled) for a in self.agents]
 
-    def render_text(self) -> str:
-        """Compact text state for the model prompt."""
+    def render_text(self, style: str = "xy") -> str:
+        """Compact text state for the model prompt.
+
+        style="xy"  — raw coordinates, "N decreases y" (origin top-left).
+        style="map" — same world, intuitive framing: each agent at (column, height)
+                      where north = up = larger height. Only the *numbers shown*
+                      change; N/S/E/W keep their meaning, so it's a fair A/B on
+                      whether the coordinate convention confounds spatial reasoning.
+        """
         with self._lock:
-            ctrl = ", ".join(f"{a.name} at ({a.x},{a.y})" for a in self.controlled())
-            npcs = ", ".join(f"{a.name} at ({a.x},{a.y})"
-                             for a in self.agents if not a.controlled)
-        return (f"Grid {self.size}x{self.size} (x:0-{self.size - 1} left to right, "
-                f"y:0-{self.size - 1} top to bottom; N decreases y).\n"
-                f"Your agents: {ctrl}.\n"
-                f"Uncontrolled (do not command these): {npcs or 'none'}.")
+            ctrl = self.controlled()
+            npcs = [a for a in self.agents if not a.controlled]
+            hi = self.size - 1
+            if style == "map":
+                def p(a):
+                    return f"{a.name} at column {a.x} height {hi - a.y}"
+                cs = ", ".join(p(a) for a in ctrl)
+                ns = ", ".join(p(a) for a in npcs)
+                return (f"Grid {self.size}x{self.size}. Each agent is at (column, height): "
+                        f"column 0-{hi} runs west to east; height 0-{hi} runs south to "
+                        f"north (north is up = larger height). Moves: north +height, "
+                        f"south -height, east +column, west -column.\n"
+                        f"Your agents: {cs}.\n"
+                        f"Uncontrolled (do not command these): {ns or 'none'}.")
+            cs = ", ".join(f"{a.name} at ({a.x},{a.y})" for a in ctrl)
+            ns = ", ".join(f"{a.name} at ({a.x},{a.y})" for a in npcs)
+        return (f"Grid {self.size}x{self.size} (x:0-{hi} left to right, "
+                f"y:0-{hi} top to bottom; N decreases y).\n"
+                f"Your agents: {cs}.\n"
+                f"Uncontrolled (do not command these): {ns or 'none'}.")
