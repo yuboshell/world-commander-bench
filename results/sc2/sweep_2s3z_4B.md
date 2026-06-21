@@ -20,13 +20,20 @@ Win/loss from the `obs-list-episode<N>-{win,lose,tie}.pkl` suffix; **~25.5 s/dec
 | **1c3s5z** | **8** | 0 | 0 | **no (0 dec)** | 8/8 win with the LLM never queried — **auto-attack alone wins** |
 | 2s_vs_1sc | 0 | 0 | **8** | **no (0 dec)** | calibration never bootstrapped → idle → timeout ties |
 
-### ⚠️ Auto-attack confound (control in progress)
-1c3s5z (8/8 win) and 2s_vs_1sc (8 ties) both resolved with the **LLM never queried**
-(calibration didn't bootstrap). So SC2's default **auto-attack** decides some maps with no LLM
-at all — a strong force auto-wins, a stalemate auto-ties. A raw "win" therefore does **not**
-prove LLM skill. A **no-LLM control (MAX_QUERIES=0) on 3s5z and 2s3z is running**: if 3s5z
-auto-wins without the LLM, its ~75% is auto-attack, not 4B capability. Treat the win-rates
-above as provisional until the controls land.
+### Auto-attack confound — controlled
+SC2 units auto-attack, so a strong force can win with no LLM (1c3s5z = 8/8 and 2s_vs_1sc = 8
+ties both resolved with the **LLM never queried**). A raw win therefore doesn't prove LLM skill —
+hence no-LLM controls (MAX_QUERIES=0; 0 LLM calls verified):
+
+| map | no-LLM (auto-attack) | with LLM (synchronous) | LLM effect |
+|---|---|---|---|
+| **3s5z** | 4/8 (50%) | 13/16 (81%) | **+~30 pp — the LLM helps** |
+| 2s3z | _running_ | 0/16 (0%) | _pending_ |
+| 1c3s5z | 8/8 (overwhelming force) | 8/8 (also 0 LLM) | none — auto-wins |
+
+So on the **balanced** 3s5z matchup the 4B LLM adds real value over auto-attack (50% → 81%);
+on lopsided maps it's irrelevant. The 2s3z control distinguishes "unwinnable for the force" from
+"LLM underperforms auto-attack."
 
 ## 2s3z — deadline sweep (8 eps/point): flat at 0
 | MAX_WAIT | win/8 | timeouts |
