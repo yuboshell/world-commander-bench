@@ -5,7 +5,21 @@ response time is queue-wait + service (model latency); it misses if that exceeds
 the deadline. With a bounded queue, overruns are dropped. All expected values
 below are hand-computed.
 """
-from arena.rate import load_curve, simulate_stream
+from arena.rate import (burst_arrivals, load_curve, simulate_arrivals,
+                        simulate_stream)
+
+
+def test_burst_arrivals_schedule():
+    assert burst_arrivals(2, 3, gap_ms=1000, intra_ms=0) == [0, 0, 0, 1000, 1000, 1000]
+    assert burst_arrivals(2, 2, gap_ms=500, intra_ms=100) == [0, 100, 600, 700]
+
+
+def test_simulate_arrivals_burst_overloads_then_drains():
+    # 5 commands all arrive at once (a burst); 100ms service each; deadline 250ms
+    r = simulate_arrivals([100.0] * 5, [0, 0, 0, 0, 0], deadline_ms=250.0)
+    assert r.responses == [100.0, 200.0, 300.0, 400.0, 500.0]
+    assert r.missed == [False, False, True, True, True]
+    assert r.max_in_system == 5
 
 
 def test_load_curve_summarizes_each_rate():

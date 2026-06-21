@@ -37,21 +37,16 @@ class StreamResult:
         return sum(1 for d in self.dropped if not d)
 
 
-def simulate_stream(latencies_ms, rate_hz: float, deadline_ms: float,
-                    queue_cap: int | None = None) -> StreamResult:
-    """Replay `latencies_ms` as a command stream arriving at `rate_hz`.
-
-    Single FIFO server. Command i arrives at i * (1000 / rate_hz) ms; it starts
-    when both it has arrived and the server is free, finishes after its latency,
-    and misses if (finish - arrival) > deadline_ms. With `queue_cap`, a command
-    arriving when `queue_cap` commands are already in the system is dropped.
-    """
-    if rate_hz <= 0:
-        raise ValueError("rate_hz must be positive")
+def simulate_arrivals(latencies_ms, arrivals_ms, deadline_ms: float,
+                      queue_cap: int | None = None) -> StreamResult:
+    """Single-server FIFO queue over **explicit** (non-decreasing) arrival times.
+    Command i arrives at arrivals_ms[i]; it starts when it has arrived and the
+    server is free, finishes after its latency, and misses if (finish - arrival)
+    > deadline_ms. With `queue_cap`, a command arriving when `queue_cap` are already
+    in the system is dropped. This backs both the steady-rate and burst loads."""
     latencies_ms = list(latencies_ms)
+    arrivals_ms = list(arrivals_ms)
     n = len(latencies_ms)
-    interarrival = 1000.0 / rate_hz
-    arrivals = [i * interarrival for i in range(n)]
 
     responses: list[float | None] = [None] * n
     missed = [False] * n
@@ -62,7 +57,7 @@ def simulate_stream(latencies_ms, rate_hz: float, deadline_ms: float,
     max_in_system = 0
 
     for i in range(n):
-        a = arrivals[i]
+        a = arrivals_ms[i]
         while in_system and in_system[0] <= a:   # drop those completed by now
             in_system.popleft()
         if queue_cap is not None and len(in_system) >= queue_cap:
@@ -77,8 +72,37 @@ def simulate_stream(latencies_ms, rate_hz: float, deadline_ms: float,
         max_in_system = max(max_in_system, len(in_system))
 
     mean_service = sum(latencies_ms) / n if n else 0.0
-    stable = mean_service == 0.0 or interarrival > mean_service
-    return StreamResult(arrivals, responses, missed, dropped, max_in_system, stable)
+    gaps = [arrivals_ms[i] - arrivals_ms[i - 1] for i in range(1, n)]
+    mean_gap = sum(gaps) / len(gaps) if gaps else float("inf")
+    stable = mean_service == 0.0 or mean_gap > mean_service
+    return StreamResult(arrivals_ms, responses, missed, dropped, max_in_system, stable)
+
+
+def simulate_stream(latencies_ms, rate_hz: float, deadline_ms: float,
+                    queue_cap: int | None = None) -> StreamResult:
+    """Replay `latencies_ms` arriving at a steady `rate_hz` (command i at
+    i*(1000/rate_hz) ms). Thin wrapper over `simulate_arrivals`."""
+    if rate_hz <= 0:
+        raise ValueError("rate_hz must be positive")
+    latencies_ms = list(latencies_ms)
+    interarrival = 1000.0 / rate_hz
+    arrivals = [i * interarrival for i in range(len(latencies_ms))]
+    return simulate_arrivals(latencies_ms, arrivals, deadline_ms, queue_cap)
+
+
+def burst_arrivals(n_bursts: int, burst_size: int, gap_ms: float,
+                   intra_ms: float = 0.0) -> list[float]:
+    """Arrival schedule for `n_bursts` bursts of `burst_size` commands, `intra_ms`
+    apart within a burst, with `gap_ms` idle between bursts — the realistic
+    crisis-flurry load (a human firing several commands at once, then a lull),
+    rather than a steady rate. Feed to `simulate_arrivals`."""
+    arrivals: list[float] = []
+    t = 0.0
+    for _ in range(n_bursts):
+        for k in range(burst_size):
+            arrivals.append(t + k * intra_ms)
+        t += (burst_size - 1) * intra_ms + gap_ms
+    return arrivals
 
 
 def _percentile(xs: list[float], q: float) -> float:
