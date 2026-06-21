@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~11:50 MDT (supervised calibration fix: world_range guard + calib-cap; bootstrap rescue confirmed, but force-proceed on failed calib degrades play — ~75% of runs clean)
+**Last updated:** 2026-06-21 ~12:15 MDT (calibration: world_range guard + calib-cap committed (reliability + ~75% clean); analytic Path-B convergence attempted but offset drifts — needs visual debugging)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -191,9 +191,15 @@ with *genuinely failed* calibration (offset 0,0) the LLM **lost 0/2** — mis-ca
 mis-clicks → bad play. So the cap converts a **0-LLM hang** into **degraded** data, not clean data.
 Good news: natural convergence is fast (**<10 attempts**), so **~75% of runs calibrate fine** (cap
 silent) → clean data. **Recipe:** run with `WCB_SC2_CALIB_CAP=50` to prevent hangs, but use
-**cap-silent** runs for the clean win-rate (filter out cap-fired). **The real fix** — make Path B
-converge (likely: do the analytic calibration from `unit_r`/raw coords so it doesn't need the unit
-on-screen) — is the remaining deeper step.
+**cap-silent** runs for the clean win-rate (filter out cap-fired). **The real fix** — make Path B converge —
+was **attempted** (an exact one-shot offset correction from the offset-free minimap difference,
+`offset -= (minimap_camera − minimap_unit)·world_range/size_minimap`, then move to the unit), but the
+**offset drifts monotonically** (x: 3 → −12 → −24) instead of converging: the move_camera →
+minimap-camera feedback loop doesn't close (the camera doesn't land where the correction predicts,
+and `get_camera_xy`'s `max(0,…)` clamp can trap it at a boundary). Neither the coarse 0.5× nudge nor
+the exact 1.0× correction converges, so it's a **feedback-dynamics** problem needing **visual
+debugging** (watch the camera vs the move target). Reverted; **the cap remains the practical fix**
+(reliability + ~75% naturally-clean runs).
 
 ## Suggested next steps (supervised session)
 - **Fix the bootstrap fragility** (above) so every run reliably queries the LLM — unblocks a
