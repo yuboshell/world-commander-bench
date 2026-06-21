@@ -46,8 +46,8 @@ map (the SC2 analog of the arena's deadline frontier). Sweeping MAX_WAIT = {60, 
 |---|---|---|---|
 | 60 s | 8/8 | 0 | synchronous |
 | 30 s | 5/8 | 0 | still synchronous (deadline > latency) |
-| 15 s | _running_ | | below latency |
-| 10 s | _pending_ | | below latency |
+| 15 s | 4/8 | 21 | below latency — clock biting (81%→50%) |
+| 10 s | _running_ | | below latency |
 
 Pooled MAX_WAIT ≥ 30 (no timeouts): **13/16 ≈ 81%** synchronous win-rate — 8/8 vs 5/8 is
 sampling noise (the deadline didn't bite). The clock effect is expected only once
