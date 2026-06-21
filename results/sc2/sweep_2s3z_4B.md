@@ -27,7 +27,7 @@ hence no-LLM controls (MAX_QUERIES=0; 0 LLM calls verified):
 
 | map | no-LLM (auto-attack) | with LLM (synchronous) | LLM effect |
 |---|---|---|---|
-| **3s5z** | 4/8 (50%) | 13/16 (81%) | **+~30 pp — the LLM helps** |
+| **3s5z** | 4/8 (50%; firming) | **25/32 (78%)** | **+~28 pp — the LLM helps** |
 | 2s3z | 0/8 (0%) | 0/16 (0%) | 0 — unwinnable for the force; LLM neutral |
 | 1c3s5z | 8/8 (overwhelming force) | 8/8 (also 0 LLM) | none — auto-wins |
 
