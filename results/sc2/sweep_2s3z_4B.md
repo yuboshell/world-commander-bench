@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~02:35 MDT (autonomous overnight run; complete)
+**Last updated:** 2026-06-21 ~04:05 MDT (autonomous overnight run; 5-map controlled landscape complete)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -17,6 +17,7 @@ Win/loss from the `obs-list-episode<N>-{win,lose,tie}.pkl` suffix; **~25.5 s/dec
 |---|---|---|---|---|---|
 | **3s5z** | **8** | 0 | 0 | yes (19 dec) | wins — but is it the LLM or auto-attack? (control below) |
 | **2s3z** | 0 | **8** | 0 | yes (15 dec) | LLM controls units, loses every game |
+| **3s_vs_3z** | 0 | **8** | 0 | yes (9 dec) | LLM controls units (kiting matchup), loses every game |
 | **1c3s5z** | **8** | 0 | 0 | **no (0 dec)** | 8/8 win with the LLM never queried — **auto-attack alone wins** |
 | 2s_vs_1sc | 0 | 0 | **8** | **no (0 dec)** | calibration never bootstrapped → idle → timeout ties |
 
@@ -27,18 +28,17 @@ hence no-LLM controls (MAX_QUERIES=0; 0 LLM calls verified):
 
 | map | no-LLM (auto-attack) | with LLM (synchronous) | LLM effect |
 |---|---|---|---|
-| **3s5z** | **14/24 (58%)** | **25/32 (78%)** | +20 pp — *suggestive, p≈0.11 (n.s.)* |
-| 2s3z | 0/8 (0%) | 0/16 (0%) | 0 — unwinnable for the force; LLM neutral |
+| **3s5z** (balanced) | **14/24 (58%)** | **25/32 (78%)** | +20 pp — *suggestive, p≈0.11 (n.s.)* |
+| 2s3z (unwinnable) | 0/8 (0%) | 0/16 (0%) | 0 — LLM neutral |
+| 3s_vs_3z (unwinnable) | 0/8 (0%) | 0/8 (0%) | 0 — LLM neutral |
+| 1c3s5z (overwhelming) | 8/8 (100%) | 8/8 (0 LLM) | none — auto-wins |
+| 2s_vs_1sc (stalemate) | 8 ties | (calib failed) | n/a |
 
 At n≈28/side the 3s5z LLM-vs-auto-attack gap (78% vs 58%) is **not statistically significant**
-(two-proportion z≈1.6, p≈0.11; CIs overlap). The LLM gets only **~1 decision/episode** (camera
-overhead), which caps how much it can shift an auto-attack-dominated outcome. So: *suggestive*
-LLM benefit, not conclusive — SC2 win-rate is a noisy, auto-attack-heavy measure.
-| 1c3s5z | 8/8 (overwhelming force) | 8/8 (also 0 LLM) | none — auto-wins |
-
-So on the **balanced** 3s5z matchup the 4B LLM adds real value over auto-attack (50% → 81%);
-on lopsided maps it's irrelevant. The 2s3z control distinguishes "unwinnable for the force" from
-"LLM underperforms auto-attack."
+(two-proportion z≈1.6, p≈0.11; CIs overlap), and the LLM gets only **~1 decision/episode**
+(camera overhead), capping its influence. **Cross-map pattern: win-rate tracks the force
+matchup (the auto-attack baseline) — overwhelming auto-wins, unwinnable auto-loses, and only on
+the *balanced* 3s5z does the LLM add a (modest, noisy) lift.**
 
 ## 2s3z — deadline sweep (8 eps/point): flat at 0
 | MAX_WAIT | win/8 | timeouts |
