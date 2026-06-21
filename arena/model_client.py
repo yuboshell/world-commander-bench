@@ -129,5 +129,8 @@ class MockClient:
     def act(self, world: GridWorld, command: Command) -> set[tuple[str, str]]:
         if self.rng.random() < self.accuracy:
             return command.ground_truth()
-        wrong = self.rng.choice([d for d in DIRECTIONS if d != command.direction])
-        return {(command.targets[0], wrong)}
+        # deliberately wrong: move the first target in an unacceptable direction
+        gt = sorted(command.ground_truth())
+        name0 = gt[0][0]
+        bad = next(d for d in DIRECTIONS if d not in command.acceptable.get(name0, set()))
+        return {(name0, bad)} | set(gt[1:])

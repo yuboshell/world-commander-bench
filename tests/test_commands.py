@@ -35,7 +35,10 @@ def test_positive_subset_is_consistent():
         if _is_positive_multi(c):
             assert len(set(c.targets)) == len(c.targets), "no repeated agents"
             assert set(c.targets) <= CONTROLLED
-            assert c.ground_truth() == {(t, c.direction) for t in c.targets}
+            dirs = {d for ds in c.acceptable.values() for d in ds}
+            assert len(dirs) == 1, "micro subset shares one direction"
+            (only_dir,) = dirs
+            assert c.ground_truth() == {(t, only_dir) for t in c.targets}
             assert " agents " in c.text and c.text.endswith(".")
             for name in c.targets:
                 assert name in c.text

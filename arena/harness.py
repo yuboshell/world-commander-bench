@@ -21,7 +21,8 @@ from .world import GridWorld
 
 def run_session(client, *, grid: int, agents: int, npcs: int,
                 tick_ms: int, n_commands: int, seed: int = 0,
-                recorder=None, concurrent: bool = True) -> Metrics:
+                recorder=None, concurrent: bool = True,
+                command_forms: list[str] | None = None) -> Metrics:
     cmd_rng = random.Random(seed)        # command stream (main thread)
     npc_rng = random.Random(seed + 1)    # NPC moves (clock thread) — never shared
     world = GridWorld.random_init(grid, agents, npcs, rng=npc_rng)
@@ -30,14 +31,14 @@ def run_session(client, *, grid: int, agents: int, npcs: int,
     clock = ConcurrentClock(world, tick_ms).start() if concurrent else None
     try:
         for step in range(n_commands):
-            command = sample_command(world, cmd_rng)
+            command = sample_command(world, cmd_rng, forms=command_forms)
             before = world.snapshot() if recorder is not None else None
 
             t0 = time.perf_counter()
             action = client.act(world, command)          # the model (or mock)
             latency_ms = (time.perf_counter() - t0) * 1000.0
 
-            correct = action == command.ground_truth()
+            correct = command.is_correct(action)
             missed = latency_ms > tick_ms
             metrics.record(correct, latency_ms, missed)
 
