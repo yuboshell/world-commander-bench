@@ -9,7 +9,7 @@ Append-only record of work sessions. Newest first.
 Productive night on the arena efficiency story (amax41, **GPU 2 only**; guardrails held —
 no public repos, calm milestone pushes, shared bot untouched). Everything is in
 `REPORT.md`, the private report (https://world-commander-bench-087cae.gitlab.io), and the
-research repo's `DECISIONS.md`. ~8 milestone pushes; tests 42 green.
+research repo's `DECISIONS.md`. ~12 milestone pushes; tests 43 green.
 
 **Findings (each documented in REPORT.md):**
 1. **Deadline = time-to-consequence.** At a 1 s budget 4B/8B miss **0%** (vs 63% at the
@@ -17,10 +17,14 @@ research repo's `DECISIONS.md`. ~8 milestone pushes; tests 42 green.
 2. **Macro is capability-bound; micro saturates at 4B** (micro 1.00 from ≥4B; macro climbs
    1.7B≈0 → 4B/8B≈0.35 → 14B 0.59, never solved).
 3. **Hierarchy router** (micro→4B, macro→14B) = 14B accuracy at lower latency (Pareto win).
+   Firmed (n=200, realistic 75% micro): **0.86 accuracy at 563 ms** vs large-only 859 ms
+   (≈ small-model latency); the win grows with the micro fraction.
 4. **Latency = output×decode + *cacheable* input prefill.** Prefix-caching a ~4.6k-token
    static prefix saves **~927 ms (76%)**. Input context is not the wall; output length is.
 5. **Burst-load** (crisis flurry) model — a fast model clears ~3-command bursts at 2 s.
-6. **Region commands**: spatial *reference* solved (0.97); *planning* is the cliff (0.38).
+6. **Command taxonomy complete**: named/spatial/temporal reference all solved
+   (micro 1.00 / region 0.97 / memory 0.99); only goal *planning* (macro 0.37) is the cliff.
+   So it's planning, not perception/memory/spatial grounding, that's hard.
 7. **CAPSTONE — decompose macro.** 4B classifies macro intent at **1.00**; code executes
    the geometry exactly → macro **~1.00 on a small model** (vs 0.38 LLM-geometry). Don't
    make the LLM plan geometry; classify intent + execute in code.
@@ -34,7 +38,8 @@ covers goals reducing to a known primitive set — open-ended planning is the re
 
 **Suggested next:** (yubopc) apply the levers to SC2 win-rate — prefix-cache the static
 system+wiki prefix + CUDA graphs (latency), and test classify-intent+code-execute for SC2
-macros (capability). (amax) memory commands; firm the preliminary n. New code: RouterClient,
+macros (capability). (amax) firm the preliminary n; tackle open-ended (non-primitive)
+macros — the real planning frontier. New code: RouterClient,
 `arena.rate` burst, region commands; scripts hierarchy_sweep / burst_sweep / context_latency
 / prefix_cache_sweep / granularity_grid / intent_decompose. (Session entries below.)
 

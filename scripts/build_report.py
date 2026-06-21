@@ -282,13 +282,15 @@ def main() -> None:
         sections.append({
             "title": "Granularity spectrum — reference is solved, planning is the cliff",
             "png": None,
-            "intro": "<p>Three command granularities, 4B on fresh states: <b>micro</b> (named "
-            "reference), <b>region</b> (spatial reference — \"the top half\"), <b>macro</b> (goal "
+            "intro": "<p>The command taxonomy, 4B on fresh states: <b>micro</b> (named "
+            "reference), <b>region</b> (spatial reference — \"the top half\"), <b>memory</b> "
+            "(temporal reference — \"the ones I sent west earlier\"), <b>macro</b> (goal "
             "planning). Per-agent acceptable-set grounding.</p>",
             "table": ("<table>\n<tr><th>granularity</th><th>grounding</th><th>p50 latency</th>"
                       f"</tr>\n{grows}</table>"),
-            "caption": "Reference — named (1.00) and spatial (0.97) — is solved; goal planning "
-            "(0.38) is the cliff. So it's planning, not perception, that's hard." + note,
+            "caption": "Reference — named, spatial, <b>and temporal</b> — is solved (~0.97–1.00); "
+            "only goal planning (~0.37) is the cliff. So it's planning, not perception/memory/"
+            "spatial grounding, that's hard." + note,
         })
 
     # --- StarCraft II testbed (if metrics exist) ---
