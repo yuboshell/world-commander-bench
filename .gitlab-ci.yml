@@ -8,6 +8,9 @@ pages:
   script:
     - mkdir -p public
     - cp report.html public/index.html
+    - cp sc2.html public/sc2.html
+    - cp -f sc2_demo.mp4 public/ 2>/dev/null || true
+    - cp -f sc2_demo_poster.jpg public/ 2>/dev/null || true
   artifacts:
     paths:
       - public
