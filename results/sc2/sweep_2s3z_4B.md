@@ -27,8 +27,13 @@ hence no-LLM controls (MAX_QUERIES=0; 0 LLM calls verified):
 
 | map | no-LLM (auto-attack) | with LLM (synchronous) | LLM effect |
 |---|---|---|---|
-| **3s5z** | 4/8 (50%; firming) | **25/32 (78%)** | **+~28 pp — the LLM helps** |
+| **3s5z** | **14/24 (58%)** | **25/32 (78%)** | +20 pp — *suggestive, p≈0.11 (n.s.)* |
 | 2s3z | 0/8 (0%) | 0/16 (0%) | 0 — unwinnable for the force; LLM neutral |
+
+At n≈28/side the 3s5z LLM-vs-auto-attack gap (78% vs 58%) is **not statistically significant**
+(two-proportion z≈1.6, p≈0.11; CIs overlap). The LLM gets only **~1 decision/episode** (camera
+overhead), which caps how much it can shift an auto-attack-dominated outcome. So: *suggestive*
+LLM benefit, not conclusive — SC2 win-rate is a noisy, auto-attack-heavy measure.
 | 1c3s5z | 8/8 (overwhelming force) | 8/8 (also 0 LLM) | none — auto-wins |
 
 So on the **balanced** 3s5z matchup the 4B LLM adds real value over auto-attack (50% → 81%);
@@ -56,11 +61,12 @@ Lost even synchronously → **capability wall** (the matchup is beyond 4B); dead
 0 → 74 as the deadline tightens, but win-rate does **not** fall.
 
 ## Conclusion
-- **The 4B LLM adds value only on a *balanced* matchup.** Controlled against the auto-attack
-  baseline: 3s5z 50% → 81% (LLM helps, +~30 pp); 2s3z 0% → 0% (unwinnable for the force, LLM
-  neutral); 1c3s5z auto-wins 8/8 (LLM irrelevant); 2s_vs_1sc auto-ties. A meaningful LLM-SC2
-  score therefore requires a balanced matchup (auto-attack ≈ 50 %) **with the auto-attack
-  baseline controlled** — otherwise "wins" are the game's default AI, not the model.
+- **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
+  auto-attack: 3s5z 58% → 78% (+20 pp, **p≈0.11 — not significant** at n≈28/side); 2s3z 0% → 0%
+  (neutral); 1c3s5z auto-wins 8/8 (irrelevant); 2s_vs_1sc auto-ties. The LLM gets only ~1
+  decision/episode (camera overhead), capping its influence. A meaningful LLM-SC2 score needs a
+  balanced matchup, the auto-attack baseline controlled, **and many episodes** — otherwise
+  "wins" are the game's default AI, and small samples over-state the model.
 - **Win-rate is matchup-bound, not clock-bound** — deadline-invariant across MAX_WAIT 5–60 s on
   both 2s3z and 3s5z.
 - **Why no clock effect:** LLM-PySC2's deadline is **soft** — a reply that misses the deadline
