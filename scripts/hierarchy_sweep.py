@@ -68,14 +68,16 @@ def main() -> None:
     ap.add_argument("--large-url", default="http://127.0.0.1:8000/v1")
     ap.add_argument("--large-model", default="Qwen/Qwen3-14B-AWQ")
     ap.add_argument("--commands", type=int, default=80)
+    ap.add_argument("--micro-frac", type=float, default=0.5, help="fraction of micro commands")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--outdir", default="outputs")
     a = ap.parse_args()
 
-    # fixed stream: half micro / half macro, fresh state per command, read-only
+    # fixed stream: micro/macro mix per --micro-frac, fresh state per command, read-only
     pairs = []
     for i in range(a.commands):
-        forms = MICRO_FORMS if i % 2 == 0 else MACRO_FORMS
+        is_micro = random.Random(a.seed + 9000 + i).random() < a.micro_frac
+        forms = MICRO_FORMS if is_micro else MACRO_FORMS
         w = GridWorld.random_init(cfg.grid, cfg.agents, cfg.npcs,
                                   rng=random.Random(a.seed + 1000 + i))
         cmd = sample_command(w, random.Random(a.seed + 5000 + i), forms=forms)
