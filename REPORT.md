@@ -59,6 +59,32 @@ deadline, from the single-server queue model (`arena/rate.py`,
   FlashInfer/FA2 needs sm≥8.0; Turing is sm_75). Use the multi-GPU shared `:8000`
   instance or a newer GPU for 14B.
 
+## Deadline regimes — the agent is viable in the human-paced band (2026-06-20)
+
+The 500 ms tick was arbitrary. The right deadline is the world's **time-to-consequence**
+(how long until inaction is punished), which for human-/voice-paced command is
+**seconds**, not 500 ms (see the research repo's scope decision). Re-cutting the *same*
+recorded latencies against a range of deadlines (post-hoc, no re-run):
+
+| model | miss@250ms | miss@500ms | miss@1000ms | miss@1500ms | miss@2000ms |
+|---|---|---|---|---|---|
+| 0.6B | 1.00 | 0.72 | 0.07 | 0.00 | 0.00 |
+| 1.7B | 0.72 | 0.67 | 0.23 | 0.18 | 0.01 |
+| **4B** | 1.00 | 0.63 | **0.00** | 0.00 | 0.00 |
+| 8B | 1.00 | 0.63 | 0.00 | 0.00 | 0.00 |
+
+**The headline flips.** At 500 ms the models look hopeless (4B/8B miss 63%); at a
+**1 s** budget 4B/8B miss **nothing**, and by 1.5 s every model is essentially fine.
+So "models miss the deadline" was an artifact of the tick, not a real wall: in the
+**human-paced regime the LLM commander is viable**, and efficiency (4B + a terse
+schema) is what buys the headroom. (1.7B is the exception — a long latency tail keeps
+it at 23% even at 1 s; 4B is both faster and more accurate.)
+
+This reframes the program: the question is not "can an LLM beat a game clock" (it
+can't, at esports rates) but **"at what time-to-consequence does the agent stay
+viable, and how cheaply"** — which the deadline frontier (now annotated by regime)
+answers directly.
+
 ### Reading the numbers
 - **Grounding 1.00** — at the current scale (8×8 grid, 4 agents, 4 NPCs) the model resolves every command (single-target and "all-except" group forms). Deterministic (temperature 0).
 - **Deadline misses ~0.39** — ~40% of commands exceed the 500 ms tick budget. p50 (444 ms) sits right on the line, so the rate is sensitive and wobbles run-to-run (observed 0.385–0.425) under shared-GPU contention. p95 ~1080 ms is the tail.

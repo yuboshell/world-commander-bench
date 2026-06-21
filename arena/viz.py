@@ -127,8 +127,10 @@ def plot_deadline_frontier(frames: list[Frame], tick_ms: int,
     """Deadline miss rate vs deadline budget, overall and by command type.
 
     Pure post-hoc: a miss is latency > deadline, so the whole curve comes from
-    one run's latencies — no extra inference. Shows what latency budget the model
-    needs, instead of fixing a single (arbitrary) deadline.
+    one run's latencies — no extra inference. The right deadline is the world's
+    *time-to-consequence* (how long until inaction is punished), not a fixed tick:
+    the x-axis is annotated by operating regime so you can read off whether the
+    agent is viable in the human-paced band rather than against one number.
     """
     out_path = Path(out_path)
     deadlines = list(range(100, 2601, 50))
@@ -137,6 +139,15 @@ def plot_deadline_frontier(frames: list[Frame], tick_ms: int,
     multi = [f.latency_ms for f in frames if len(f.targets) >= 2]
 
     fig, ax = plt.subplots(figsize=(9, 4.2))
+    # operating regimes by time-to-consequence (illustrative bands, not hard cutoffs)
+    ax.axvspan(100, 250, color="crimson", alpha=0.06)
+    ax.axvspan(250, 2000, color="seagreen", alpha=0.08)
+    ax.axvspan(2000, 2600, color="0.5", alpha=0.05)
+    ax.text(175, 0.96, "reflex\n(esports)", ha="center", va="top", fontsize=7, color="crimson")
+    ax.text(1100, 0.96, "human-paced (time-to-consequence)", ha="center", va="top",
+            fontsize=7.5, color="darkgreen")
+    ax.text(2300, 0.96, "relaxed", ha="center", va="top", fontsize=7, color="0.4")
+    ax.axhline(0.10, color="0.6", ls=":", lw=1, label="10% acceptable")
     for lats, label, colour in ((alll, "all commands", "black"),
                                 (single, "single-target", "seagreen"),
                                 (multi, "multi-agent", "crimson")):
@@ -144,13 +155,13 @@ def plot_deadline_frontier(frames: list[Frame], tick_ms: int,
             ax.plot(deadlines, [miss_rate(lats, d) for d in deadlines],
                     label=f"{label} (n={len(lats)})", color=colour, lw=2)
     ax.axvline(tick_ms, color="gray", ls="--", lw=1.5,
-               label=f"current deadline {tick_ms} ms")
-    ax.set_xlabel("deadline budget (ms)")
+               label=f"arena tick ({tick_ms} ms)")
+    ax.set_xlabel("deadline budget = time-to-consequence (ms)")
     ax.set_ylabel("deadline miss rate")
     ax.set_ylim(-0.02, 1.02)
-    ax.set_title("Deadline frontier — miss rate vs budget")
+    ax.set_title("Deadline frontier — miss rate vs budget, by operating regime")
     ax.grid(True, color="0.92")
-    ax.legend(fontsize=8)
+    ax.legend(fontsize=8, loc="center right")
     fig.tight_layout()
     fig.savefig(out_path, dpi=120)
     plt.close(fig)
@@ -351,13 +362,15 @@ def build_html_report(report: dict, metrics_png: str | Path,
             "<h2>Deadline frontier</h2>\n"
             f'<img class="metrics" src="{frontier_uri}" alt="deadline frontier">\n'
             '<p class="hint">A deadline miss is simply <i>latency &gt; deadline</i>, so this '
-            "whole curve is computed post-hoc from one run — no extra inference. It shows the "
-            "latency <b>budget</b> the model needs instead of fixing a single, arbitrary "
-            f"deadline. At the current {meta.get('tick_ms','?')} ms, single-target commands are "
-            "feasible while multi-agent ones are not; multi-agent commands need roughly 1.5 s to "
-            "arrive on time. This performance-vs-budget frontier is the benchmark’s real output — "
-            "any single deadline is just one vertical slice of it, and it shifts with model size, "
-            "GPU, and output verbosity.</p>"
+            "whole curve is computed post-hoc from one run — no extra inference. The right "
+            "deadline is the world’s <b>time-to-consequence</b> (how long until inaction is "
+            "punished), not a fixed tick, so the x-axis is shaded by operating regime. The "
+            f"{meta.get('tick_ms','?')} ms tick (dashed) is misleadingly harsh: it sits in the "
+            "steep part of the curve. Slide right into the <b>human-paced</b> band (voice-issued "
+            "command, consequences seconds away) and the miss rate collapses — at ~1 s the fast "
+            "models miss essentially nothing. So the real question is not “can it beat a game "
+            "clock” but <b>at what time-to-consequence the agent stays viable, and how cheaply</b>; "
+            "the frontier shifts left with a smaller model, a terser schema, and a faster GPU.</p>"
         )
 
     # extra comparison sections, each {title, png, table (html), caption}
