@@ -87,32 +87,39 @@ answers directly.
 
 ## Macro vs micro (granularity axis) — 2026-06-20
 
-Same model (4B-AWQ, GPU 2), 80 commands each, human-paced 1 s deadline. Micro =
-explicit reference ("move the red agent north"); macro = state-dependent goal
-("everyone move toward the center / flee the nearest enemy"), scored by **per-agent**
-acceptable-set grounding (fraction of movable agents sent in a progress-making
-direction; an already-optimal agent is neither required nor penalized).
+Micro = explicit reference ("move the red agent north"); macro = state-dependent
+goal ("everyone move toward the center / flee the nearest enemy"), scored by
+**per-agent** acceptable-set grounding (fraction of movable agents sent in a
+progress-making direction; an already-optimal agent is neither required nor
+penalized). Macro is evaluated on **fresh random states per command** (canonical,
+trajectory-free — see the methodology note below).
 
-| granularity | grounding (per-agent) | grounding (per-command) | p50 lat | p95 lat | miss@1 s |
-|---|---|---|---|---|---|
-| micro | 1.00 | 1.00 | 550 ms | 721 ms | 0.00 |
-| macro | 0.21 | 0.00 | 718 ms | 2451 ms | 0.19 |
+| | grounding (per-agent) | grounding (per-command) | p50 lat |
+|---|---|---|---|
+| micro (4B) | 1.00 | 1.00 | 550 ms |
+| macro (4B) | 0.35 | 0.10 | 730 ms |
+| macro (14B) | 0.58 | 0.20 | 1130 ms |
 
-**Finding:** the bottleneck shifts from latency to **reasoning**. Micro (reference
-resolution) is solved — 1.00, fast. Macro (spatial planning from coordinates) is
-where 4B breaks: per-agent 0.21, never a whole command right, at ~2× the latency
-(more per-agent output, a fatter tail). On the (granularity × deadline) grid the
-agent is comfortably viable for micro in the human-paced regime but **not yet
-reliable for macro** — the open problem is reasoning, not the clock.
+**Finding — macro is capability-bound, and the 4B "sweet spot" doesn't hold for it.**
+Micro (reference resolution) is solved for both sizes (1.00). Macro (spatial planning
+from coordinates) is genuinely hard: 14B reaches ~0.58 per-agent, but 4B only ~0.35
+(≈ what a random valid move scores) — so the model that's ideal for micro essentially
+can't do macro. Both rarely get a *whole* command right (per-command 0.05–0.20). So
+macro reintroduces the latency/efficiency tension micro had escaped: it needs a
+bigger, slower model. The open problem for macro is **reasoning capacity**, not the clock.
 
-**Caveat — don't over-read the 0.21.** It is *below* the ~0.4 a naive random valid
-move would score, which signals a confound rather than a clean capability ceiling.
-The likely culprit is the grid's unintuitive coordinate convention ("N decreases y",
-origin top-left), which the model appears to mishandle (e.g. moving an agent *away*
-from a below-right center). **Next (P2-follow-up):** restate geometry more
-intuitively (compass bearings, "row N from the top", or relative cues) and
-re-measure, and try a 14B, before concluding macro is a hard limit. The strict
-per-command 0.00 also argues for reporting macro per-agent, not all-or-nothing.
+**Coordinate-convention hypothesis — rejected.** An A/B of the raw `xy` framing
+("N decreases y") vs an intuitive `map` framing (north = up = larger number) showed
+no reliable effect: `map` helped 4B (+0.10) but *hurt* 14B (−0.12) — small and
+sign-flipping within n=60 noise. The convention is not the barrier; macro is just hard.
+
+**Methodology lesson (and a correction).** An earlier run reported macro 0.21 /
+per-command 0.00. That was an artifact: it evolved the world by applying the model's
+*own (often wrong)* moves, so errors compounded into the evaluated states. Measuring
+on fresh, independent random states (unbiased) gives the numbers above. Macro is also
+**noisy at n=60** (per-command especially: a 14B point swung 0.20→0.05 between runs);
+treat these as preliminary and re-run at n≥200 on a fixed state distribution for firm
+figures.
 
 ### Reading the numbers
 - **Grounding 1.00** — at the current scale (8×8 grid, 4 agents, 4 NPCs) the model resolves every command (single-target and "all-except" group forms). Deterministic (temperature 0).
