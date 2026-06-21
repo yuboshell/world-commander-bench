@@ -24,6 +24,7 @@ DIR_WORD = {"N": "north", "S": "south", "E": "east", "W": "west"}
 
 MICRO_FORMS = ["single", "subset", "all_except"]
 MACRO_FORMS = ["converge", "scatter", "home", "flee"]
+REGION_FORMS = ["half", "nearest_center"]
 
 
 @dataclass
@@ -79,6 +80,15 @@ def away_dirs(size: int, ax: int, ay: int, tx: float, ty: float) -> set[str]:
     """Directions whose (clamped) step strictly increases distance (wall-blocked steps don't count)."""
     cur = _dist(ax, ay, tx, ty)
     return {d for d in DIRECTIONS if _dist(*_step(size, ax, ay, d), tx, ty) > cur}
+
+
+def region_targets(world: GridWorld, side: str) -> list[str]:
+    """Controlled agents in a half of the grid (spatial predicate; N decreases y,
+    so 'top' = small y). Pure, for region commands + their tests."""
+    h = world.size / 2.0
+    pred = {"top": lambda a: a.y < h, "bottom": lambda a: a.y >= h,
+            "left": lambda a: a.x < h, "right": lambda a: a.x >= h}[side]
+    return [a.name for a in world.controlled() if pred(a)]
 
 
 def _join_names(names: list[str]) -> str:
@@ -139,6 +149,24 @@ def _macro(world: GridWorld, form: str, rng: random.Random) -> Command:
     return Command(text=text, acceptable=acc, granularity="macro")
 
 
+def _region(world: GridWorld, form: str, rng: random.Random) -> Command:
+    """Spatial *reference* resolution: select agents by a region predicate, move them
+    one direction. Tests reading positions + a comparison (unlike named micro)."""
+    ctrl = world.controlled()
+    direction = rng.choice(list(DIRECTIONS))
+    word = DIR_WORD[direction]
+    if form == "half":
+        side = rng.choice(["top", "bottom", "left", "right"])
+        names = region_targets(world, side)
+        text = f"Move the agents in the {side} half {word}."
+    else:  # nearest_center — the single agent closest to the grid centre
+        c = (world.size - 1) / 2.0
+        names = [min(ctrl, key=lambda a: abs(a.x - c) + abs(a.y - c)).name]
+        text = f"Move the agent nearest the centre {word}."
+    return Command(text=text, acceptable={n: {direction} for n in names},
+                   granularity="region")
+
+
 def _form_valid(form: str, world: GridWorld) -> bool:
     n = len(world.controlled())
     if form == "subset":
@@ -147,19 +175,24 @@ def _form_valid(form: str, world: GridWorld) -> bool:
         return n >= 3
     if form == "flee":
         return n >= 1 and any(not a.controlled for a in world.agents)
-    return n >= 1  # single + converge/scatter/home
+    return n >= 1  # single + converge/scatter/home + region
 
 
 def sample_command(world: GridWorld, rng: random.Random,
                    forms: list[str] | None = None) -> Command:
     """Sample a command from a form pool. Default pool is micro (single / subset /
-    all_except); pass `forms=MACRO_FORMS` (or specific names) for macro goals.
-    Retries if a macro form degenerates to no movable agents (all at target)."""
+    all_except); pass MACRO_FORMS (goals) or REGION_FORMS (spatial predicates), or
+    specific names. Retries if a form degenerates to no movable/matching agents."""
     forms = forms or MICRO_FORMS
     valid = [f for f in forms if _form_valid(f, world)] or ["single"]
     for _ in range(5):
         form = rng.choice(valid)
-        cmd = _micro(world, form, rng) if form in MICRO_FORMS else _macro(world, form, rng)
+        if form in MICRO_FORMS:
+            cmd = _micro(world, form, rng)
+        elif form in MACRO_FORMS:
+            cmd = _macro(world, form, rng)
+        else:
+            cmd = _region(world, form, rng)
         if cmd.acceptable:
             return cmd
     return _micro(world, "single", rng)

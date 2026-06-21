@@ -5,9 +5,27 @@ a direction explicitly. Geometry values below are hand-computed (8x8 grid, N
 decreases y, moves clamp at edges)."""
 import random
 
-from arena.commands import (MACRO_FORMS, MICRO_FORMS, Command, away_dirs,
-                            sample_command, toward_dirs)
+from arena.commands import (MACRO_FORMS, MICRO_FORMS, REGION_FORMS, Command,
+                            away_dirs, region_targets, sample_command, toward_dirs)
 from arena.world import Agent, GridWorld
+
+
+def test_region_targets_by_half():
+    w = GridWorld(size=8, agents=[Agent("red", 1, 1, True), Agent("blue", 6, 6, True),
+                                  Agent("green", 1, 6, True), Agent("npc0", 2, 2, False)])
+    assert set(region_targets(w, "top")) == {"red"}            # y < 4
+    assert set(region_targets(w, "bottom")) == {"blue", "green"}
+    assert set(region_targets(w, "left")) == {"red", "green"}  # x < 4
+    assert set(region_targets(w, "right")) == {"blue"}         # npc excluded
+
+
+def test_region_command_is_reference_resolution():
+    w = GridWorld.random_init(8, 4, 2, rng=__import__("random").Random(2))
+    cmd = sample_command(w, __import__("random").Random(4), forms=REGION_FORMS)
+    assert cmd.granularity == "region"
+    dirs = {d for ds in cmd.acceptable.values() for d in ds}
+    assert len(dirs) == 1                                       # one shared direction
+    assert cmd.is_correct(cmd.ground_truth())
 
 
 def test_toward_dirs_reduce_distance():
