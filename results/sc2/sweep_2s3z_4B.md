@@ -43,9 +43,29 @@ small ⇒ the reply lands too late ⇒ `no_op`. Win/loss is read from the saved
 - The win-rate-vs-deadline *frontier* is flat at 0 for 4B (0 synchronously ⇒ 0 everywhere);
   the deadline rows show the *mechanism* (no_op/late vs prompt), not a different rate.
 
-## Next
-- **`2s_vs_1sc` (easiest SMAC map), synchronous** — does 4B win *anything*? Distinguishes
-  "2s3z is too hard for 4B" from "the pipeline/overhead can't win any map." (In progress.)
-- Optional: reduce camera-calibration overhead to give the LLM more decisions/episode and
-  better isolate capability; a larger model is not testable here (8B≈4B at macro; 14B won't
-  fit the 8 GB card).
+## 2s_vs_1sc (easiest SMAC map) — calibration did not bootstrap
+8 episodes, MAX_WAIT=60: **0 win / 0 lose / 8 tie**, and **the LLM was never queried**
+(0 `Start calling llm api`, 0 attacks, no metrics written). Each episode ran to the map's
+time limit as a tie: the agent never finished camera calibration, so it never centred a
+unit, never queried the LLM, and the idle stalkers vs the immobile spine crawler never
+engaged → timeout tie. The analytic camera calibration that bootstraps on 2s3z **fails
+entirely on 2s_vs_1sc** — the perception layer is **map-fragile**.
+
+## Overall conclusion (2026-06-21)
+On yubopc / SC2 5.0.15 the LLM-PySC2 + 4B pipeline does **not** win SMAC micro:
+- **2s3z** — LLM controls units but loses **0/8**, and the result is **deadline-invariant**
+  (identical at 60 s and 10 s) → not the clock.
+- **2s_vs_1sc** — calibration never bootstraps → LLM never queried → **8 ties**.
+
+The binding wall is the **per-decision perception/inference cost** (camera
+calibration/centring + ~25 s inference) against seconds-scale combat — plus, where the LLM
+does act, weak 4B micro. The real-time *deadline* is not the constraint here; the pipeline's
+per-decision **cost** is. This is the time-to-consequence thesis in a real game: SC2 combat
+sits far inside the non-viable regime for a ~25 s/decision commander, and the perception
+overhead is itself fragile (works on 2s3z, not on 2s_vs_1sc).
+
+## Next (optional, lower priority)
+- Confirm on another combat map that bootstraps (e.g. 3s5z).
+- 1.7B speed/capability angle (faster ⇒ meets tighter deadlines, but weaker micro).
+- Reduce camera-calibration overhead so the LLM gets more decisions/episode — the
+  highest-leverage fix, and what would actually isolate capability.
