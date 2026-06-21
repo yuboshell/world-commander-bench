@@ -265,6 +265,32 @@ def main() -> None:
             "latency directly, while input-context reduction mainly helps the VRAM budget.",
         })
 
+    # --- granularity spectrum + macro decomposition (from json) ---
+    gg = outdir / "granularity_grid.json"
+    idj = outdir / "intent_decompose.json"
+    if gg.exists():
+        g = json.loads(gg.read_text())
+        grows = "".join(f"<tr><td>{r['granularity']}</td><td>{r['grounding_per_agent']:.2f}</td>"
+                        f"<td>{r['lat_p50']:.0f} ms</td></tr>" for r in g["rows"])
+        note = ""
+        if idj.exists():
+            d = json.loads(idj.read_text())
+            note = (f" And intent classification (order→primitive) is <b>{d['accuracy']:.2f}</b> "
+                    "on 4B — so macro via <b>classify-then-code-execute ≈ that</b>, vs ~0.38 when "
+                    "the LLM does the geometry. Don't make the LLM plan geometry: it's perfect at "
+                    "intent and reference; put deterministic geometry in code.")
+        sections.append({
+            "title": "Granularity spectrum — reference is solved, planning is the cliff",
+            "png": None,
+            "intro": "<p>Three command granularities, 4B on fresh states: <b>micro</b> (named "
+            "reference), <b>region</b> (spatial reference — \"the top half\"), <b>macro</b> (goal "
+            "planning). Per-agent acceptable-set grounding.</p>",
+            "table": ("<table>\n<tr><th>granularity</th><th>grounding</th><th>p50 latency</th>"
+                      f"</tr>\n{grows}</table>"),
+            "caption": "Reference — named (1.00) and spatial (0.97) — is solved; goal planning "
+            "(0.38) is the cliff. So it's planning, not perception, that's hard." + note,
+        })
+
     # --- StarCraft II testbed (if metrics exist) ---
     sc2_files = sorted(outdir.glob("sc2_2s3z_*.jsonl"),
                        key=lambda p: SIZE_ORDER.get(p.stem.replace("sc2_2s3z_", ""), 999))
