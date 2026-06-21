@@ -129,23 +129,23 @@ figures.
 ## Hierarchy router — micro→small, macro→large (2026-06-21)
 
 The macro-capability curve motivates a hierarchy: micro is solved cheaply by a small
-model; macro needs the big (slow) one. So route each command to the right model.
-One fixed stream (n=80, half micro / half macro, fresh states), three policies:
+model; macro needs the big (slow) one. So route each command to the right model. One
+fixed stream, fresh states, three policies; **realistic 75%-micro mix, n=200**:
 
 | policy | grounding | p50 latency | micro p50 | macro grounding |
 |---|---|---|---|---|
-| small-only (4B) | 0.60 | 739 ms | 581 ms | 0.36 |
-| large-only (14B) | 0.73 | 1213 ms | 944 ms | 0.57 |
-| **router (4B micro / 14B macro)** | **0.73** | **1000 ms** | **556 ms** | 0.57 |
+| small-only (4B) | 0.76 | 571 ms | 548 ms | 0.33 |
+| large-only (14B) | 0.86 | 859 ms | 819 ms | 0.61 |
+| **router (4B micro / 14B macro)** | **0.86** | **563 ms** | **546 ms** | 0.61 |
 
-**Finding — the router Pareto-dominates.** It gets **large-only's accuracy (0.73)** at
-**lower latency (1000 vs 1213 ms)**, because the micro half goes to 4B and runs ~40%
-faster (556 vs 944 ms p50) while macro still gets 14B's 0.57. So you buy the big
-model's capability *only where it's needed* (macro), and pay the small model's latency
-where that suffices (micro). The win grows with the micro fraction (here a conservative
-50/50; real command streams are micro-heavy) and would widen further once macro itself
-is offloaded/decomposed. `RouterClient` + `scripts/hierarchy_sweep.py`; n=80, single
-run — preliminary.
+**Finding — the router gets the best of both.** It matches **large-only's accuracy
+(0.86)** at **small-only's latency (563 vs 571 ms)** — i.e. **~34% faster than
+large-only (859 ms) for the same accuracy**, because the micro majority runs on 4B and
+only the macro minority pays for 14B. The win **grows with the micro fraction**: at a
+conservative 50/50 (n=80) it was 1000 vs 1213 ms; at a realistic 75/25 the router's
+median collapses to the 4B latency. And it compounds with macro decomposition (below):
+route computable goals to code, so even the macro minority needn't hit the big model.
+`RouterClient` + `scripts/hierarchy_sweep.py`.
 
 ## Context-length latency + the prefix-cache lever (2026-06-21)
 
