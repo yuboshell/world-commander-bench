@@ -11,6 +11,14 @@ Win/loss from the `obs-list-episode<N>-{win,lose,tie}.pkl` suffix; **~25.5 s/dec
 > The conclusion evolved as data arrived (an honest-science trail): "universal wall" →
 > "map-dependent" → "moderate clock effect" → **final: capability-bound, deadline-invariant**
 > (the MAX_WAIT=5 floor was decisive — see 3s5z below).
+>
+> **BOTTOM LINE (high-n, the verdict):** the 4B LLM's win-rate edge on balanced 3s5z is
+> **~+10 pp and NOT statistically significant** (LLM-acts 49/64 vs no-effective-LLM 32/48,
+> p≈0.25) — and it *shrank* as n grew (+22→+17→+10 pp; regression to the mean). Win-rate is
+> **capability/matchup-bound**, not clock-bound. The reusable contribution is the validated
+> **drop-late mechanism** (a true real-time clock), not a win-rate number. Intermediate figures
+> below (e.g. the n≈28 "+20 pp, p≈0.11") are the trail to this verdict — see *Pooled real-time
+> contrast* for the firmest statement.
 
 ## Win-rate by map (synchronous, MAX_WAIT=60 s, 8 episodes)
 | map | win | lose | tie | LLM queried? | note |
@@ -72,10 +80,10 @@ no_op), so a missed decision stays missed. (Patch: `agents/llm_pysc2_agent_main.
 errors. Win-rate 5/8 ≈ the auto-attack baseline (58%) — with the LLM dropped, the agent reverts
 to auto-attack. So drop-late works: a deadline below the ~25 s latency removes the LLM's input.
 
-**Implication:** the *true* drop-late frontier should fall from ~78% (loose deadline, LLM acts
-in time) to ~58% (tight, LLM dropped = auto-attack) — unlike the flat soft-deadline frontier.
-The gap is the LLM's contribution (~+20 pp), which is small/noisy, so a clean curve needs many
-episodes/point (hand-off).
+**Implication:** the *true* drop-late frontier should fall from the LLM-acts win-rate (~77%) to
+the LLM-dropped ≈ auto-attack floor (~67%) — unlike the flat soft-deadline frontier. The gap is
+the LLM's contribution (**~+10 pp at high n, not significant** — see *Pooled real-time contrast*
+below), small and noisy, so a clean fine-grained curve needs many episodes/point (hand-off).
 
 **Drop-late frontier (3s5z) — mechanism robust, fine curve noise-limited:**
 | MAX_WAIT | drop-late win | discards | note |
