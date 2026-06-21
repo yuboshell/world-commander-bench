@@ -39,10 +39,10 @@
 
 <div class="tldr">
 <b>TL;DR.</b> A small LLM (Qwen3-4B) issues natural-language battle commands to StarCraft II units
-through LLM-PySC2. The headline pairing from a controlled study on the balanced <code>3s5z</code>
+through LLM-PySC2. The key result, from a controlled study on the balanced <code>3s5z</code>
 matchup: the 4B is <b>capable enough to roughly match the game's built-in auto-attack
-(≈77% vs ≈67% win-rate, +10 pp, <i>not</i> statistically significant)</b> — but it is
-<b>~25× too slow to act in real time</b> (~27 s per decision). So on this testbed the binding
+(≈77% vs ≈67% win rate, +10 pp, <i>not</i> statistically significant)</b> — but it is
+<b>~25× too slow to act in real time</b> (~27 s per decision). On this testbed the binding
 constraint is <b>latency, not capability</b>.
 </div>
 
@@ -51,11 +51,11 @@ constraint is <b>latency, not capability</b>.
   <source src="sc2_demo.mp4" type="video/mp4">
   Your browser can't play embedded video — <a href="sc2_demo.mp4">download the clip</a>.
 </video>
-<p class="cap">A live 3s5z game — the agent's army is the moving unit cluster (3 Stalkers + 5
-Zealots). <b>On-screen captions</b> call out each phase and the <b>real LLM command</b> driving it
-(focus-fire enemy Stalkers, Blink/Charge to reposition, finish the lowest-HP target). Sped up ~5×
-— each real decision takes <span class="bad">~27 s</span> (the latency wall). It's a wide game
-camera, so the units read as a small cluster; the captions track the action.</p>
+<p class="cap">A complete 3s5z game, rendered top-down so <b>every unit is visible</b> — allies in
+cyan, enemy in red, each sized by current health, the live count falling as units die. Captions
+name each phase and show the <b>actual LLM command</b> behind it (focus-firing the enemy Stalkers;
+Blink and Charge micro). The model commands the cyan army and, in this game, is out-microed and
+loses. Sped up — each real decision takes <span class="bad">~27&nbsp;s</span>.</p>
 
 <h3>What actually happens between a command and the game</h3>
 <p>Each decision, the harness sends the LLM the full game state (every unit's position, health,

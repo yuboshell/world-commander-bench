@@ -71,7 +71,7 @@ index b806c6a..ef2c5a3 100644
              agent.thread.start()
              agent.query_llm_times += 1
 diff --git a/llm_pysc2/agents/main_agent_funcs.py b/llm_pysc2/agents/main_agent_funcs.py
-index 5a68a87..89c6347 100644
+index 5a68a87..a3fdc12 100644
 --- a/llm_pysc2/agents/main_agent_funcs.py
 +++ b/llm_pysc2/agents/main_agent_funcs.py
 @@ -17,6 +17,7 @@ import time
@@ -108,8 +108,12 @@ index 5a68a87..89c6347 100644
      unit_f = None
      unit_r = None
      for unit in obs.observation.feature_units:
-@@ -234,25 +248,27 @@ def main_agent_func0(self, obs):
+@@ -232,27 +246,31 @@ def main_agent_func0(self, obs):
+     for unit in obs.observation.raw_units:
+       if unit.tag == self.first_select_unit_tag:
          unit_r = unit
++    if os.environ.get('WCB_SC2_FORCE_BADCALIB'):  # WCB TEST HOOK: force Path B (visual debug)
++      unit_f = None
      self.world_xy_calibration = True
      if unit_f is not None:
 -      offset_min = 0.5 * 128 / self.size_screen
@@ -155,6 +159,28 @@ index 5a68a87..89c6347 100644
        logger.info(
          f"[ID {self.log_id}] 2.2 正在校准xy世界坐标：校准完成{self.world_xy_calibration} x偏移量{self.world_x_offset} y偏移量{self.world_y_offset}")
        logger.info(f"[ID {self.log_id}] 2.2                 unit_f.x={unit_f.x} unit_f.y={unit_f.y}")
+@@ -277,6 +295,21 @@ def main_agent_func0(self, obs):
+       minimap_unit_x_predict = idx[:][1].mean()
+       minimap_unit_y_predict = idx[:][0].mean()
+ 
++      if os.environ.get('WCB_SC2_CALIB_ANALYTIC') == '1':
++        _wpm = self.world_range / self.size_minimap
++        _ex = minimap_camera_x_predict - minimap_unit_x_predict
++        _ey = minimap_camera_y_predict - minimap_unit_y_predict
++        if abs(_ex) > 3 or abs(_ey) > 3:  # damped correction only outside the deadband (avoid creep/noise-chasing)
++          self.world_x_offset -= _ex * _wpm * 0.4  # damped gain (<1) for the ~1-2 step camera lag
++          self.world_y_offset += _ey * _wpm * 0.4
++        self.world_xy_calibration = False  # only CENTER here; once the unit lands on-screen Path A fine-calibrates + completes
++        x, y = get_camera_xy(self, unit_r.x, unit_r.y)
++        logger.info(f"[ID {self.log_id}] 2.3-DBG mm_cam=({minimap_camera_x_predict:.1f},{minimap_camera_y_predict:.1f}) "
++                    f"mm_unit=({minimap_unit_x_predict:.1f},{minimap_unit_y_predict:.1f}) err=({_ex:.1f},{_ey:.1f}) "
++                    f"offset=({self.world_x_offset:.1f},{self.world_y_offset:.1f}) done={self.world_xy_calibration}")
++        self.func_id_history.append(573)
++        return actions.FUNCTIONS.llm_pysc2_move_camera((x, y))
++
+       if minimap_camera_x_predict > minimap_unit_x_predict + self.size_minimap * 0.1:
+         x, y = get_camera_xy(self, unit_r.x, unit_r.y)
+         if 0 < x:
 diff --git a/llm_pysc2/bin/llm_pysc2/pvz_task1.py b/llm_pysc2/bin/llm_pysc2/pvz_task1.py
 index b48a1db..001d4ce 100644
 --- a/llm_pysc2/bin/llm_pysc2/pvz_task1.py
@@ -227,10 +253,10 @@ index d1ff72c..0991ee8 100644
  
    def step(self, obs):
 diff --git a/llm_pysc2/bin/llm_smac/3s5z.py b/llm_pysc2/bin/llm_smac/3s5z.py
-index 5d5cca9..ec32d80 100644
+index 5d5cca9..3839f11 100644
 --- a/llm_pysc2/bin/llm_smac/3s5z.py
 +++ b/llm_pysc2/bin/llm_smac/3s5z.py
-@@ -20,6 +20,13 @@ import os
+@@ -20,9 +20,28 @@ import os
  class MainAgentLLMSmac(MainAgent):
    def __init__(self):
      config = ConfigSmac_3s5z()
@@ -244,6 +270,21 @@ index 5d5cca9..ec32d80 100644
      super(MainAgentLLMSmac, self).__init__(config, LLMAgent)
  
    def step(self, obs):
++    _d = os.environ.get('WCB_SC2_SAVE_FRAMES')  # WCB: per-step raw_units capture for the top-down demo render
++    if _d:
++      import numpy as np
++      os.makedirs(_d, exist_ok=True)
++      self._fr_tick = getattr(self, '_fr_tick', 0) + 1
++      if self._fr_tick % 3 == 0:
++        self._fr_n = getattr(self, '_fr_n', 0)
++        try:
++          np.save(os.path.join(_d, f"{self._fr_n:04d}.npy"), np.array(obs.observation.raw_units))
++          self._fr_n += 1
++        except Exception:
++          pass
+     return super().step(obs)
+ 
+ 
 diff --git a/llm_pysc2/bin/llm_smac/3s_vs_3z.py b/llm_pysc2/bin/llm_smac/3s_vs_3z.py
 index 9bdbfff..c0cd7c4 100644
 --- a/llm_pysc2/bin/llm_smac/3s_vs_3z.py

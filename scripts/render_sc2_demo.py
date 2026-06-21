@@ -48,9 +48,12 @@ def main():
     x0, x1, y0, y1 = bbox(frames)
     span = max(x1 - x0, y1 - y0, 1.0)
 
+    ox = (W - 2 * M - (x1 - x0) / span * (W - 2 * M)) / 2  # centre the content (keep aspect)
+    oy = (H - 2 * M - (y1 - y0) / span * (H - 2 * M)) / 2
+
     def px(x, y):
-        sx = M + (x - x0) / span * (W - 2 * M)
-        sy = M + (y - y0) / span * (H - 2 * M)
+        sx = M + ox + (x - x0) / span * (W - 2 * M)
+        sy = M + oy + (y - y0) / span * (H - 2 * M)
         return sx, H - sy  # flip y so north is up
 
     f_hud, f_lab = font(20), font(15, False)
