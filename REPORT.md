@@ -85,6 +85,35 @@ can't, at esports rates) but **"at what time-to-consequence does the agent stay
 viable, and how cheaply"** — which the deadline frontier (now annotated by regime)
 answers directly.
 
+## Macro vs micro (granularity axis) — 2026-06-20
+
+Same model (4B-AWQ, GPU 2), 80 commands each, human-paced 1 s deadline. Micro =
+explicit reference ("move the red agent north"); macro = state-dependent goal
+("everyone move toward the center / flee the nearest enemy"), scored by **per-agent**
+acceptable-set grounding (fraction of movable agents sent in a progress-making
+direction; an already-optimal agent is neither required nor penalized).
+
+| granularity | grounding (per-agent) | grounding (per-command) | p50 lat | p95 lat | miss@1 s |
+|---|---|---|---|---|---|
+| micro | 1.00 | 1.00 | 550 ms | 721 ms | 0.00 |
+| macro | 0.21 | 0.00 | 718 ms | 2451 ms | 0.19 |
+
+**Finding:** the bottleneck shifts from latency to **reasoning**. Micro (reference
+resolution) is solved — 1.00, fast. Macro (spatial planning from coordinates) is
+where 4B breaks: per-agent 0.21, never a whole command right, at ~2× the latency
+(more per-agent output, a fatter tail). On the (granularity × deadline) grid the
+agent is comfortably viable for micro in the human-paced regime but **not yet
+reliable for macro** — the open problem is reasoning, not the clock.
+
+**Caveat — don't over-read the 0.21.** It is *below* the ~0.4 a naive random valid
+move would score, which signals a confound rather than a clean capability ceiling.
+The likely culprit is the grid's unintuitive coordinate convention ("N decreases y",
+origin top-left), which the model appears to mishandle (e.g. moving an agent *away*
+from a below-right center). **Next (P2-follow-up):** restate geometry more
+intuitively (compass bearings, "row N from the top", or relative cues) and
+re-measure, and try a 14B, before concluding macro is a hard limit. The strict
+per-command 0.00 also argues for reporting macro per-agent, not all-or-nothing.
+
 ### Reading the numbers
 - **Grounding 1.00** — at the current scale (8×8 grid, 4 agents, 4 NPCs) the model resolves every command (single-target and "all-except" group forms). Deterministic (temperature 0).
 - **Deadline misses ~0.39** — ~40% of commands exceed the 500 ms tick budget. p50 (444 ms) sits right on the line, so the rate is sensitive and wobbles run-to-run (observed 0.385–0.425) under shared-GPU contention. p95 ~1080 ms is the tail.
