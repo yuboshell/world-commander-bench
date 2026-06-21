@@ -45,10 +45,14 @@ def main() -> None:
     base = f"{w.render_text()}\nOrder: \"{cmd.text}\"\nMoves:"
 
     rows = []
+    probe = 0
     for pad in pads:
-        prompt = FILLER * max(0, pad // 9) + base    # FILLER ~9 tokens
+        body = FILLER * max(0, pad // 9) + base      # FILLER ~9 tokens
         lats, ptoks = [], None
         for _ in range(a.reps):
+            probe += 1
+            # unique prefix per request -> no prefix-cache reuse -> true prefill cost
+            prompt = f"[probe {probe}] {body}"
             t0 = time.perf_counter()
             resp = client.chat.completions.create(
                 model=a.model,
