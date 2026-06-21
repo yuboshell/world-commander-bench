@@ -147,6 +147,34 @@ where that suffices (micro). The win grows with the micro fraction (here a conse
 is offloaded/decomposed. `RouterClient` + `scripts/hierarchy_sweep.py`; n=80, single
 run — preliminary.
 
+## Context-length latency + the prefix-cache lever (2026-06-21)
+
+Padded the prompt from ~185 to ~5250 input tokens (4B-AWQ, GPU 2, fixed 16-token
+output to isolate prefill). `scripts/context_latency.py`.
+
+| input tokens | latency, prefix-cache ON | latency, cache OFF (true prefill) |
+|---|---|---|
+| ~185 | 316 ms | 347 ms |
+| ~1240 | 328 ms | 521 ms |
+| ~2585 | 347 ms | 813 ms |
+| ~3915 | 367 ms | 1078 ms |
+| ~5250 | 347 ms | **1417 ms** |
+
+**Finding — input context is a real but cacheable latency cost.** True prefill is
+~linear (~0.2 ms/token here): latency ~4× from 185→5250 tokens. **But with prefix
+caching (vLLM default), reused context is ~free** — latency stays flat. (My first run
+accidentally measured the cached path — same prompt repeated; caught by re-running with
+unique prompts + caching disabled.)
+
+**Levers this implies:**
+- A decision's context is mostly **static** (system prompt + unit/ability wiki) with a
+  small changing game-state delta. **Prefix-caching that static prefix** cuts
+  per-decision prefill substantially — a concrete efficiency lever distinct from
+  output terseness.
+- It reframes the "long context is the wall" intuition: input context is a *modest,
+  cacheable* cost (~1 s at 5 k tokens here); the bigger latency driver is **output
+  length × decode speed** (hence the arena's terse-schema win, and CUDA graphs for SC2).
+
 ### Reading the numbers
 - **Grounding 1.00** — at the current scale (8×8 grid, 4 agents, 4 NPCs) the model resolves every command (single-target and "all-except" group forms). Deterministic (temperature 0).
 - **Deadline misses ~0.39** — ~40% of commands exceed the 500 ms tick budget. p50 (444 ms) sits right on the line, so the rate is sensitive and wobbles run-to-run (observed 0.385–0.425) under shared-GPU contention. p95 ~1080 ms is the tail.

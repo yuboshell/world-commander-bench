@@ -351,3 +351,12 @@ model clears bursts of ~3 commands; bigger flurries blow the deadline (backlog).
 
 ### milestone push — hierarchy + burst (calm cadence; no public repos)
 Next: KV-cache/VRAM efficiency + latency-vs-context (item 3) on GPU 2.
+
+### result — context-latency + prefix-cache catch (item 3)
+True prefill ~linear (~0.2 ms/token): latency 347→1417 ms over 185→5250 input tokens.
+**Caught an artifact**: the first run was flat (~340 ms) because repeated identical
+prompts hit vLLM's prefix cache; re-ran with unique prompts + `--no-enable-prefix-caching`
+for the true curve. Lever: prefix-cache the static prefix (system + wiki) for SC2; and
+input context is a modest, cacheable cost — output length is the bigger latency driver.
+In REPORT.md. (milestone push)
+Next: KV/VRAM concurrency or combined micro+macro capability curve (item 4).
