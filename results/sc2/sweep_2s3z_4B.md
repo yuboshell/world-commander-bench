@@ -42,12 +42,16 @@ Because 4B **wins** 3s5z synchronously, tightening the deadline below the ~25 s 
 should force `no_op`s and **drop the win-rate** — the clean real-time-clock effect on a winnable
 map (the SC2 analog of the arena's deadline frontier). Sweeping MAX_WAIT = {60, 30, 15, 10}:
 
-| MAX_WAIT | win/8 | status |
-|---|---|---|
-| 60 s | **8/8** | done (synchronous baseline) |
-| 30 s | _running_ | |
-| 15 s | _pending_ | |
-| 10 s | _pending_ | |
+| MAX_WAIT | win/8 | timeouts | status |
+|---|---|---|---|
+| 60 s | 8/8 | 0 | synchronous |
+| 30 s | 5/8 | 0 | still synchronous (deadline > latency) |
+| 15 s | _running_ | | below latency |
+| 10 s | _pending_ | | below latency |
+
+Pooled MAX_WAIT ≥ 30 (no timeouts): **13/16 ≈ 81%** synchronous win-rate — 8/8 vs 5/8 is
+sampling noise (the deadline didn't bite). The clock effect is expected only once
+MAX_WAIT < ~25 s (the inference latency), where replies start to time out (15 s, 10 s).
 
 ## Conclusion so far
 - **4B wins 3s5z 8/8 synchronously** → the LLM commander is viable for *some* SMAC matchups on
