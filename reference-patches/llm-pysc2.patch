@@ -87,10 +87,10 @@ index b48a1db..001d4ce 100644
        team['task'] = [
          {'time': None, 'pos': [52, 32], 'info': "Go to minimap coordinate [52, 32], and try to avoid been detected or attacked before arrival."},
 diff --git a/llm_pysc2/bin/llm_smac/2s3z.py b/llm_pysc2/bin/llm_smac/2s3z.py
-index 158e909..aecfb43 100644
+index 158e909..f19317e 100644
 --- a/llm_pysc2/bin/llm_smac/2s3z.py
 +++ b/llm_pysc2/bin/llm_smac/2s3z.py
-@@ -20,6 +20,12 @@ import os
+@@ -20,6 +20,16 @@ import os
  class MainAgentLLMSmac(MainAgent):
    def __init__(self):
      config = ConfigSmac_2s3z()
@@ -100,6 +100,10 @@ index 158e909..aecfb43 100644
 +      api_base=os.environ.get('WCB_SC2_API_BASE', 'http://127.0.0.1:8001/v1'),
 +      api_key='EMPTY')
 +    config.MAX_LLM_QUERY_TIMES = int(os.environ.get('WCB_SC2_MAX_QUERIES', '100'))
++    # Deadline override (wall-clock seconds the game waits for the LLM, then no_op).
++    # Default 15 (framework default); raise it (e.g. 60) for a near-synchronous
++    # win-rate baseline, or sweep it to trace win-rate vs time-to-consequence.
++    config.MAX_LLM_WAITING_TIME = float(os.environ.get('WCB_SC2_MAX_WAIT', '15'))
      super(MainAgentLLMSmac, self).__init__(config, LLMAgent)
  
    def step(self, obs):
