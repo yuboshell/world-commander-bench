@@ -117,6 +117,22 @@ n≈300+/side (infeasible on one 8 GB GPU). SC2 SMAC 3s5z is simply too auto-att
 noisy for a 4B LLM's small edge to register. **The drop-late *mechanism* stays validated and
 robust — that is the reusable contribution; the win-rate *magnitude* is an honest null/weak result.**
 
+## Qualitative — what the 4B actually commands (why the edge is small)
+Reading the LLM responses from a winning 3s5z run (`llm_log/…/CombatGroupSmac/a_raw.txt`, 21 decisions):
+- **Tactically sensible, not incompetent:** every decision focus-fires the closest / lowest-health
+  enemy and uses abilities reasonably (Zealot `Charge`, Stalker `Blink` to reposition) — e.g.
+  *"focus on the Zealot with 5% health"*, *"Blink to attack from a safe distance"*.
+- **But largely redundant with auto-attack:** "attack the nearest/weakest" is essentially what SC2
+  units already do on their own, so the LLM mostly **commands what would happen anyway** — which is
+  exactly why it adds only a small, non-significant edge. The genuine value-adds (Blink/Charge
+  timing, focus-target choice) are real but marginal.
+- **Occasional hallucination:** late-game it mislabels leftover enemies as "drones" in a
+  Zealot/Stalker map — harmless here, but a sign the 4B loses track as state thins.
+
+So the null is **redundancy, not incompetence**: the 4B plays reasonable, auto-attack-like micro.
+A meaningfully larger edge would need decisions that *diverge* from the default (true kiting,
+cross-team focus coordination) more reliably than this model produces.
+
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
   auto-attack: 3s5z 58% → 78% (+20 pp, **p≈0.11 — not significant** at n≈28/side); 2s3z 0% → 0%
