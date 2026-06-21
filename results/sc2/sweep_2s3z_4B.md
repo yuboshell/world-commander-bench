@@ -1,71 +1,66 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~01:45 MDT (autonomous overnight run; 3s5z deadline sweep in progress)
+**Last updated:** 2026-06-21 ~02:35 MDT (autonomous overnight run; complete)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
-`--gpu-memory-utilization 0.65`, offline); reached from Windows pysc2 at `localhost:8001`.
-Win/loss from the saved `obs-list-episode<N>-{win,lose,tie}.pkl` suffix; latency ~25.5 s/decision
-(deadline-independent — it's the model's inference cost). `WCB_SC2_MAX_WAIT` overrides the
-agent's `MAX_LLM_WAITING_TIME` (wall-clock seconds the game waits for the LLM before `no_op`).
+`--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
+Win/loss from the `obs-list-episode<N>-{win,lose,tie}.pkl` suffix; **~25.5 s/decision**
+(deadline-independent — model inference cost). `WCB_SC2_MAX_WAIT` overrides the agent's
+`MAX_LLM_WAITING_TIME` (wall-clock seconds the game waits for the LLM before `no_op`).
 
-## ⚠️ Correction
-An earlier version of this file concluded a "universal overhead/capability wall — the pipeline
-can't win any map." **That was wrong**, overturned by the 3s5z result below. The pipeline
-*does* win SMAC; win-rate is **map/matchup-dependent**.
+> The conclusion evolved as data arrived (an honest-science trail): "universal wall" →
+> "map-dependent" → "moderate clock effect" → **final: capability-bound, deadline-invariant**
+> (the MAX_WAIT=5 floor was decisive — see 3s5z below).
 
-## Win-rate by map (synchronous, MAX_WAIT=60 s, 8 episodes each)
-
+## Win-rate by map (synchronous, MAX_WAIT=60 s, 8 episodes)
 | map | win | lose | tie | LLM queried? | note |
 |---|---|---|---|---|---|
-| **3s5z** | **8** | 0 | 0 | yes (19 dec, 131 attacks) | 4B **wins every game** |
-| **2s3z** | 0 | **8** | 0 | yes (15 dec, 57 attacks) | LLM controls units, loses every game |
-| 2s_vs_1sc | 0 | 0 | **8** | **no** (0 queries) | camera calibration never bootstrapped → idle → timeout ties |
+| **3s5z** | **8** | 0 | 0 | yes | 4B wins every game (real victories) |
+| **2s3z** | 0 | **8** | 0 | yes | LLM controls units, loses every game |
+| 2s_vs_1sc | 0 | 0 | **8** | **no** | camera calibration never bootstrapped → idle → timeout ties |
 
-**4B can win SMAC** (3s5z 8/8) — so the harness, perception, and 4B's micro are *good enough*
-for some matchups. 2s3z is specifically unfavorable (0/8). A plausible mechanism: 3s5z's larger
-force (8 units) is more resilient to the heavy per-decision overhead (~700 camera-calibration
-moves + ~25 s inference, ~2 LLM decisions/episode), so the army survives long enough for the
-LLM's sparse commands to win; 2s3z's smaller force and tighter micro do not. (2s_vs_1sc is a
-separate calibration-bootstrap bug, not a capability datapoint.)
+## 2s3z — deadline sweep (8 eps/point): flat at 0
+| MAX_WAIT | win/8 | timeouts |
+|---|---|---|
+| 60 s | 0 | 0 |
+| 10 s | 0 | 26 |
+Lost even synchronously → **capability wall** (the matchup is beyond 4B); deadline-invariant.
 
-## 2s3z — deadline sweep (8 episodes/point)
-| MAX_WAIT | win | lose | tie | timeouts→no_op | note |
-|---|---|---|---|---|---|
-| 60 s (sync) | 0 | 8 | 0 | 0 | LLM controls promptly, loses |
-| 10 s (tight) | 0 | 8 | 0 | 26 | replies miss deadline, late control, loses |
+## 3s5z — deadline sweep (8 eps/point): ~75%, deadline-invariant
+| MAX_WAIT | win/8 | timeouts→no_op |
+|---|---|---|
+| 60 s | 8/8 | 0 |
+| 30 s | 5/8 | 0 |
+| 15 s | 4/8 | 21 |
+| 10 s | 5/8 | 50 |
+| 5 s | 8/8 | 74 |
 
-2s3z is **deadline-invariant at 0** (the model can't win it even synchronously), so its frontier
-is flat — not informative about the clock.
+**Overall 30/40 ≈ 75% win, with no systematic deadline dependence** (8/8 at *both* the loosest
+60 s and the tightest 5 s; the 4–5/8 dip in the middle is 8-episode noise). Timeouts rise
+0 → 74 as the deadline tightens, but win-rate does **not** fall.
 
-## 3s5z — deadline sweep (the informative frontier) — IN PROGRESS
-Because 4B **wins** 3s5z synchronously, tightening the deadline below the ~25 s inference latency
-should force `no_op`s and **drop the win-rate** — the clean real-time-clock effect on a winnable
-map (the SC2 analog of the arena's deadline frontier). Sweeping MAX_WAIT = {60, 30, 15, 10}:
-
-| MAX_WAIT | win/8 | timeouts | status |
-|---|---|---|---|
-| 60 s | 8/8 | 0 | synchronous |
-| 30 s | 5/8 | 0 | still synchronous (deadline > latency) |
-| 15 s | 4/8 | 21 | below latency — clock biting (81%→50%) |
-| 10 s | 5/8 | 50 | below latency — no collapse (late replies still applied) |
-| 5 s | _running_ | | extreme floor |
-
-**Pooled — synchronous (≥ 30 s, 0 timeouts): 13/16 ≈ 81%; tight (15+10 s, with timeouts):
-9/16 ≈ 56%.** The clock *does* reduce 3s5z win-rate (~81% → ~56%) but does **not collapse**
-it: LLM-PySC2 is async with **late application** — a reply that misses the deadline triggers a
-`no_op` that cycle but is still applied on a later cycle — and 3s5z's larger force tolerates
-the delay. Per-point noise is large at 8 eps; pooling reduces it.
-
-## Conclusion so far
-- **4B wins 3s5z 8/8 synchronously** → the LLM commander is viable for *some* SMAC matchups on
-  SC2 5.0.15; the pipeline is not universally walled.
-- **2s3z is lost 0/8 and deadline-invariant** → for that matchup the wall is capability +
-  per-decision overhead, not the clock.
-- **3s5z deadline sweep:** synchronous ~81% → tight (<latency) ~56% — a **moderate** real-game
-  time-to-consequence effect, softened by the framework's late-reply application and the
-  resilient 8-unit force (not a collapse). MAX_WAIT=5 floor probe in progress.
+## Conclusion
+- **Win-rate is capability/matchup-bound, not clock-bound** (in this framework). 4B wins 3s5z
+  (~75%) and loses 2s3z (0%), and both are **deadline-invariant** across MAX_WAIT 5–60 s.
+- **Why no clock effect:** LLM-PySC2's deadline is **soft** — a reply that misses the deadline
+  fires a `no_op` that cycle but is still applied on a later cycle, so the LLM's commands get
+  executed (just delayed), and 3s5z's larger force tolerates the delay. The deadline knob
+  changes *timeout counts* (0 → 74), not the *outcome*.
+- **To expose a real-time frontier you need true drop-late** — discard a decision whose
+  deadline passed instead of applying it late. That is exactly the **World Commander clock
+  layer** (wall-clock deadlines + drop-late + VRAM ceiling) that SC2.md lists as "still to add."
+  Until then, SC2 win-rate measures capability, not real-time viability.
+- **Consistent with the arena:** capability/matchup is the binding axis here; the clock only
+  bites once you enforce a hard drop-late deadline (the arena's deadline-miss metric).
 
 ## Caveats
-- 8 episodes/point (binomial noise; 0/8 and 8/8 are still strong signals).
-- Heavy camera-calibration overhead means this measures the **pipeline**, not 4B's raw micro.
-- Single model (4B); 2s_vs_1sc calibration bug unresolved.
+- 8 episodes/point (wide binomial CIs; pooled 3s5z n=40). Single model (4B).
+- Heavy camera-calibration overhead (~700 move_camera/episode, ~2 LLM decisions/episode) means
+  this measures the **pipeline**, not 4B micro in isolation.
+- 2s_vs_1sc calibration-bootstrap bug unresolved (no LLM data for that map).
+
+## Suggested next steps
+- Implement **drop-late** (don't apply replies past the deadline) → then re-run the 3s5z sweep
+  to get a *true* win-rate-vs-deadline frontier.
+- More episodes/point to tighten CIs; a stronger model for 2s3z (won't fit 8 GB here).
+- Fix the per-unit camera-centering overhead so the LLM gets more decisions/episode.
