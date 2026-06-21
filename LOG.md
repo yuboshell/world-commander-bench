@@ -414,3 +414,8 @@ exact code execution, macro grounding via decomposition ~1.00 vs 0.38 LLM-does-g
 Conclusion: don't make the LLM plan geometry — it's perfect at intent (1.00) + reference
 (1.00/0.97); put deterministic geometry in code. Dissolves the macro cliff on a small
 model. intent_decompose.py. (milestone push)
+
+### result — memory commands; FULL TAXONOMY (reference solved, planning is the cliff)
+4B fresh (n=120): micro 1.00, region 0.97, memory 0.99, macro 0.37. Named, spatial, AND
+temporal reference all ~solved; only goal planning collapses. Clean separation the
+benchmark now measures. (milestone push) — tapering experiments after this.

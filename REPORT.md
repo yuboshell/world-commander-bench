@@ -179,22 +179,24 @@ unique prompts + caching disabled.)
 
 ## Region commands — spatial *reference* is solved; *planning* is the cliff (2026-06-21)
 
-Added region commands (select agents by a spatial predicate — "the top half", "nearest
-the centre" — then move them; `REGION_FORMS`, `scripts/granularity_grid.py`). 4B on
-fresh states (n=120):
+Added region commands (spatial predicate — "the top half") and memory commands
+(temporal reference — "the agents I sent west earlier", with the recent-command history
+in the prompt context). The benchmark now spans a full command taxonomy. 4B on fresh
+states (n=120; `REGION_FORMS`/`MEMORY_FORMS`, `scripts/granularity_grid.py`):
 
 | granularity | grounding (per-agent) | p50 lat |
 |---|---|---|
-| micro (named reference) | 1.00 | 558 ms |
-| region (spatial reference) | 0.97 | 726 ms |
-| macro (goal planning) | 0.38 | 745 ms |
+| micro (named reference) | 1.00 | 547 ms |
+| region (spatial reference) | 0.97 | 706 ms |
+| memory (temporal reference) | 0.99 | 715 ms |
+| macro (goal planning) | 0.37 | 721 ms |
 
-**Refines the capability story.** It is *not* spatial reasoning broadly that 4B lacks:
-it reads positions and applies a predicate ("which agents are in the top half") at 0.97,
-nearly as well as named reference. What collapses is **goal-directed planning** (pick the
-move that makes progress toward a target). So the cliff is **planning, not perception/
-reference** — and that's exactly what the hierarchy should escalate to the big model (or
-decompose into reference-sized steps).
+**The cliff is planning, not reference — of any kind.** 4B resolves **named, spatial,
+and temporal** reference all at ~0.97–1.00; only **goal-directed planning** (pick the
+move that makes progress toward a target) collapses, to 0.37. So it's not perception,
+memory, or spatial grounding that's hard — it's *planning*. That is exactly what the
+hierarchy escalates (or, since the geometry is computable, what decomposition routes to
+code — see below). A clean separation the benchmark now measures directly.
 
 ## Decompose macro: classify intent (LLM) + execute geometry (code) (2026-06-21)
 
