@@ -86,6 +86,23 @@ index b48a1db..001d4ce 100644
      for team in config.AGENTS['CombatGroup7']['team']:
        team['task'] = [
          {'time': None, 'pos': [52, 32], 'info': "Go to minimap coordinate [52, 32], and try to avoid been detected or attacked before arrival."},
+diff --git a/llm_pysc2/bin/llm_smac/1c3s5z.py b/llm_pysc2/bin/llm_smac/1c3s5z.py
+index c5ede8a..64929cb 100644
+--- a/llm_pysc2/bin/llm_smac/1c3s5z.py
++++ b/llm_pysc2/bin/llm_smac/1c3s5z.py
+@@ -20,6 +20,12 @@ import os
+ class MainAgentLLMSmac(MainAgent):
+   def __init__(self):
+     config = ConfigSmac_1c3s5z()
++    config.reset_llm(
++      model_name=os.environ.get('WCB_SC2_MODEL', 'Qwen/Qwen3-4B-AWQ'),
++      api_base=os.environ.get('WCB_SC2_API_BASE', 'http://127.0.0.1:8001/v1'),
++      api_key='EMPTY')
++    config.MAX_LLM_QUERY_TIMES = int(os.environ.get('WCB_SC2_MAX_QUERIES', '100'))
++    config.MAX_LLM_WAITING_TIME = float(os.environ.get('WCB_SC2_MAX_WAIT', '15'))
+     super(MainAgentLLMSmac, self).__init__(config, LLMAgent)
+ 
+   def step(self, obs):
 diff --git a/llm_pysc2/bin/llm_smac/2s3z.py b/llm_pysc2/bin/llm_smac/2s3z.py
 index 158e909..f19317e 100644
 --- a/llm_pysc2/bin/llm_smac/2s3z.py
@@ -103,6 +120,59 @@ index 158e909..f19317e 100644
 +    # Deadline override (wall-clock seconds the game waits for the LLM, then no_op).
 +    # Default 15 (framework default); raise it (e.g. 60) for a near-synchronous
 +    # win-rate baseline, or sweep it to trace win-rate vs time-to-consequence.
++    config.MAX_LLM_WAITING_TIME = float(os.environ.get('WCB_SC2_MAX_WAIT', '15'))
+     super(MainAgentLLMSmac, self).__init__(config, LLMAgent)
+ 
+   def step(self, obs):
+diff --git a/llm_pysc2/bin/llm_smac/2s_vs_1sc.py b/llm_pysc2/bin/llm_smac/2s_vs_1sc.py
+index d1ff72c..0991ee8 100644
+--- a/llm_pysc2/bin/llm_smac/2s_vs_1sc.py
++++ b/llm_pysc2/bin/llm_smac/2s_vs_1sc.py
+@@ -20,6 +20,13 @@ import os
+ class MainAgentLLMSmac(MainAgent):
+   def __init__(self):
+     config = ConfigSmac_2s()
++    # World Commander: point at our vLLM + env-driven deadline (mirrors 2s3z.py).
++    config.reset_llm(
++      model_name=os.environ.get('WCB_SC2_MODEL', 'Qwen/Qwen3-4B-AWQ'),
++      api_base=os.environ.get('WCB_SC2_API_BASE', 'http://127.0.0.1:8001/v1'),
++      api_key='EMPTY')
++    config.MAX_LLM_QUERY_TIMES = int(os.environ.get('WCB_SC2_MAX_QUERIES', '100'))
++    config.MAX_LLM_WAITING_TIME = float(os.environ.get('WCB_SC2_MAX_WAIT', '15'))
+     super(MainAgentLLMSmac, self).__init__(config, LLMAgent)
+ 
+   def step(self, obs):
+diff --git a/llm_pysc2/bin/llm_smac/3s5z.py b/llm_pysc2/bin/llm_smac/3s5z.py
+index 5d5cca9..ec32d80 100644
+--- a/llm_pysc2/bin/llm_smac/3s5z.py
++++ b/llm_pysc2/bin/llm_smac/3s5z.py
+@@ -20,6 +20,13 @@ import os
+ class MainAgentLLMSmac(MainAgent):
+   def __init__(self):
+     config = ConfigSmac_3s5z()
++    # World Commander: point at our vLLM + env-driven deadline (mirrors 2s3z.py).
++    config.reset_llm(
++      model_name=os.environ.get('WCB_SC2_MODEL', 'Qwen/Qwen3-4B-AWQ'),
++      api_base=os.environ.get('WCB_SC2_API_BASE', 'http://127.0.0.1:8001/v1'),
++      api_key='EMPTY')
++    config.MAX_LLM_QUERY_TIMES = int(os.environ.get('WCB_SC2_MAX_QUERIES', '100'))
++    config.MAX_LLM_WAITING_TIME = float(os.environ.get('WCB_SC2_MAX_WAIT', '15'))
+     super(MainAgentLLMSmac, self).__init__(config, LLMAgent)
+ 
+   def step(self, obs):
+diff --git a/llm_pysc2/bin/llm_smac/3s_vs_3z.py b/llm_pysc2/bin/llm_smac/3s_vs_3z.py
+index 9bdbfff..c0cd7c4 100644
+--- a/llm_pysc2/bin/llm_smac/3s_vs_3z.py
++++ b/llm_pysc2/bin/llm_smac/3s_vs_3z.py
+@@ -20,6 +20,12 @@ import os
+ class MainAgentLLMSmac(MainAgent):
+   def __init__(self):
+     config = ConfigSmac_3s()
++    config.reset_llm(
++      model_name=os.environ.get('WCB_SC2_MODEL', 'Qwen/Qwen3-4B-AWQ'),
++      api_base=os.environ.get('WCB_SC2_API_BASE', 'http://127.0.0.1:8001/v1'),
++      api_key='EMPTY')
++    config.MAX_LLM_QUERY_TIMES = int(os.environ.get('WCB_SC2_MAX_QUERIES', '100'))
 +    config.MAX_LLM_WAITING_TIME = float(os.environ.get('WCB_SC2_MAX_WAIT', '15'))
      super(MainAgentLLMSmac, self).__init__(config, LLMAgent)
  
