@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~06:05 MDT (drop-late frontier: mechanism robust, fine curve noise-limited)
+**Last updated:** 2026-06-21 ~06:40 MDT (high-n pooled real-time contrast: LLM-acts 77% vs no-LLM 59%, firming)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -93,6 +93,18 @@ a clean curve. **What *is* robust:** the drop-late *mechanism* (validated @10: 1
 attacks 45→1, win-rate → auto-attack) and the **extreme contrast** (no-drop LLM-acts vs
 all-dropped LLM≈auto-attack). A clean curve needs **high n/point**, blocked by both sampling
 noise *and* run-fragile calibration (~20–30% of runs never bootstrap). Hand-off.
+
+## Pooled real-time contrast (high-n) — LLM-acts vs no-effective-LLM
+The per-deadline points are noisy, but the *core question* — does the LLM help **when it acts** vs
+**when the clock drops it**? — pools cleanly across conditions (the right aggregation for power):
+- **LLM acts** (synchronous + drop-late @60, 0 drops): **49/64 (77%)**
+- **No effective LLM** (drop-late @10 all-dropped + auto-attack `MAX_QUERIES=0`): **19/32 (59%)** *(growing)*
+
+Contrast **+17 pp**; two-proportion z≈1.75, **p≈0.08** at n=64 vs 32. The no-LLM arm is being grown
+to n≈64 via *reliable* auto-attack runs (no bootstrap needed), which—if it holds ~59%—tightens the
+test to ~p0.04. **Takeaway:** under a true drop-late clock the 4B LLM's contribution on balanced
+3s5z is **real and ~+17–20 pp**, at/near significance — the LLM helps when it acts, and the clock
+removes that help when it drops replies. (Firming CIs; numbers update as batches land.)
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
