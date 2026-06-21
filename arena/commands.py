@@ -25,13 +25,15 @@ DIR_WORD = {"N": "north", "S": "south", "E": "east", "W": "west"}
 MICRO_FORMS = ["single", "subset", "all_except"]
 MACRO_FORMS = ["converge", "scatter", "home", "flee"]
 REGION_FORMS = ["half", "nearest_center"]
+MEMORY_FORMS = ["memory"]
 
 
 @dataclass
 class Command:
     text: str                          # the natural-language phrasing shown to the model
     acceptable: dict[str, set[str]]    # agent name -> acceptable directions (singleton for micro)
-    granularity: str = "micro"         # "micro" | "macro"
+    granularity: str = "micro"         # "micro" | "macro" | "region" | "memory"
+    context: str = ""                  # extra prompt text (e.g. recent-command history for memory)
 
     @property
     def targets(self) -> list[str]:
@@ -167,6 +169,23 @@ def _region(world: GridWorld, form: str, rng: random.Random) -> Command:
                    granularity="region")
 
 
+def _memory(world: GridWorld, rng: random.Random) -> Command:
+    """Temporal reference: name agents by the direction they were last sent. Uses a
+    synthesized recent-command history placed in the prompt `context`, so the model
+    must resolve "the ones I sent west earlier" from that history."""
+    ctrl = world.controlled()
+    dirs = list(DIRECTIONS)
+    history = {a.name: rng.choice(dirs) for a in ctrl}
+    prev = rng.choice([history[a.name] for a in ctrl])
+    new = rng.choice(dirs)
+    targets = [n for n, d in history.items() if d == prev]
+    ctx = ("Recent commands: "
+           + ", ".join(f"you sent {n} {DIR_WORD[history[n]]}" for n in history) + ".")
+    text = f"The agents I sent {DIR_WORD[prev]} earlier, now move them {DIR_WORD[new]}."
+    return Command(text=text, acceptable={n: {new} for n in targets},
+                   granularity="memory", context=ctx)
+
+
 def _form_valid(form: str, world: GridWorld) -> bool:
     n = len(world.controlled())
     if form == "subset":
@@ -191,8 +210,10 @@ def sample_command(world: GridWorld, rng: random.Random,
             cmd = _micro(world, form, rng)
         elif form in MACRO_FORMS:
             cmd = _macro(world, form, rng)
-        else:
+        elif form in REGION_FORMS:
             cmd = _region(world, form, rng)
+        else:
+            cmd = _memory(world, rng)
         if cmd.acceptable:
             return cmd
     return _micro(world, "single", rng)

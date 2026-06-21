@@ -5,9 +5,21 @@ a direction explicitly. Geometry values below are hand-computed (8x8 grid, N
 decreases y, moves clamp at edges)."""
 import random
 
-from arena.commands import (MACRO_FORMS, MICRO_FORMS, REGION_FORMS, Command,
-                            away_dirs, region_targets, sample_command, toward_dirs)
+from arena.commands import (MACRO_FORMS, MEMORY_FORMS, MICRO_FORMS, REGION_FORMS,
+                            Command, away_dirs, region_targets, sample_command,
+                            toward_dirs)
 from arena.world import Agent, GridWorld
+
+
+def test_memory_command_resolves_by_last_direction():
+    w = GridWorld.random_init(8, 4, 2, rng=__import__("random").Random(3))
+    cmd = sample_command(w, __import__("random").Random(11), forms=MEMORY_FORMS)
+    assert cmd.granularity == "memory"
+    assert "Recent commands" in cmd.context           # history is in the prompt context
+    dirs = {d for ds in cmd.acceptable.values() for d in ds}
+    assert len(dirs) == 1                              # one shared (new) direction
+    assert len(cmd.targets) >= 1
+    assert cmd.is_correct(cmd.ground_truth())
 
 
 def test_region_targets_by_half():

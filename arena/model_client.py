@@ -22,7 +22,8 @@ SYSTEM = (
 
 
 def build_prompt(world: GridWorld, command: Command, style: str = "xy") -> str:
-    return f"{world.render_text(style)}\nOrder: \"{command.text}\"\nMoves:"
+    ctx = f"{command.context}\n" if command.context else ""
+    return f"{world.render_text(style)}\n{ctx}Order: \"{command.text}\"\nMoves:"
 
 
 def parse_moves(reply: str) -> set[tuple[str, str]]:

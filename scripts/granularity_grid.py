@@ -17,13 +17,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from arena.commands import (MACRO_FORMS, MICRO_FORMS, REGION_FORMS,   # noqa: E402
-                            sample_command)
+from arena.commands import (MACRO_FORMS, MEMORY_FORMS, MICRO_FORMS,   # noqa: E402
+                            REGION_FORMS, sample_command)
 from arena.config import load_config                                  # noqa: E402
 from arena.model_client import RealClient                             # noqa: E402
 from arena.world import GridWorld                                     # noqa: E402
 
-POOLS = {"micro": MICRO_FORMS, "region": REGION_FORMS, "macro": MACRO_FORMS}
+POOLS = {"micro": MICRO_FORMS, "region": REGION_FORMS,
+         "memory": MEMORY_FORMS, "macro": MACRO_FORMS}
 
 
 def main() -> None:
