@@ -60,6 +60,23 @@ Lost even synchronously → **capability wall** (the matchup is beyond 4B); dead
 60 s and the tightest 5 s; the 4–5/8 dip in the middle is 8-episode noise). Timeouts rise
 0 → 74 as the deadline tightens, but win-rate does **not** fall.
 
+## Drop-late (true real-time clock) — implemented + validated (2026-06-21 ~04:40 MDT)
+The default LLM-PySC2 deadline is *soft* (a late reply is still applied), which is why win-rate
+was deadline-invariant. I added an env-gated **drop-late** path (`WCB_SC2_DROP_LATE=1`): record
+each query's fire-time + deadline and **discard** a reply that arrives past the deadline (a true
+no_op), so a missed decision stays missed. (Patch: `agents/llm_pysc2_agent_main.py` +
+`agents/llm_pysc2_agent.py`; default off → no change to existing behavior.)
+
+**Validation (3s5z, MAX_WAIT=10, drop-late ON, 8 ep):** 13/13 late replies **discarded**
+(logged), `Attack_screen` actions fell **45 → 1** (the LLM is effectively switched off), 0
+errors. Win-rate 5/8 ≈ the auto-attack baseline (58%) — with the LLM dropped, the agent reverts
+to auto-attack. So drop-late works: a deadline below the ~25 s latency removes the LLM's input.
+
+**Implication:** the *true* drop-late frontier should fall from ~78% (loose deadline, LLM acts
+in time) to ~58% (tight, LLM dropped = auto-attack) — unlike the flat soft-deadline frontier.
+The gap is the LLM's contribution (~+20 pp), which is small/noisy, so a clean curve needs many
+episodes/point (hand-off). Endpoints being sketched (drop-late @60 vs @15).
+
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
   auto-attack: 3s5z 58% → 78% (+20 pp, **p≈0.11 — not significant** at n≈28/side); 2s3z 0% → 0%
