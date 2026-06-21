@@ -315,3 +315,28 @@ Google Drive) and auto commit/push after each job.
 **Outcome:** first real grounding (1.00) and latency numbers captured. Deadline misses (~40%) are real-time-clock pressure under shared-GPU contention.
 
 **Decisions pending:** visualization output format (image/GIF/video) and transfer method to MacBook (GitHub vs Google Drive).
+
+---
+
+## 2026-06-21 (overnight, autonomous) — plan
+
+Guardrails in force (post-suspension): commit locally often, **push to GitLab per
+milestone only** (no bursty pushes), **never auto-create public repos/Pages**, **GPU 2
+only** (GPU 0/1 + `:8000` are the shared bot — leave alone). amax-side work only
+(SC2 win-rate is yubopc's).
+
+Backlog (highest value first):
+1. **Hierarchy router** — route micro→small/fast (4B), macro→large/capable (14B);
+   compare vs single-model baselines (`RouterClient`, `scripts/hierarchy_sweep.py`).
+   Tests the architecture the macro-capability curve motivated. [running]
+2. **Burst-load model** — reframe the command-stream load from sustained rate to
+   crisis bursts; `simulate_stream` takes arbitrary arrivals. Pure-Python + replay, TDD.
+3. **KV-cache / VRAM efficiency sweep** — vary serving knobs on GPU 2, measure
+   latency/throughput at SC2-scale context (the stated efficiency-sweep TODO).
+4. **Combined micro+macro capability curve** (same fresh methodology, all sizes).
+5. Memory / region commands (`commands.py` TODO); research synthesis.
+
+### entry — hierarchy router built (TDD, 38 green)
+`RouterClient` (micro→small, macro→large) + `hierarchy_sweep.py` (3 policies over one
+fixed half-micro/half-macro stream, fresh states). GPU eval launching (4B on GPU 2 +
+14B on `:8000`).

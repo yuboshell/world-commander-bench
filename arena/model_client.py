@@ -136,3 +136,20 @@ class MockClient:
         name0 = gt[0][0]
         bad = next(d for d in DIRECTIONS if d not in command.acceptable.get(name0, set()))
         return {(name0, bad)} | set(gt[1:])
+
+
+class RouterClient:
+    """Hierarchy: route each command to a sub-client. Default policy sends macro
+    (spatial planning) to the large/capable model and micro (reference resolution)
+    to the small/fast one — the architecture the macro-capability curve motivates
+    (micro is solved cheaply; macro needs the big model). `route(command)` returns
+    'large' or 'small'."""
+
+    def __init__(self, small, large, route=None):
+        self.small = small
+        self.large = large
+        self.route = route or (lambda c: "large" if c.granularity == "macro" else "small")
+
+    def act(self, world: GridWorld, command: Command) -> set[tuple[str, str]]:
+        target = self.large if self.route(command) == "large" else self.small
+        return target.act(world, command)
