@@ -94,19 +94,29 @@ progress-making direction; an already-optimal agent is neither required nor
 penalized). Macro is evaluated on **fresh random states per command** (canonical,
 trajectory-free — see the methodology note below).
 
-| | grounding (per-agent) | grounding (per-command) | p50 lat |
-|---|---|---|---|
-| micro (4B) | 1.00 | 1.00 | 550 ms |
-| macro (4B) | 0.35 | 0.10 | 730 ms |
-| macro (14B) | 0.58 | 0.20 | 1130 ms |
+**Firm macro-capability curve** (n=200 per model, fresh states, `xy`; micro from the
+controlled sweep above):
 
-**Finding — macro is capability-bound, and the 4B "sweet spot" doesn't hold for it.**
-Micro (reference resolution) is solved for both sizes (1.00). Macro (spatial planning
-from coordinates) is genuinely hard: 14B reaches ~0.58 per-agent, but 4B only ~0.35
-(≈ what a random valid move scores) — so the model that's ideal for micro essentially
-can't do macro. Both rarely get a *whole* command right (per-command 0.05–0.20). So
-macro reintroduces the latency/efficiency tension micro had escaped: it needs a
-bigger, slower model. The open problem for macro is **reasoning capacity**, not the clock.
+| model | micro grounding | macro grounding (per-agent) | macro (per-command) | p50 lat |
+|---|---|---|---|---|
+| 1.7B | 0.41 | 0.03 | 0.00 | 565 ms |
+| 4B | 1.00 | 0.35 | 0.07 | 738 ms |
+| 8B | 1.00 | 0.36 | 0.06 | 768 ms |
+| 14B | ~1.00 | **0.59** | 0.22 | 1109 ms |
+
+**Finding — macro is capability-bound; the 4B "sweet spot" holds only for micro.**
+Micro (reference resolution) **saturates at 4B** (1.00) — small, cheap, done. Macro
+(spatial planning from coordinates) instead **climbs monotonically with size and is
+never solved**: 1.7B ≈ 0 (can't do it), 4B≈8B plateau at ~0.35 (≈ a random valid
+move), 14B 0.59 — and even 14B gets a *whole* macro command right only ~1 in 5
+(per-command 0.22). So macro **reintroduces the latency/efficiency tension micro had
+escaped**: the capability only arrives with a bigger, slower model (14B p50 1.1 s vs
+4B 0.74 s). The open problem for macro is **reasoning capacity**, not the clock.
+
+**Coordinate-convention hypothesis — rejected.** An A/B of the raw `xy` framing
+("N decreases y") vs an intuitive `map` framing (north = up = larger number) showed
+no reliable effect: `map` helped 4B (+0.10) but *hurt* 14B (−0.12) — small and
+sign-flipping within noise. The convention is not the barrier; macro is just hard.
 
 **Coordinate-convention hypothesis — rejected.** An A/B of the raw `xy` framing
 ("N decreases y") vs an intuitive `map` framing (north = up = larger number) showed

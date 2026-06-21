@@ -314,6 +314,44 @@ def plot_rate_frontier(models: list[dict], deadline_ms: float, out_path: str | P
     return Path(out_path)
 
 
+def plot_macro_capability(points: list[dict], out_path: str | Path,
+                          title: str = "Macro vs micro grounding by model size") -> Path:
+    """Left: grounding vs model size — micro (reference resolution) vs macro per-agent
+    (spatial planning), with the ~random-valid baseline. Right: macro p50 latency vs
+    size. Shows micro saturating cheaply while macro climbs and buys capability with latency."""
+    points = sorted(points, key=lambda p: p["size"])
+    xs = [p["size"] for p in points]
+    labels = [p["label"] for p in points]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.3))
+    ax1.plot(xs, [p["micro"] for p in points], marker="o", color="seagreen",
+             label="micro (reference resolution)")
+    ax1.plot(xs, [p["macro_pa"] for p in points], marker="s", color="crimson",
+             label="macro per-agent (spatial planning)")
+    ax1.axhline(0.4, color="0.6", ls=":", lw=1, label="≈ random valid move")
+    ax1.set_xscale("log")
+    ax1.set_xticks(xs)
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel("model size")
+    ax1.set_ylabel("grounding accuracy")
+    ax1.set_ylim(-0.02, 1.02)
+    ax1.set_title("Micro saturates at 4B; macro climbs, never solved")
+    ax1.grid(alpha=0.3)
+    ax1.legend(fontsize=8)
+    ax2.plot(xs, [p["lat_p50"] for p in points], marker="o", color="navy")
+    ax2.set_xscale("log")
+    ax2.set_xticks(xs)
+    ax2.set_xticklabels(labels)
+    ax2.set_xlabel("model size")
+    ax2.set_ylabel("macro p50 latency (ms)")
+    ax2.set_title("Capability buys latency")
+    ax2.grid(alpha=0.3)
+    fig.suptitle(title)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=120)
+    plt.close(fig)
+    return Path(out_path)
+
+
 def frame_data_uris(frames: list[Frame], grid: int, max_frames: int = 200) -> list[str]:
     """Render each frame to a small PNG and return base64 data: URIs."""
     fig, ax = plt.subplots(figsize=(4.2, 4.6))

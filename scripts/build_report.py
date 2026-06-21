@@ -177,6 +177,46 @@ def main() -> None:
             "already binds.",
         })
 
+    # --- macro vs micro capability curve (from representation_cap_*.json) ---
+    cap_files = sorted(outdir.glob("representation_cap_*.json"))
+    if cap_files:
+        micro_g = {r["name"]: r["report"]["grounding_accuracy"] for r in mresults}
+        pts = []
+        for cf in cap_files:
+            d = json.loads(cf.read_text())
+            lab = d["tag"].replace("cap_", "")
+            if lab not in SIZE_ORDER:
+                continue
+            row = d["rows"][0]
+            pts.append({"label": lab, "size": SIZE_ORDER[lab], "micro": micro_g.get(lab, 1.0),
+                        "macro_pa": row["grounding_per_agent"],
+                        "macro_pc": row["grounding_per_command"], "lat_p50": row["lat_p50"]})
+        if pts:
+            cap_png = viz.plot_macro_capability(pts, outdir / "macro_capability.png")
+            crows = "".join(
+                f"<tr><td>{p['label']}</td><td>{p['micro']:.2f}</td><td>{p['macro_pa']:.2f}</td>"
+                f"<td>{p['macro_pc']:.2f}</td><td>{p['lat_p50']:.0f} ms</td></tr>"
+                for p in sorted(pts, key=lambda p: p["size"]))
+            sections.append({
+                "title": "Macro vs micro — the granularity axis",
+                "png": cap_png,
+                "table": ("<table>\n<tr><th>model</th><th>micro grounding</th>"
+                          "<th>macro (per-agent)</th><th>macro (per-command)</th>"
+                          f"<th>macro p50 latency</th></tr>\n{crows}</table>"),
+                "intro": "<p>Commands span two granularities through one channel. "
+                "<b>Micro</b> names agents explicitly (\"move the red agent north\") — "
+                "reference resolution. <b>Macro</b> is a goal whose per-agent moves must be "
+                "computed from the world (\"everyone toward the center\", \"flee the nearest "
+                "enemy\") — spatial planning. Macro is scored per-agent on fresh random "
+                "states (n=200): the fraction of agents sent in a progress-making direction.</p>",
+                "caption": "Micro <b>saturates at 4B</b> (1.00) — the efficiency sweet spot. "
+                "Macro instead <b>climbs with size and is never solved</b>: 1.7B can't do it, "
+                "4B≈8B plateau near a random valid move (~0.35), 14B reaches 0.59 but lands a "
+                "whole command only ~1 in 5. So macro is capability-bound and buys capability "
+                "with latency (right) — reintroducing the tradeoff micro escaped. The "
+                "bottleneck for macro is reasoning, not the clock.",
+            })
+
     # --- StarCraft II testbed (if metrics exist) ---
     sc2_files = sorted(outdir.glob("sc2_2s3z_*.jsonl"),
                        key=lambda p: SIZE_ORDER.get(p.stem.replace("sc2_2s3z_", ""), 999))
