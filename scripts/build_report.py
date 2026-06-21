@@ -245,13 +245,17 @@ def main() -> None:
             "full game state plus unit/ability wiki — <b>~3000 input tokens</b> vs ~200 in "
             "the arena — so a decision takes <b>seconds</b>, not milliseconds. This is the "
             "efficiency wall the program exists to attack.</p>",
-            "caption": "First real SC2 numbers (2s3z). Unlike the arena, latency here is "
-            "<b>monotone in model size</b> — at ~3000-token context the prefill/compute "
-            "scales with the model, so a smaller model is markedly faster (1.7B ≈ 2× faster "
-            "than 8B). Every model misses a 2 s deadline; even the fastest needs several "
-            "seconds. Win-rate is not yet meaningful (camera calibration is capped to reach "
-            "the LLM, so centering is imperfect) and the clock is synchronous (the game "
-            "waits for the model). Latency and token counts are valid measurements.",
+            "caption": "SC2 decision latency by model size (2s3z, amax41/SC2-4.10). Unlike "
+            "the arena, latency here is <b>monotone in model size</b> — at ~3000-token "
+            "context the prefill/compute scales with the model, so a smaller model is "
+            "markedly faster (1.7B ≈ 2× faster than 8B); every model needs several seconds. "
+            "<b>Update (yubopc, SC2 5.0.15):</b> on a supported build the camera centers and "
+            "the LLM is genuinely queried — but LLM-PySC2 is <b>async with a real-time "
+            "deadline</b> (it keeps ticking and <code>no_op</code>s if no reply arrives in "
+            "~15 s), <i>not</i> synchronous. At ~25 s/decision (4B on an RTX 4060, eager) "
+            "the latency exceeds that deadline, so decisions time out and win-rate is ~0 — a "
+            "clean demonstration of the latency wall under a real clock. Latency/token counts "
+            "are valid; win-rate needs faster decode (CUDA graphs) or a larger deadline.",
         })
 
     # --- body from the json baseline run ---
