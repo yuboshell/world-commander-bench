@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~06:40 MDT (high-n pooled real-time contrast: LLM-acts 77% vs no-LLM 59%, firming)
+**Last updated:** 2026-06-21 ~07:00 MDT (high-n verdict: 4B edge ~+10pp, NOT significant; drop-late mechanism robust)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -95,16 +95,19 @@ all-dropped LLM≈auto-attack). A clean curve needs **high n/point**, blocked by
 noise *and* run-fragile calibration (~20–30% of runs never bootstrap). Hand-off.
 
 ## Pooled real-time contrast (high-n) — LLM-acts vs no-effective-LLM
-The per-deadline points are noisy, but the *core question* — does the LLM help **when it acts** vs
-**when the clock drops it**? — pools cleanly across conditions (the right aggregation for power):
+The *core question* — does the LLM help **when it acts** vs **when the clock drops it / it's
+absent**? — pooled across conditions, grown to n≈50–64/side:
 - **LLM acts** (synchronous + drop-late @60, 0 drops): **49/64 (77%)**
-- **No effective LLM** (drop-late @10 all-dropped + auto-attack `MAX_QUERIES=0`): **19/32 (59%)** *(growing)*
+- **No effective LLM** (drop-late @10 all-dropped + auto-attack `MAX_QUERIES=0`): **32/48 (67%)**
 
-Contrast **+17 pp**; two-proportion z≈1.75, **p≈0.08** at n=64 vs 32. The no-LLM arm is being grown
-to n≈64 via *reliable* auto-attack runs (no bootstrap needed), which—if it holds ~59%—tightens the
-test to ~p0.04. **Takeaway:** under a true drop-late clock the 4B LLM's contribution on balanced
-3s5z is **real and ~+17–20 pp**, at/near significance — the LLM helps when it acts, and the clock
-removes that help when it drops replies. (Firming CIs; numbers update as batches land.)
+Contrast **+10 pp**; two-proportion z≈1.16, **p≈0.25 — not significant**. Critically, the effect
+**shrank as n grew** (+22 → +17 → +10 pp): the early small-sample gaps were regression-to-mean,
+and the auto-attack baseline is itself strong and noisy (per-batch win-rates 50/62/81%). **Honest
+conclusion:** the 4B LLM's win-rate benefit on 3s5z is **real-but-small (~+10 pp) and NOT
+statistically significant** even at controlled high n; detecting ~+10 pp at p<0.05 would need
+n≈300+/side (infeasible on one 8 GB GPU). SC2 SMAC 3s5z is simply too auto-attack-dominated and
+noisy for a 4B LLM's small edge to register. **The drop-late *mechanism* stays validated and
+robust — that is the reusable contribution; the win-rate *magnitude* is an honest null/weak result.**
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
