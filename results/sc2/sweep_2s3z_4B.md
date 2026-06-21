@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~04:05 MDT (autonomous overnight run; 5-map controlled landscape complete)
+**Last updated:** 2026-06-21 ~05:30 MDT (drop-late implemented+validated; calibration bootstrap diagnosed)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -117,8 +117,22 @@ earlier 2s_vs_1sc / 1c3s5z) never queried the LLM at all, so a clean high-n drop
   this measures the **pipeline**, not 4B micro in isolation.
 - 2s_vs_1sc calibration-bootstrap bug unresolved (no LLM data for that map).
 
-## Suggested next steps
-- Implement **drop-late** (don't apply replies past the deadline) → then re-run the 3s5z sweep
-  to get a *true* win-rate-vs-deadline frontier.
+## Calibration bootstrap — diagnosis (the main hand-off)
+The camera/perception bootstrap is **multi-point fragile** — different maps stick at different
+stages, and a single force-proceed cap does **not** fix it (validated: an env-gated cap at the
+calibration loop fired 0× on 2s_vs_1sc because it sticks *upstream* — cap reverted):
+- **2s_vs_1sc:** stuck in the **world_range** computation (`main_agent_funcs.py:220`:
+  `round(int((size_minimap/minimap_x_predict)*unit_raw_x)/32)*32` → **0** for this geometry) —
+  stage "2.1" ran 1114× in 4 episodes, never reaching calibration (2.2/2.3 = 0) → 0 LLM calls.
+- **some 3s5z runs / 1c3s5z:** the Path-A/B calibration loop (line 226+) never converges.
+- **per-unit centering** (`get_camera_func_smart`, line 358) is a third gate that can loop.
+Fixing this reliably needs supervised, multi-stage work (guard `world_range==0`; a convergence
+cap covering *all* stages; verify centering isn't garbage after force-proceed) — not safely
+validatable unattended, since failures are silent (the LLM simply never gets queried).
+
+## Suggested next steps (supervised session)
+- **Fix the bootstrap fragility** (above) so every run reliably queries the LLM — unblocks a
+  clean drop-late frontier + reliable win-rate on more maps.
+- Then **drop-late** is ready (`WCB_SC2_DROP_LATE=1`, already implemented + validated): re-run the
+  3s5z sweep at high n for a clean true frontier.
 - More episodes/point to tighten CIs; a stronger model for 2s3z (won't fit 8 GB here).
-- Fix the per-unit camera-centering overhead so the LLM gets more decisions/episode.
