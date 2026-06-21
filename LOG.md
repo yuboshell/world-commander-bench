@@ -340,3 +340,14 @@ Backlog (highest value first):
 `RouterClient` (micro→small, macro→large) + `hierarchy_sweep.py` (3 policies over one
 fixed half-micro/half-macro stream, fresh states). GPU eval launching (4B on GPU 2 +
 14B on `:8000`).
+
+### result — hierarchy router Pareto-dominates (n=80)
+router grounding 0.73 = large-only's, at p50 1000 ms vs large's 1213 ms (micro half
+556 ms vs 944 ms on 14B). Buys the big model only for macro. In REPORT.md.
+
+### entry — burst-load model (item 2, TDD, 8 rate tests)
+`simulate_arrivals` + `burst_arrivals` + `burst_sweep.py`. At a 2 s deadline a fast
+model clears bursts of ~3 commands; bigger flurries blow the deadline (backlog).
+
+### milestone push — hierarchy + burst (calm cadence; no public repos)
+Next: KV-cache/VRAM efficiency + latency-vs-context (item 3) on GPU 2.
