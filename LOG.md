@@ -360,3 +360,9 @@ for the true curve. Lever: prefix-cache the static prefix (system + wiki) for SC
 input context is a modest, cacheable cost — output length is the bigger latency driver.
 In REPORT.md. (milestone push)
 Next: KV/VRAM concurrency or combined micro+macro capability curve (item 4).
+
+### result — prefix-cache saving quantified
+~4580-token static prefix: 1212 ms uncached vs 285 ms cached -> ~927 ms (76%) saved
+per decision (`scripts/prefix_cache_sweep.py`). Concrete SC2 lever (static system+wiki
+prefix). Consistent with the context-latency curve. (milestone push)
+Next: combined micro+macro capability curve, or memory/region commands.

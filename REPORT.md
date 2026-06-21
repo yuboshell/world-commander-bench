@@ -170,7 +170,9 @@ unique prompts + caching disabled.)
 - A decision's context is mostly **static** (system prompt + unit/ability wiki) with a
   small changing game-state delta. **Prefix-caching that static prefix** cuts
   per-decision prefill substantially — a concrete efficiency lever distinct from
-  output terseness.
+  output terseness. **Measured** (`scripts/prefix_cache_sweep.py`, 4B/GPU 2): a
+  ~4580-token static prefix costs **~1212 ms uncached vs ~285 ms cached — a ~927 ms
+  (76%) per-decision saving**.
 - It reframes the "long context is the wall" intuition: input context is a *modest,
   cacheable* cost (~1 s at 5 k tokens here); the bigger latency driver is **output
   length × decode speed** (hence the arena's terse-schema win, and CUDA graphs for SC2).
