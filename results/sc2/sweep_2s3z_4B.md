@@ -47,19 +47,23 @@ map (the SC2 analog of the arena's deadline frontier). Sweeping MAX_WAIT = {60, 
 | 60 s | 8/8 | 0 | synchronous |
 | 30 s | 5/8 | 0 | still synchronous (deadline > latency) |
 | 15 s | 4/8 | 21 | below latency — clock biting (81%→50%) |
-| 10 s | _running_ | | below latency |
+| 10 s | 5/8 | 50 | below latency — no collapse (late replies still applied) |
+| 5 s | _running_ | | extreme floor |
 
-Pooled MAX_WAIT ≥ 30 (no timeouts): **13/16 ≈ 81%** synchronous win-rate — 8/8 vs 5/8 is
-sampling noise (the deadline didn't bite). The clock effect is expected only once
-MAX_WAIT < ~25 s (the inference latency), where replies start to time out (15 s, 10 s).
+**Pooled — synchronous (≥ 30 s, 0 timeouts): 13/16 ≈ 81%; tight (15+10 s, with timeouts):
+9/16 ≈ 56%.** The clock *does* reduce 3s5z win-rate (~81% → ~56%) but does **not collapse**
+it: LLM-PySC2 is async with **late application** — a reply that misses the deadline triggers a
+`no_op` that cycle but is still applied on a later cycle — and 3s5z's larger force tolerates
+the delay. Per-point noise is large at 8 eps; pooling reduces it.
 
 ## Conclusion so far
 - **4B wins 3s5z 8/8 synchronously** → the LLM commander is viable for *some* SMAC matchups on
   SC2 5.0.15; the pipeline is not universally walled.
 - **2s3z is lost 0/8 and deadline-invariant** → for that matchup the wall is capability +
   per-decision overhead, not the clock.
-- The **3s5z deadline sweep** (in progress) tests the clock directly on a winnable map; a drop in
-  win-rate as MAX_WAIT falls below ~25 s would be the real-game time-to-consequence frontier.
+- **3s5z deadline sweep:** synchronous ~81% → tight (<latency) ~56% — a **moderate** real-game
+  time-to-consequence effect, softened by the framework's late-reply application and the
+  resilient 8-unit force (not a collapse). MAX_WAIT=5 floor probe in progress.
 
 ## Caveats
 - 8 episodes/point (binomial noise; 0/8 and 8/8 are still strong signals).
