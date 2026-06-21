@@ -51,11 +51,11 @@ constraint is <b>latency, not capability</b>.
   <source src="sc2_demo.mp4" type="video/mp4">
   Your browser can't play embedded video — <a href="sc2_demo.mp4">download the clip</a>.
 </video>
-<p class="cap">A live 3s5z game (3 Stalkers + 5 Zealots, allied, vs a mirror force). The 4B LLM
-controls the allied units by issuing commands every decision; clip sped up (each real decision
-takes ~27 s). The camera first <i>calibrates</i> (auto-centring on the units), then the battle
-plays out as the model focus-fires targets. <span class="bad">Note the long real-time gaps</span>
-between actions — that is the ~27 s/decision latency.</p>
+<p class="cap">A live 3s5z game — the agent's army is the moving unit cluster (3 Stalkers + 5
+Zealots). <b>On-screen captions</b> call out each phase and the <b>real LLM command</b> driving it
+(focus-fire enemy Stalkers, Blink/Charge to reposition, finish the lowest-HP target). Sped up ~5×
+— each real decision takes <span class="bad">~27 s</span> (the latency wall). It's a wide game
+camera, so the units read as a small cluster; the captions track the action.</p>
 
 <h3>What actually happens between a command and the game</h3>
 <p>Each decision, the harness sends the LLM the full game state (every unit's position, health,
