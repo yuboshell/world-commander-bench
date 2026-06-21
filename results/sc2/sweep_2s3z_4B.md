@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~07:00 MDT (high-n verdict: 4B edge ~+10pp, NOT significant; drop-late mechanism robust)
+**Last updated:** 2026-06-21 ~07:40 MDT (added latency/real-time-viability: ~27s/decision, ~25× too slow; + qualitative)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -132,6 +132,21 @@ Reading the LLM responses from a winning 3s5z run (`llm_log/…/CombatGroupSmac/
 So the null is **redundancy, not incompetence**: the 4B plays reasonable, auto-attack-like micro.
 A meaningfully larger edge would need decisions that *diverge* from the default (true kiting,
 cross-team focus coordination) more reliably than this model produces.
+
+## Latency — the real-time-viability bottleneck (the *clock* half of the thesis)
+Per-decision cost (`cost.txt`, 3s5z, 21 decisions): **~27 s/decision** (range 25.5–30.1 s),
+**prefill-dominated** — prompt = **2.4–5.7 K input tokens** (the full unit-by-unit observation),
+output only ~150–315 tokens. Latency *falls* 29.5 → 25.5 s over the episode as units die and the
+observation shrinks, so **latency scales with the observation size, not the generation**.
+
+**Implication for World Commander — latency, not capability, is the binding real-time constraint.**
+At ~27 s/decision the 4B is **~25× too slow** for second-scale RTS control (and ~5× too slow even
+vs a generous 5 s deadline). This is *why* drop-late reverts the LLM to auto-attack at any deadline
+< ~27 s (above). So the lever for real-time viability isn't only a smaller/faster model — it's
+**shrinking the observation prompt** (prefill is the cost) and **KV-cache reuse across ticks**.
+That is exactly the efficiency sweep (prompt size, KV-cache policy, VRAM budgets) the program
+scopes next — and the headline pairing is: *the 4B is capable enough to roughly match auto-attack
+but ~25× too slow to act in real time.*
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
