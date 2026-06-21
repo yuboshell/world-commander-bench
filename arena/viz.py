@@ -411,14 +411,17 @@ def build_html_report(report: dict, metrics_png: str | Path,
             "the frontier shifts left with a smaller model, a terser schema, and a faster GPU.</p>"
         )
 
-    # extra comparison sections, each {title, png, table (html), caption}
+    # extra comparison sections, each {title, png (optional), table (html), caption}
     extra_sections_html = ""
     for sec in (extra_sections or []):
-        uri = _data_uri_from_file(sec["png"])
+        img = ""
+        if sec.get("png"):
+            uri = _data_uri_from_file(sec["png"])
+            img = f'<img class="metrics" src="{uri}" alt="{sec["title"]}">\n'
         extra_sections_html += (
             f"<h2>{sec['title']}</h2>\n"
             f"{sec.get('intro', '')}\n"          # raw HTML, rendered before the figure
-            f'<img class="metrics" src="{uri}" alt="{sec["title"]}">\n'
+            f"{img}"
             f"{sec.get('table', '')}\n"
             f'<p class="hint">{sec.get("caption", "")}</p>\n'
         )

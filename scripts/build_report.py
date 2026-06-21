@@ -217,6 +217,54 @@ def main() -> None:
                 "bottleneck for macro is reasoning, not the clock.",
             })
 
+    # --- hierarchy router (from hierarchy.json) ---
+    hf = outdir / "hierarchy.json"
+    if hf.exists():
+        h = json.loads(hf.read_text())
+        hrows = "".join(
+            f"<tr><td>{p['policy']}</td><td>{p['grounding']:.2f}</td>"
+            f"<td>{p['p50_lat']:.0f} ms</td><td>{p['micro_grounding']:.2f}</td>"
+            f"<td>{p['macro_grounding']:.2f}</td></tr>" for p in h["policies"])
+        sections.append({
+            "title": "Hierarchy router — micro→small, macro→large",
+            "png": None,
+            "intro": "<p>The macro-capability curve motivates a hierarchy: micro is solved "
+            "cheaply by a small model, macro needs the big (slow) one. Route each command to the "
+            "right model; compare over one fixed half-micro/half-macro stream "
+            f"(n={h['commands']}, fresh states). small={h['small_model']}, large={h['large_model']}.</p>",
+            "table": ("<table>\n<tr><th>policy</th><th>grounding</th><th>p50 latency</th>"
+                      "<th>micro grounding</th><th>macro grounding</th></tr>\n" + hrows + "</table>"),
+            "caption": "The router matches large-only's grounding at lower latency — it pays the "
+            "big model only for macro and serves micro fast on the small one. A Pareto win; the "
+            f"gain grows with the micro fraction (here 50/50). Preliminary (n={h['commands']}).",
+        })
+
+    # --- efficiency levers: context length + prefix cache (from json) ---
+    cl = outdir / "context_latency.json"
+    pc = outdir / "prefix_cache.json"
+    if cl.exists():
+        c = json.loads(cl.read_text())
+        clrows = "".join(f"<tr><td>{r['prompt_tokens']}</td><td>{r['lat_p50']:.0f} ms</td></tr>"
+                         for r in c["rows"])
+        pcnote = ""
+        if pc.exists():
+            p = json.loads(pc.read_text())
+            pcnote = (f" Prefix-caching an SC2-scale static prefix (~{p['prefix_tokens']} tokens) "
+                      f"cuts a decision from <b>{p['uncached_p50']:.0f} ms to {p['cached_p50']:.0f} ms</b> "
+                      f"(~{p['saving_ms']:.0f} ms saved).")
+        sections.append({
+            "title": "Efficiency levers — context length & prefix caching",
+            "png": None,
+            "intro": "<p>Decision latency vs input context (fixed short output; prefix cache OFF, "
+            "unique prompts → true prefill cost). Input context is a real but ~linear, "
+            "<b>cacheable</b> cost; the bigger latency driver is output length × decode speed.</p>",
+            "table": ("<table>\n<tr><th>input tokens</th><th>latency (p50)</th></tr>\n"
+                      + clrows + "</table>"),
+            "caption": "Prefill is ~linear in context (~0.2 ms/token here)." + pcnote +
+            " So for SC2: cache the static system+wiki prefix and keep output terse — both attack "
+            "latency directly, while input-context reduction mainly helps the VRAM budget.",
+        })
+
     # --- StarCraft II testbed (if metrics exist) ---
     sc2_files = sorted(outdir.glob("sc2_2s3z_*.jsonl"),
                        key=lambda p: SIZE_ORDER.get(p.stem.replace("sc2_2s3z_", ""), 999))
