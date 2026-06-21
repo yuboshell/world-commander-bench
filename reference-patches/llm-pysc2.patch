@@ -71,10 +71,44 @@ index b806c6a..ef2c5a3 100644
              agent.thread.start()
              agent.query_llm_times += 1
 diff --git a/llm_pysc2/agents/main_agent_funcs.py b/llm_pysc2/agents/main_agent_funcs.py
-index 5a68a87..83d3a98 100644
+index 5a68a87..89c6347 100644
 --- a/llm_pysc2/agents/main_agent_funcs.py
 +++ b/llm_pysc2/agents/main_agent_funcs.py
-@@ -234,25 +234,27 @@ def main_agent_func0(self, obs):
+@@ -17,6 +17,7 @@ import time
+ 
+ from pysc2.lib import features, actions
+ from llm_pysc2.lib.utils import *
++import os  # WCB: env-gated world_range fallback
+ from loguru import logger
+ 
+ 
+@@ -218,12 +219,25 @@ def main_agent_func0(self, obs):
+     minimap_x_predict = idx[:][1].mean()
+     minimap_y_predict = idx[:][0].mean()
+     self.world_range = round(int((self.size_minimap / minimap_x_predict) * unit_raw_x) / 32) * 32
++    if self.world_range <= 0:  # WCB: guard degenerate geometry (e.g. 2s_vs_1sc) -> SMAC default
++      self.world_range = int(os.environ.get('WCB_SC2_WORLD_RANGE', '32'))
++      logger.warning(f"[ID {self.log_id}] WCB world_range guard: computed <=0, using fallback {self.world_range}")
+     # self.world_y_offset = self.world_range
+     logger.info(f"[ID {self.log_id}] 2.1 正在确定xy世界坐标范围：{self.world_range} ")
+ 
+   # time.sleep(0.5)
+ 
+   if self.world_xy_calibration == False:
++    # WCB calib-cap (env-gated): the coarse calibration sometimes oscillates and never converges
++    # (3s5z ~25% of runs), so force-proceed to the LLM with the best-effort offset after N attempts.
++    self._wcb_calib_cap_n = getattr(self, '_wcb_calib_cap_n', 0) + 1
++    _cap = int(os.environ.get('WCB_SC2_CALIB_CAP', '0'))
++    if _cap > 0 and self._wcb_calib_cap_n >= _cap:
++      logger.warning(f"[ID {self.log_id}] WCB calib-cap: force-proceed after {self._wcb_calib_cap_n} "
++                     f"attempts (offset x={getattr(self,'world_x_offset',0)} y={getattr(self,'world_y_offset',0)})")
++      self.world_xy_calibration = True
++      self.func_id_history.append(0)
++      return actions.FUNCTIONS.no_op()
+     unit_f = None
+     unit_r = None
+     for unit in obs.observation.feature_units:
+@@ -234,25 +248,27 @@ def main_agent_func0(self, obs):
          unit_r = unit
      self.world_xy_calibration = True
      if unit_f is not None:
