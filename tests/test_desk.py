@@ -23,6 +23,13 @@ def test_reach_ms_is_distance_over_speed():
     assert w.reach_ms(0) == 0.0     # hand already at red
 
 
+def test_reset_hand_returns_to_rest():
+    w = DeskWorld(buttons=[Button("red", 0.0), Button("blue", 1.0)], hand_x=1.0,
+                  lit=0, speed=1.0, rest_x=0.0)
+    w.reset_hand()
+    assert w.hand_x == 0.0
+
+
 def test_render_text_states_positions_and_lit():
     t = _w(lit=0).render_text()
     assert "red" in t and "blue" in t and "Lit button: red" in t

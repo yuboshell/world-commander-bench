@@ -37,6 +37,9 @@ def main() -> None:
     ap.add_argument("--rounds", type=int, default=100)
     ap.add_argument("--n-buttons", type=int, default=2)
     ap.add_argument("--speed", type=float, default=1.0, help="desk-units/sec (hand speed)")
+    ap.add_argument("--rest-x", type=float, default=0.0, help="hand rest/home position")
+    ap.add_argument("--carryover", action="store_true",
+                    help="hand stays where it last pressed (default: return to rest each round)")
     ap.add_argument("--windows", default="300,500,800,1200,2000,3000", help="lit windows (ms)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--outdir", default="outputs")
@@ -44,13 +47,15 @@ def main() -> None:
     windows = [float(x) for x in a.windows.split(",")]
 
     rng = random.Random(a.seed)
-    world = DeskWorld.make(n=a.n_buttons, speed=a.speed)
+    world = DeskWorld.make(n=a.n_buttons, speed=a.speed, rest_x=a.rest_x)
     executor = (MockDeskExecutor(rng=random.Random(a.seed + 1)) if a.mock
                 else RealDeskExecutor(a.base_url, a.api_key, a.model))
 
     rounds = []          # (grounded, parse_ground_ms, reach_ms)
     grounded_n = 0
     for _ in range(a.rounds):
+        if not a.carryover:
+            world.reset_hand()       # hands relax to rest between rounds
         k = rng.randrange(a.n_buttons)
         world.lit = k
         cmd = sample_command(world, rng)

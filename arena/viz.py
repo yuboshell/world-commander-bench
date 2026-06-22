@@ -352,6 +352,30 @@ def plot_macro_capability(points: list[dict], out_path: str | Path,
     return Path(out_path)
 
 
+def plot_desk_frontier(desk: dict, out_path: str | Path,
+                       title: str = "Embodiment (E3) — success vs lit window") -> Path:
+    """Success rate vs the lit window W (= time-to-consequence) for the button desk.
+    The dotted line is the grounding ceiling (success can't exceed how often the LLM
+    resolves the command); the rise from short→long W is the physical-reach cost."""
+    fr = desk["frontier"]
+    xs = [c["window_ms"] for c in fr]
+    ys = [c["success_rate"] for c in fr]
+    fig, ax = plt.subplots(figsize=(9, 4.2))
+    ax.plot(xs, ys, marker="o", color="purple", lw=2, label="end-to-end success")
+    ax.axhline(desk["grounding_accuracy"], color="0.6", ls=":", lw=1.5,
+               label=f"grounding ceiling {desk['grounding_accuracy']:.2f}")
+    ax.set_xlabel("lit window W (ms) = time-to-consequence")
+    ax.set_ylabel("success rate")
+    ax.set_ylim(-0.02, 1.02)
+    ax.set_title(title)
+    ax.grid(True, color="0.92")
+    ax.legend(fontsize=8, loc="lower right")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=120)
+    plt.close(fig)
+    return Path(out_path)
+
+
 def frame_data_uris(frames: list[Frame], grid: int, max_frames: int = 200) -> list[str]:
     """Render each frame to a small PNG and return base64 data: URIs."""
     fig, ax = plt.subplots(figsize=(4.2, 4.6))

@@ -26,15 +26,20 @@ class DeskWorld:
     hand_x: float
     lit: int | None        # index of the lit button, or None (all dark)
     speed: float = 1.0     # desk-units per second
+    rest_x: float = 0.0    # home position the hand returns to between presses
 
     @classmethod
     def make(cls, n: int = 2, hand_x: float = 0.0, speed: float = 1.0,
-             rng: random.Random | None = None) -> "DeskWorld":
+             rest_x: float = 0.0, rng: random.Random | None = None) -> "DeskWorld":
         if n > len(COLOURS):
             raise ValueError(f"at most {len(COLOURS)} buttons")
         xs = [(i + 1) / (n + 1) for i in range(n)]      # evenly spaced, interior
         return cls(buttons=[Button(COLOURS[i], xs[i]) for i in range(n)],
-                   hand_x=hand_x, lit=None, speed=speed)
+                   hand_x=hand_x, lit=None, speed=speed, rest_x=rest_x)
+
+    def reset_hand(self) -> None:
+        """Return the hand to its rest position (between rounds, hands relax)."""
+        self.hand_x = self.rest_x
 
     def reach_ms(self, button_idx: int) -> float:
         """Wall-clock ms for the hand to reach the button (distance / speed)."""
