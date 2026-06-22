@@ -32,6 +32,8 @@
 </head>
 <body>
 
+<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Environments: <a href="index.html">Grid Arena (E1)</a> &middot; <b>StarCraft II (E2)</b> &middot; <a href="embodiment.html">Embodiment (E3)</a></div>
+
 <h1>World Commander — StarCraft II testbed</h1>
 <p class="sub"><b>Updated:</b> 2026-06-21, 11:17 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
 <b>Harness:</b> LLM-PySC2 (patched) · members-only</p>
@@ -175,6 +177,13 @@ reasoning. Timed in isolation, <b>(b) is ~0.6 s</b> vs ~6.8 s for the full reaso
 magnitude, and the path toward real time. The command arena already isolates (b), so the two testbeds
 align. (These numbers hold even with the game running on the same GPU — contention tested and ruled
 out; the historical ~27 s was harness retries, not inference.)</div>
+
+<h3>Decision latency by model size (2s3z, amax41 / SC2-4.10)</h3>
+<img src="sc2_latency.png" alt="SC2 decision latency by model size" style="width:100%;border:1px solid #e2e2e2;border-radius:6px">
+<table>
+<tr><th>model</th><th>decisions</th><th>p50 latency</th><th>input tokens (mean)</th><th>miss@2s</th><th>miss@5s</th></tr>
+<tr><td>1.7B</td><td>20</td><td>2741 ms</td><td>3005</td><td>0.95</td><td>0.00</td></tr><tr><td>4B</td><td>30</td><td>4520 ms</td><td>3204</td><td>1.00</td><td>0.37</td></tr><tr><td>8B</td><td>20</td><td>5344 ms</td><td>3011</td><td>1.00</td><td>0.60</td></tr><tr><td>14B</td><td>20</td><td>7494 ms</td><td>3109</td><td>1.00</td><td>0.95</td></tr></table>
+<p style="color:#666;font-size:.92rem">Each decision carries the full game state plus the unit/ability wiki (~3000 input tokens vs ~200 in the grid arena), so a decision takes <b>seconds</b>, not milliseconds. Unlike the arena, latency here is <b>monotone in model size</b> (1.7B &asymp; 2&times; faster than 8B); every model needs several seconds. Controlled cross-model-size sweep on amax41 / SC2-4.10 (2s3z) — distinct from the yubopc 5.0.15 deployment numbers above; the win-rate / real-time-clock story is in &sect;4.</p>
 
 <h2>5 · Methods &amp; caveats</h2>
 <ul>

@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from arena import viz   # noqa: E402
 
 NAV = ('<div class="nav">Environments: '
-       '<a href="index.html">Command arena (E1)</a> &middot; '
+       '<a href="index.html">Grid Arena (E1)</a> &middot; '
        '<a href="sc2.html">StarCraft II (E2)</a> &middot; '
        '<b>Embodiment (E3)</b></div>')
 

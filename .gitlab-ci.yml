@@ -11,6 +11,7 @@ pages:
     - cp sc2.html public/sc2.html
     - cp -f embodiment.html public/embodiment.html 2>/dev/null || true
     - cp -f desk_demo.mp4 public/ 2>/dev/null || true
+    - cp -f sc2_latency.png public/ 2>/dev/null || true
     - cp -f sc2_demo.mp4 public/ 2>/dev/null || true
     - cp -f sc2_demo_poster.jpg public/ 2>/dev/null || true
     - cp -f sc2_demo_game.SC2Replay public/ 2>/dev/null || true

@@ -296,46 +296,9 @@ def main() -> None:
 
     # (E3 embodiment lives on its own page: scripts/build_desk_report.py -> embodiment.html)
 
-    # --- StarCraft II testbed (if metrics exist) ---
-    sc2_files = sorted(outdir.glob("sc2_2s3z_*.jsonl"),
-                       key=lambda p: SIZE_ORDER.get(p.stem.replace("sc2_2s3z_", ""), 999))
-    sc2_results = []
-    for p in sc2_files:
-        rows = [json.loads(l) for l in open(p) if l.strip()]
-        if rows:
-            sc2_results.append({"name": p.stem.replace("sc2_2s3z_", ""), "rows": rows})
-    if sc2_results:
-        sc2_png = viz.plot_sc2_model_overlay(sc2_results, outdir / "sc2_latency.png")
-        trows = ""
-        for r in sc2_results:
-            lat = [x["latency_ms"] for x in r["rows"]]
-            trows += (f"<tr><td>{r['name']}</td><td>{len(r['rows'])}</td>"
-                      f"<td>{_median(lat):.0f} ms</td>"
-                      f"<td>{statistics.mean(x['tokens_in'] for x in r['rows']):.0f}</td>"
-                      f"<td>{miss_rate(lat, 2000):.2f}</td><td>{miss_rate(lat, 5000):.2f}</td></tr>")
-        sc2_table = ("<table>\n<tr><th>model</th><th>decisions</th><th>p50 latency</th>"
-                     "<th>input tokens (mean)</th><th>miss@2s</th><th>miss@5s</th></tr>\n"
-                     f"{trows}</table>")
-        sections.append({
-            "title": "StarCraft II testbed — decision latency by model size",
-            "png": sc2_png, "table": sc2_table,
-            "intro": "<p>The same streaming-command core, scaled up to StarCraft II "
-            "(LLM-PySC2, headless, our own vLLM on GPU 2). Each decision now carries the "
-            "full game state plus unit/ability wiki — <b>~3000 input tokens</b> vs ~200 in "
-            "the arena — so a decision takes <b>seconds</b>, not milliseconds. This is the "
-            "efficiency wall the program exists to attack.</p>",
-            "caption": "SC2 decision latency by model size (2s3z, amax41/SC2-4.10). Unlike "
-            "the arena, latency here is <b>monotone in model size</b> — at ~3000-token "
-            "context the prefill/compute scales with the model, so a smaller model is "
-            "markedly faster (1.7B ≈ 2× faster than 8B); every model needs several seconds. "
-            "<b>Update (yubopc, SC2 5.0.15):</b> on a supported build the camera centers and "
-            "the LLM is genuinely queried — but LLM-PySC2 is <b>async with a real-time "
-            "deadline</b> (it keeps ticking and <code>no_op</code>s if no reply arrives in "
-            "~15 s), <i>not</i> synchronous. At ~25 s/decision (4B on an RTX 4060, eager) "
-            "the latency exceeds that deadline, so decisions time out and win-rate is ~0 — a "
-            "clean demonstration of the latency wall under a real clock. Latency/token counts "
-            "are valid; win-rate needs faster decode (CUDA graphs) or a larger deadline.",
-        })
+    # (E2 StarCraft II lives on its own page: sc2.html — the decision-latency-by-model-size
+    #  section was moved there via scripts/sc2_latency_block.py. The grid arena (E1) report
+    #  stays focused on the arena + efficiency story.)
 
     # --- body from the json baseline run ---
     rep = base_m.report()

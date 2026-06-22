@@ -409,7 +409,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
                       meta: dict, frames: list[Frame],
                       frontier_png: str | Path | None = None,
                       extra_sections: list[dict] | None = None,
-                      title: str = "World Commander — benchmark report (command arena + StarCraft II)") -> Path:
+                      title: str = "World Commander — Grid Arena (E1)") -> Path:
     """Write a single, self-explanatory HTML report: what the experiment is, the
     run configuration, every metric defined, a grid legend, the charts explained,
     and an interactive replay (slider / step / play at an adjustable speed)."""
@@ -508,6 +508,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
   footer {{ margin-top:3rem; color:#777; font-size:.82rem; border-top:1px solid #eee; padding-top:.6rem; }}
 </style></head>
 <body>
+<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Environments: <b>Grid Arena (E1)</b> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a></div>
 <h1>{title}</h1>
 <p class="hint">Natural-language command of agents in real time, under a latency budget. Phase-1 warm-up of the World Commander program.</p>
 
@@ -546,7 +547,7 @@ the slider) to watch what happens — then read on for what is measured.</p>
 </ul>
 
 <h2>What this is</h2>
-<p>The <b>command arena</b> is a minimal grid world that stress-tests one thing:
+<p>The <b>Grid Arena</b> (E1) is a minimal grid world that stress-tests one thing:
 can a language model turn streamed natural-language orders into the right moves
 <i>fast enough to matter</i>. Each step, one order is issued (e.g.
 “Move the red agent north”); the model reads the world state and replies with the
@@ -652,7 +653,7 @@ show(0);
 </script>
 
 <footer>
-World Commander — Phase-1 command arena. Model: {m.get('model','?')}.
+World Commander — Phase-1 Grid Arena (E1). Model: {m.get('model','?')}.
 Self-contained report (images and frames embedded); regenerate with
 <code>scripts/visualize.py</code>. Grounding/latency are real measurements; a
 late action is dropped under the unpausable clock.
