@@ -294,29 +294,7 @@ def main() -> None:
             "spatial grounding, that's hard." + note,
         })
 
-    # --- embodiment (E3) button desk (from desk.json) ---
-    dj = outdir / "desk.json"
-    if dj.exists():
-        d = json.loads(dj.read_text())
-        desk_png = viz.plot_desk_frontier(d, outdir / "desk_frontier.png")
-        drows = "".join(f"<tr><td>{c['window_ms']:.0f} ms</td><td>{c['success_rate']:.2f}</td></tr>"
-                        for c in d["frontier"])
-        sections.append({
-            "title": "Embodiment (E3) — commanding a body under a clock",
-            "png": desk_png,
-            "intro": "<p>A third environment: a character at a desk presses the <b>lit</b> button "
-            "before it goes dark. The command refers to the lit button (direct/colour/spatial); the "
-            "LLM <b>executor</b> grounds it; pressing is a <b>timed reach</b> (distance/speed). "
-            "Success = grounded <i>and</i> parse+ground latency + reach time &le; the lit window W, "
-            f"so <b>physical execution time</b> becomes a budget term. {d['model']}, {d['rounds']} "
-            f"rounds, {d['n_buttons']} buttons.</p>",
-            "table": ("<table>\n<tr><th>lit window W</th><th>success</th></tr>\n" + drows + "</table>"),
-            "caption": f"Executor grounding {d['grounding_accuracy']:.2f}; parse+ground p50 "
-            f"{d['parse_ground_p50_ms']:.0f} ms, reach p50 {d['reach_p50_ms']:.0f} ms. At short "
-            "windows the <b>reach</b> (not the LLM) binds; success climbs to the grounding ceiling "
-            "as W grows — the E3 analog of the arena's deadline frontier, now with an embodied "
-            "execution term. The LLM only grounds the reference; it never plans the reach.",
-        })
+    # (E3 embodiment lives on its own page: scripts/build_desk_report.py -> embodiment.html)
 
     # --- StarCraft II testbed (if metrics exist) ---
     sc2_files = sorted(outdir.glob("sc2_2s3z_*.jsonl"),
