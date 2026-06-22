@@ -33,7 +33,7 @@
 <body>
 
 <h1>World Commander — StarCraft II testbed</h1>
-<p class="sub"><b>Updated:</b> 2026-06-21, 8:29 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
+<p class="sub"><b>Updated:</b> 2026-06-21, 8:48 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
 <b>Harness:</b> LLM-PySC2 (patched) · members-only</p>
 
 <div class="note">
@@ -85,17 +85,27 @@ program's goal scenario (1v1) is <i>commander vs commander</i> — two humans.</
 </ul>
 
 <h2>2 · Watch a game</h2>
+<p>Two views of the <b>same match</b>: the real 3D game, and a top-down render that shows every unit.</p>
+
+<h3>The real game (3D)</h3>
+<video controls preload="metadata" poster="sc2_real_game_poster.jpg">
+  <source src="sc2_real_game.mp4" type="video/mp4">
+  Your browser can't play the video — <a href="sc2_real_game.mp4">download it</a>.
+</video>
+<p class="cap">The actual StarCraft II game, with its normal HUD (minimap, command card, resources);
+the replay-loading intro is trimmed. The allied army — the stand-in commander's — is out-fought and
+loses. The in-game camera follows the action and can't show every unit at once, which is why the
+top-down view below complements it.</p>
+
+<h3>Top-down view — every unit</h3>
 <video controls preload="metadata" poster="sc2_demo_poster.jpg">
   <source src="sc2_demo.mp4" type="video/mp4">
   Your browser can't play the video — <a href="sc2_demo.mp4">download it</a>.
 </video>
-<p class="cap">Top-down view so <b>every unit is visible</b> — allies cyan, enemy red; circles = Stalkers
-(ranged), squares = Zealots (melee); size tracks health; units vanish as they die. Captions sit in the
-lower band (never over the units). Sped up (~27 s per real decision). The cyan army is the
-stand-in commander's; in this game it is out-fought and loses.</p>
-<p>▶ <b>The real 3D game (same match):</b> <a href="sc2_demo_game.SC2Replay">download this StarCraft II
-replay</a> and open it in the game to watch the actual battle. The top-down clip above is rendered from
-the very same game's data, so the two match exactly.</p>
+<p class="cap">The same game, rendered top-down so <b>every unit is visible</b> — allies cyan, enemy red;
+circles = Stalkers (ranged), squares = Zealots (melee); size tracks health; units vanish as they die.
+Captions sit in the lower band (never over the units). Sped up (~27 s per real decision).</p>
+<p>▶ Prefer to watch it inside the game? <a href="sc2_demo_game.SC2Replay">Download the replay</a> (opens in StarCraft II).</p>
 
 <h2>3 · A command, step by step</h2>
 <p>Four moments from the game above — the <b>scene</b>, the commander's <b>reasoning in words</b>, and the

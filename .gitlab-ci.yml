@@ -12,6 +12,8 @@ pages:
     - cp -f sc2_demo.mp4 public/ 2>/dev/null || true
     - cp -f sc2_demo_poster.jpg public/ 2>/dev/null || true
     - cp -f sc2_demo_game.SC2Replay public/ 2>/dev/null || true
+    - cp -f sc2_real_game.mp4 public/ 2>/dev/null || true
+    - cp -f sc2_real_game_poster.jpg public/ 2>/dev/null || true
     - cp -f scene*.jpg public/ 2>/dev/null || true
   artifacts:
     paths:
