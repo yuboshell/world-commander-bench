@@ -77,6 +77,11 @@ advances the game. (For a human commander this layer is the UI; for the stand-in
 <code>&lt;Blink([x,y])&gt;</code> (a <b>Stalker</b>'s short teleport, to reposition/escape) and
 <code>&lt;Charge()&gt;</code> (a <b>Zealot</b>'s rush to close in).</li>
 <li><b>The units</b> in 3s5z: <b>Stalkers</b> (ranged) and <b>Zealots</b> (melee) — 3 + 5 per side.</li>
+<li><b>Two kinds of "AI" here — kept separate.</b> The <b>game's built-in computer</b> (hand-coded
+rules: units auto-attack the nearest enemy; the <b>red enemy army</b> is run by it) is the classic
+video-game opponent — what's long been called "the computer." The <b>LLM</b> is a learned stand-in
+<i>commander</i> directing the cyan units on top. So this match is <i>commander vs computer</i>; the
+program's goal scenario (1v1) is <i>commander vs commander</i> — two humans.</li>
 </ul>
 
 <h2>2 · Watch a game</h2>
@@ -118,8 +123,9 @@ no commander is small (Section 4).</p>
 <h2>4 · Results</h2>
 <h3>Capability — does the commander beat the game's own AI?</h3>
 <p>SC2 units <b>auto-attack</b> — they shoot nearby enemies on their own, with no command. So a win might
-owe nothing to the commander; that hidden factor is a <b>confound</b>. We control for it by also running
-games with <b>no commander at all</b> (pure auto-attack) and only crediting the commander if it wins more:</p>
+owe nothing to the commander; that hidden factor is a <b>confound</b> — a hidden cause that could be
+mistaken for the commander's effect. We control for it by also running games with <b>no commander at
+all</b> (the units' built-in computer behavior) and only crediting the commander if it wins more:</p>
 <table>
 <tr><th>condition</th><th>win rate</th><th>n</th></tr>
 <tr><td>stand-in commander in the loop</td><td class="good">49/64 ≈ 77%</td><td>64</td></tr>
