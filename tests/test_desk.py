@@ -2,7 +2,7 @@
 
 A button lights for a window W; the command refers to the lit button (by "lit",
 colour, or side); the LLM executor grounds it to a button; pressing is a TIMED
-reach (distance / speed). Success = grounded correctly AND parse+ground latency +
+reach (distance / speed). Success = grounded correctly AND executor grounding latency +
 reach time <= W. Values below are hand-computed.
 """
 import random

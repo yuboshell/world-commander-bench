@@ -6,7 +6,7 @@
 
 Each round: a random button lights; the command refers to it (direct/colour/spatial);
 the executor grounds it (timed); the hand reaches it (distance/speed). Success =
-grounded AND parse+ground latency + reach time <= window W. Sweeps W → frontier, the
+grounded AND executor grounding latency + reach time <= window W. Sweeps W → frontier, the
 E3 analog of the arena's deadline frontier (now with a physical-execution term).
 Writes outputs/desk.json.
 """
@@ -67,7 +67,7 @@ def main() -> None:
         cmd = commander.command(world, rng)            # commander (human stand-in) reasons
         commander_ms.append((time.perf_counter() - tc) * 1000.0)
         t0 = time.perf_counter()
-        action = executor.act(world, cmd)              # executor parses + grounds (the focus)
+        action = executor.act(world, cmd)              # executor grounds (the focus)
         lat = (time.perf_counter() - t0) * 1000.0
         grounded = cmd.is_correct(action)
         grounded_n += int(grounded)
@@ -90,7 +90,7 @@ def main() -> None:
            "frontier": [{"window_ms": c["window_ms"], "success_rate": round(c["success_rate"], 3)}
                         for c in success_curve(rounds, windows)]}
     print(f"commander {res['commander']} p50 {res['commander_p50_ms']} ms | "
-          f"grounding {res['grounding_accuracy']} | executor(parse+ground) p50 "
+          f"grounding {res['grounding_accuracy']} | executor (ground) p50 "
           f"{res['parse_ground_p50_ms']} ms | reach p50 {res['reach_p50_ms']} ms")
     for c in res["frontier"]:
         print(f"  W={c['window_ms']:.0f} ms -> success {c['success_rate']}")

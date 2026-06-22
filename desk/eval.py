@@ -1,7 +1,7 @@
 """Success + deadline-frontier logic for the button desk (E3 / L0).
 
 A round succeeds iff the executor grounded the command to the right button AND the
-whole chain — parse+ground latency (LLM) plus the reach time (body) — fits inside the
+whole chain — the executor's grounding latency (LLM) plus the reach time (body) — fits inside the
 lit window. Sweeping the window gives a success-vs-deadline frontier, the E3 analog of
 the arena's deadline frontier (now with a physical-execution term).
 """

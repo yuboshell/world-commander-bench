@@ -177,7 +177,7 @@ under the pre-fix ~27 s latency: at a 10 s deadline, 13/13 late replies were dro
 45 → 1, and the agent fell back to auto-attack — the behaviour a real clock must enforce.</li>
 </ul>
 <div class="note"><b>Measured — splitting the latency works.</b> In deployment the commander is a
-<b>human</b>, so the system's job is just <b>(b) parse + ground</b> a command — not <b>(a)</b> the
+<b>human</b>, so the system's job is just <b>(b) ground</b> a command — not <b>(a)</b> the
 reasoning. Timed in isolation, <b>(b) is ~0.6 s</b> vs ~6.8 s for the full reasoning call — an order of
 magnitude, and the path toward real time. The command arena already isolates (b), so the two testbeds
 align. (These numbers hold even with the game running on the same GPU — contention tested and ruled

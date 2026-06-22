@@ -4,7 +4,7 @@ In deployment a *human* watches the panel and issues the order. For automated ru
 stand-in plays that role: MockCommander is scripted (no GPU); LLMCommander is an LLM
 that views the world state, reasons, and issues a natural-language order — a stand-in
 for the human commander. Either way the order refers to the lit button; the *executor*
-(desk/executor.py) then parses + grounds it, and the executor's processing time is what
+(desk/executor.py) then grounds it, and the executor's processing time is what
 we measure.
 """
 from __future__ import annotations

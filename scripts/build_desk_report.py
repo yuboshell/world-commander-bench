@@ -72,13 +72,13 @@ and must be pressed before it goes dark; then all dark, then another, and so on.
 panel and commands. For these automated runs an <b>LLM commander stands in for the human</b>:
 it views the world state, reasons, and issues a natural-language order referring to the lit
 button.</li>
-<li><b>The executor parses, grounds, and acts.</b> A second LLM — the <b>executor</b> — reads
+<li><b>The executor grounds the order and acts.</b> A second LLM — the <b>executor</b> — reads
 the order plus the state, resolves <i>which</i> button it means, and the character <b>reaches</b>
 to press it (a timed reach: distance / hand speed).</li>
 <li><b>Success</b> = the executor grounded the right button <i>and</i>
 <code>executor processing time + reach time &le; W</code>.</li>
 </ol>
-<p><b>What we measure (the focus): the executor's processing time</b> — parse + ground. In
+<p><b>What we measure (the focus): the executor's processing time</b> — grounding the order. In
 deployment the human is the commander, so the system's real job is to turn each order into the
 right action fast enough to beat the clock. The commander's time is reported separately — it
 stands in for the human and is not on the system's critical path.</p>
@@ -91,14 +91,14 @@ stands in for the human and is not on the system's critical path.</p>
 <h2>Results — {d['model']}, {d['rounds']} rounds, {d['n_buttons']} buttons (L0)</h2>
 <p>Commander (human stand-in): {d.get('commander', 'scripted (stand-in)')}, p50
 {d.get('commander_p50_ms', 0):.0f} ms — reported, <i>not</i> on the deadline path.<br>
-<b>Executor (the focus)</b> — grounding <b>{d['grounding_accuracy']:.2f}</b>, parse+ground p50
+<b>Executor (the focus)</b> — grounding accuracy <b>{d['grounding_accuracy']:.2f}</b>, processing time p50
 <b>{d['parse_ground_p50_ms']:.0f} ms</b>; reach p50 <b>{d['reach_p50_ms']:.0f} ms</b>.</p>
 <table><tr><th>lit window W</th><th>success</th></tr>
 {drows}</table>
 <p class="hint">At short windows the <b>reach</b> (not the LLM) binds — success climbs to the
 grounding ceiling as W grows. The E3 analog of the arena's deadline frontier, now with an
 embodied execution term. L0 is pure-Python (a reach-time model, no renderer); higher fidelity
-(2D arm; a text-to-motion model as the fast layer) is future work. Parse+ground latency is small
+(2D arm; a text-to-motion model as the fast layer) is future work. The executor's grounding latency is small
 here because the prompt is tiny and the output is one word — consistent with the arena finding
 that output length, not input context, dominates latency.</p>
 </body></html>"""
