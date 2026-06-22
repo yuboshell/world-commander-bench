@@ -33,7 +33,7 @@
 <body>
 
 <h1>World Commander — StarCraft II testbed</h1>
-<p class="sub"><b>Updated:</b> 2026-06-21, 8:48 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
+<p class="sub"><b>Updated:</b> 2026-06-21, 9:51 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
 <b>Harness:</b> LLM-PySC2 (patched) · members-only</p>
 
 <div class="note">
@@ -162,6 +162,12 @@ commander decides far faster — but the system must still stream and execute co
 at a 10 s deadline, 13/13 late replies were dropped, attacks fell 45 → 1, and the agent fell back to
 auto-attack — exactly the behaviour a real clock must enforce.</li>
 </ul>
+<div class="note"><b>Next step — split the latency.</b> The ~27 s bundles two jobs: <b>(a)</b> the
+commander's cognition — reading the state and forming the command, which a <b>human</b> does in
+deployment — and <b>(b)</b> parsing and grounding that command into game actions, which the
+<b>system</b> keeps. The real target is <b>(b) alone</b>, so we'll time the two separately and drive
+(b) down (grounding can pair a small model for fuzzy references with deterministic code for geometry).
+This is exactly what the command-arena testbed already isolates.</div>
 
 <h2>5 · Methods &amp; caveats</h2>
 <ul>
