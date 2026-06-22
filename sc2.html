@@ -33,7 +33,7 @@
 <body>
 
 <h1>World Commander — StarCraft II testbed</h1>
-<p class="sub"><b>Updated:</b> 2026-06-21, 9:51 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
+<p class="sub"><b>Updated:</b> 2026-06-21, 10:09 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
 <b>Harness:</b> LLM-PySC2 (patched) · members-only</p>
 
 <div class="note">
@@ -151,23 +151,27 @@ small and within statistical noise.</li>
 </ul>
 <h3>The clock — latency is the wall</h3>
 <ul>
-<li><b>~27 s per decision</b>, and it is <b>prefill-dominated</b>: an LLM first <i>reads</i> the prompt
-("prefill") then <i>writes</i> the reply token by token ("decode"). Here the input is huge (2.4–5.7 k
-tokens of game state) and the output tiny (~150–315), so the time goes to reading the state, not writing
-the command.</li>
-<li>So the 4B stand-in is <b>~25× too slow</b> for second-scale control. The lever for real-time is a
-<b>shorter prompt + reusing the model's cache across ticks</b>, not just a smaller model. (A human
-commander decides far faster — but the system must still stream and execute commands under a real clock.)</li>
+<li><b>~27 s per decision in-game — but the cost is decode (generating the reply), not prefill.</b>
+Measured on the live 4B in isolation: reading ~5 k tokens of state takes ~1.6 s (~0.3 ms/tok), while
+<i>generating</i> runs at ~22 ms/tok — so the <b>length of the reply</b> dominates, not the size of the
+state. (This corrects an earlier "prefill-dominated" reading.)</li>
+<li><b>The lever is shorter output first, then shorter input.</b> On one real state we measured: full
+reasoning <b>6.8 s</b> → emit only the grounded action <b>2.1 s</b> (cut the chain-of-thought, ~3×) →
+shrink the state to the units the command needs <b>0.6 s</b> (~3.5× more) — together <b>~11×</b>.
+Prefix-caching across ticks removes most of the input cost in a live loop.</li>
+<li><b>The in-game ~27 s is mostly ~4× GPU contention.</b> Same model and <code>--enforce-eager</code>;
+the only difference is that in a live game StarCraft II and vLLM share one 8 GB GPU (decode ~106 ms/tok
+in-game vs ~22 ms isolated). For real time, <b>give the model its own GPU</b> — or pay the penalty.</li>
 <li><b>drop-late</b> (our real-time clock) discards a command that arrives after its deadline. Validated:
 at a 10 s deadline, 13/13 late replies were dropped, attacks fell 45 → 1, and the agent fell back to
 auto-attack — exactly the behaviour a real clock must enforce.</li>
 </ul>
-<div class="note"><b>Next step — split the latency.</b> The ~27 s bundles two jobs: <b>(a)</b> the
-commander's cognition — reading the state and forming the command, which a <b>human</b> does in
-deployment — and <b>(b)</b> parsing and grounding that command into game actions, which the
-<b>system</b> keeps. The real target is <b>(b) alone</b>, so we'll time the two separately and drive
-(b) down (grounding can pair a small model for fuzzy references with deterministic code for geometry).
-This is exactly what the command-arena testbed already isolates.</div>
+<div class="note"><b>Measured — splitting the latency works.</b> In deployment the commander is a
+<b>human</b>, so the system's job is just <b>(b) parse + ground</b> a command — not <b>(a)</b> the
+reasoning. Timed in isolation, <b>(b) is ~0.6 s</b> vs ~6.8 s for the full reasoning call — an order of
+magnitude, and the path toward real time. The command arena already isolates (b), so the two testbeds
+align. (All numbers isolated; under in-game GPU contention multiply by ~4 — hence "give the model its
+own GPU.")</div>
 
 <h2>5 · Methods &amp; caveats</h2>
 <ul>

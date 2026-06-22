@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21, 9:55 PM MDT (added latency-decomposition next step: split commander-cognition vs parse/ground — the system's target is parse/ground)
+**Last updated:** 2026-06-21, 10:09 PM MDT (latency decomposition MEASURED: decode-bound, not prefill; parse/ground ~0.6s isolated vs ~6.8s full, ~11x; in-game ~27s is ~4x GPU contention)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -142,19 +142,36 @@ observation shrinks, so **latency scales with the observation size, not the gene
 **Implication for World Commander — latency, not capability, is the binding real-time constraint.**
 At ~27 s/decision the 4B is **~25× too slow** for second-scale RTS control (and ~5× too slow even
 vs a generous 5 s deadline). This is *why* drop-late reverts the LLM to auto-attack at any deadline
-< ~27 s (above). So the lever for real-time viability isn't only a smaller/faster model — it's
-**shrinking the observation prompt** (prefill is the cost) and **KV-cache reuse across ticks**.
-That is exactly the efficiency sweep (prompt size, KV-cache policy, VRAM budgets) the program
-scopes next — and the headline pairing is: *the 4B is capable enough to roughly match auto-attack
-but ~25× too slow to act in real time.*
+< ~27 s (above). So the lever for real-time viability isn't only a smaller/faster model. Per the measured decomposition
+below, it is mainly **cutting the model's output** (the reasoning) — then the prompt — plus **giving the
+model its own GPU** (the in-game cost is largely contention, not the model itself). The headline pairing:
+*the 4B is capable enough to roughly match auto-attack but ~25× too slow in-game — though the
+decomposition shows a concrete path toward near-real-time.*
 
-**Latency decomposition (next step).** In deployment the commander is a **human**, so the ~27 s should
-be split into **(a)** game-state understanding + command-forming (the human's job) and **(b)** command
-parsing + grounding (the system's job). The real latency target is **(b)** alone — measure the two
-separately. *Caveat:* latency is prefill-dominated (the ~3k-token state, not the ~200-token output), so
-removing the reasoning saves mostly decode time; the real lever for (b) is **shrinking the state prefill
-/ KV-cache reuse**, plus possibly a small model or deterministic code for grounding. The **command arena
-already isolates (b)** (grounding accuracy + latency), so the two testbeds align.
+**Latency decomposition — first measurement (2026-06-21, 10:09 PM MDT).** Ran the split against the
+live 4B (isolated, no game running), on a real step-0 state (8v8), streaming to separate prefill (TTFT)
+from decode. Cold (cache-busted), median of 3:
+
+| condition | in_tok | out_tok | prefill | decode | total |
+|---|---|---|---|---|---|
+| A  full reasoning (status quo)  | 5166 | 230 | 1.64s | 5.19s | **6.83s** |
+| B  ground-only, full state      | 5198 |  21 | 1.66s | 0.46s | **2.12s** |
+| C  ground-only, shrunk state    |  449 |  22 | 0.13s | 0.48s | **0.61s** |
+
+This **overturns the earlier "prefill-dominated" guess.** On the 4060 the 4B prefills ~5 k tokens in
+~1.6 s (~0.3 ms/tok) but decodes at ~22 ms/tok, so wall-time is **decode-bound** when it reasons:
+- **A→B** (drop the reasoning, emit only the grounded action): 6.8 s → 2.1 s (~3×). Output length is the
+  dominant knob.
+- **B→C** (shrink the state to the units the command needs): 2.1 s → 0.6 s (~3.5×). Once output is tiny,
+  cold prefill is the next cost; prefix-caching across ticks removes most of it in a live loop.
+- **A→C** (both): ~11×. The **parse+ground path — the system's job under a human commander — is ~0.6 s
+  isolated**, an order of magnitude under the full call. Data backs the human-commander split.
+
+**In-game ~27 s vs ~6.8 s isolated (≈4×) = GPU contention.** Same model, same `--enforce-eager`; the
+difference is that a live game makes SC2 and vLLM share the one 8 GB 4060 (decode ~106 ms/tok in-game vs
+~22 ms isolated). Real-time implication: **isolate the model's GPU from the game**, or pay ~4×. Next
+test: re-run this decomposition with a game running concurrently to confirm the contention factor
+directly. Method: `scripts/measure_ground_latency.py` (streaming TTFT vs decode, cache-bustable).
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
