@@ -41,6 +41,14 @@ def main() -> None:
     uri = viz._data_uri_from_file(png)
     drows = "".join(f"<tr><td>{c['window_ms']:.0f} ms</td><td>{c['success_rate']:.2f}</td></tr>"
                     for c in d["frontier"])
+    video = ""
+    if (repo / "desk_demo.mp4").exists():
+        video = ('<h2>Demo</h2>\n<video controls muted playsinline preload="metadata" '
+                 'style="width:100%;border:1px solid #e2e2e2;border-radius:6px">'
+                 '<source src="desk_demo.mp4" type="video/mp4"></video>\n'
+                 '<p class="hint">A button lights; the LLM grounds the reference; the hand '
+                 'reaches and presses — in time when decide+reach &le; the window W, and '
+                 'misses when W is too short (round 3). Illustrative; numbers mirror the L0 run.</p>')
     html = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -58,6 +66,9 @@ So unlike E1/E2, <b>physical execution time</b> is part of the budget — the em
 The human supplies intent; the LLM only grounds the reference and never plans the reach
 (it hands off execution to the motion layer).</p>
 
+{video}
+
+<h2>Success vs lit window</h2>
 <img src="{uri}" alt="E3 success vs lit window">
 
 <h2>Results — {d['model']}, {d['rounds']} rounds, {d['n_buttons']} buttons (L0)</h2>
