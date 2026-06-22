@@ -5,139 +5,143 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World Commander — StarCraft II testbed report</title>
 <style>
-  :root { --fg:#1a1a1a; --mut:#666; --acc:#2b6cb0; --good:#2f855a; --bad:#c53030; --bg:#fff; --box:#f7f8fa; --line:#e2e8f0; }
-  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:var(--fg);
-         max-width: 860px; margin: 0 auto; padding: 28px 20px 80px; line-height: 1.55; background:var(--bg); }
-  h1 { font-size: 1.7rem; margin: 0 0 4px; }
-  h2 { font-size: 1.25rem; margin: 2.2em 0 .4em; border-bottom: 2px solid var(--line); padding-bottom: 4px; }
-  h3 { font-size: 1.05rem; margin: 1.4em 0 .3em; }
-  .sub { color: var(--mut); font-size: .92rem; margin: 0 0 18px; }
-  .tldr { background: var(--box); border:1px solid var(--line); border-left:4px solid var(--acc);
-          border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
-  .tldr b { color: var(--acc); }
-  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: .92rem; }
-  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; }
-  th { background: var(--box); }
-  code { background: var(--box); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
-  .good { color: var(--good); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; }
-  video { width: 100%; border:1px solid var(--line); border-radius: 8px; background:#000; }
-  .cap { color: var(--mut); font-size: .87rem; margin: 6px 2px 0; }
-  .trace { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
-  .trace > div { background: var(--box); border:1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
-  .trace h4 { margin:.1em 0 .5em; font-size:.95rem; }
-  .nl { font-style: italic; color:#333; } .act { font-family: ui-monospace, Menlo, Consolas, monospace; font-size:.85rem; color:var(--acc); }
-  @media (max-width:680px){ .trace { grid-template-columns: 1fr; } }
-  .foot { color: var(--mut); font-size: .85rem; margin-top: 40px; border-top:1px solid var(--line); padding-top: 14px; }
+  :root{--fg:#1a1a1a;--mut:#666;--acc:#2b6cb0;--good:#2f855a;--bad:#c53030;--box:#f7f8fa;--line:#e2e8f0;}
+  body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--fg);max-width:880px;
+       margin:0 auto;padding:28px 20px 90px;line-height:1.5;}
+  h1{font-size:1.7rem;margin:0 0 4px;} h2{font-size:1.25rem;margin:2em 0 .4em;border-bottom:2px solid var(--line);padding-bottom:4px;}
+  h3{font-size:1.02rem;margin:1.2em 0 .3em;} .sub{color:var(--mut);font-size:.9rem;margin:0 0 16px;}
+  ul{margin:.4em 0 .8em;padding-left:1.2em;} li{margin:.25em 0;}
+  code{background:var(--box);padding:1px 5px;border-radius:4px;font-size:.88em;}
+  .tldr{background:var(--box);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:12px 18px;margin:16px 0;}
+  table{border-collapse:collapse;width:100%;margin:10px 0;font-size:.9rem;} th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;} th{background:var(--box);}
+  .good{color:var(--good);font-weight:600;} .bad{color:var(--bad);font-weight:600;}
+  video{width:100%;border:1px solid var(--line);border-radius:8px;background:#000;}
+  .cap{color:var(--mut);font-size:.86rem;margin:6px 2px 0;}
+  /* flowchart */
+  .flow{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;margin:14px 0;}
+  .node{flex:1 1 130px;background:var(--box);border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;font-weight:600;font-size:.92rem;}
+  .node small{display:block;font-weight:400;color:var(--mut);margin-top:3px;font-size:.8rem;}
+  .arr{display:flex;flex-direction:column;justify-content:center;align-items:center;color:var(--acc);font-weight:700;font-size:1.2rem;min-width:64px;text-align:center;}
+  .arr small{font-weight:400;color:var(--mut);font-size:.72rem;line-height:1.2;}
+  /* walkthrough */
+  .wrow{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:12px;margin:10px 0;background:#fff;}
+  .wrow img{width:240px;border-radius:6px;border:1px solid var(--line);flex:0 0 auto;}
+  .wrow .nl{font-style:italic;color:#333;margin:.2em 0;} .wrow .act{font-family:ui-monospace,Consolas,monospace;font-size:.82rem;color:var(--acc);}
+  @media(max-width:620px){.wrow{flex-direction:column;} .wrow img{width:100%;}}
+  .foot{color:var(--mut);font-size:.84rem;margin-top:36px;border-top:1px solid var(--line);padding-top:12px;}
 </style>
 </head>
 <body>
 
 <h1>World Commander — StarCraft II testbed</h1>
-<p class="sub"><b>Updated:</b> 2026-06-21 · <b>Machine:</b> yubopc (RTX 4060, 8 GB) ·
-<b>Game:</b> SC2 5.0.15 · <b>Harness:</b> LLM-PySC2 (patched) ·
-<b>Model:</b> Qwen3-4B-AWQ via vLLM (WSL2, <code>localhost:8001</code>) · members-only</p>
+<p class="sub"><b>Updated:</b> 2026-06-21 · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
+<b>Harness:</b> LLM-PySC2 (patched) · <b>Model:</b> Qwen3-4B-AWQ via vLLM · members-only</p>
 
 <div class="tldr">
-<b>TL;DR.</b> A small LLM (Qwen3-4B) issues natural-language battle commands to StarCraft II units
-through LLM-PySC2. The key result, from a controlled study on the balanced <code>3s5z</code>
-matchup: the 4B is <b>capable enough to roughly match the game's built-in auto-attack
-(≈77% vs ≈67% win rate, +10 pp, <i>not</i> statistically significant)</b> — but it is
-<b>~25× too slow to act in real time</b> (~27 s per decision). On this testbed the binding
-constraint is <b>latency, not capability</b>.
-</div>
-
-<h2>1 · Watch a game — and the language→game link</h2>
-<video controls preload="metadata" poster="sc2_demo_poster.jpg">
-  <source src="sc2_demo.mp4" type="video/mp4">
-  Your browser can't play embedded video — <a href="sc2_demo.mp4">download the clip</a>.
-</video>
-<p class="cap">A complete 3s5z game, rendered top-down so <b>every unit is visible</b> — allies in
-cyan, enemy in red, each sized by current health, the live count falling as units die. Captions
-name each phase and show the <b>actual LLM command</b> behind it (focus-firing the enemy Stalkers;
-Blink and Charge micro). The model commands the cyan army and, in this game, is out-microed and
-loses. Sped up — each real decision takes <span class="bad">~27&nbsp;s</span>.</p>
-
-<h3>What actually happens between a command and the game</h3>
-<p>Each decision, the harness sends the LLM the full game state (every unit's position, health,
-type — ~2.4–5.7 K tokens of text). The model replies with a short <b>natural-language analysis</b>
-plus <b>structured actions</b> in a small command language (<code>&lt;Attack_Unit(tag)&gt;</code>,
-<code>&lt;Move_Screen([x,y])&gt;</code>, <code>&lt;Charge()&gt;</code>, <code>&lt;Blink(...)&gt;</code>).
-LLM-PySC2 parses those into pysc2 actions (select unit → issue ability → click target on screen)
-and steps the game. Two real decisions from the clip above:</p>
-
-<div class="trace">
-  <div>
-    <h4>Decision 1</h4>
-    <p class="nl">"The closest enemy Zealots are at distances 1–2… focus on attacking the closest
-    enemy Zealots first… Stalkers can use their Blink ability to reposition; Zealots use Charge to
-    close the distance."</p>
-    <p class="act">Team&nbsp;Zealot-1: &lt;Attack_Unit(0x100340001)&gt; &lt;Charge()&gt;</p>
-  </div>
-  <div>
-    <h4>Decision 2 — concentrate fire</h4>
-    <p class="nl">"The closest enemy Zealot (Tag 0x100340001) is at distance 1, an ideal target…
-    focus on the closest enemy Zealot first."</p>
-    <p class="act">Zealot-1 / Zealot-2 / Zealot-3 → all &lt;Attack_Unit(0x100340001)&gt;</p>
-  </div>
-</div>
-<p class="cap">The reasoning is sensible RTS micro — focus-fire the nearest/weakest enemy, use
-abilities — and it maps cleanly onto game actions. The catch (below) is that "attack the
-nearest" is largely what the units already do on their own.</p>
-
-<h2>2 · Capability — does the LLM actually help?</h2>
-<p>SC2 units <b>auto-attack</b> on their own, so a raw win doesn't prove the model did anything.
-We control with a no-LLM baseline (<code>WCB_SC2_MAX_QUERIES=0</code>) and pool the high-n runs by
-condition:</p>
-<table>
-<tr><th>condition</th><th>win-rate</th><th>n</th></tr>
-<tr><td>LLM acts (model in the loop)</td><td class="good">49/64 ≈ 77%</td><td>64</td></tr>
-<tr><td>No effective LLM (auto-attack / dropped)</td><td>32/48 ≈ 67%</td><td>48</td></tr>
-<tr><td colspan="3" style="color:#666;font-size:.88rem">Difference +10 pp, two-proportion p≈0.25 — <b>not significant</b>; the gap <i>shrank</i> as n grew (+22→+17→+10 pp).</td></tr>
-</table>
-<p>And win-rate tracks the <b>force matchup</b>, not the model:</p>
-<table>
-<tr><th>matchup</th><th>auto-attack</th><th>with LLM</th><th>read</th></tr>
-<tr><td>1c3s5z (overwhelming)</td><td>100%</td><td>100%</td><td>auto-wins; LLM irrelevant</td></tr>
-<tr><td><b>3s5z (balanced)</b></td><td>~67%</td><td>~77%</td><td>LLM helps modestly (n.s.)</td></tr>
-<tr><td>2s3z / 3s_vs_3z (unwinnable)</td><td>0%</td><td>0%</td><td>LLM neutral</td></tr>
-</table>
-<p><b>Why the effect is small (from reading the commands):</b> the 4B's micro is reasonable but
-<b>largely redundant with auto-attack</b> — it focus-fires the nearest/weakest enemy, which is
-~what the units already do. So it mostly commands what would happen anyway. It's redundancy, not
-incompetence; a bigger edge needs decisions that <i>diverge</i> from the default (true kiting,
-cross-team focus) more reliably than this model produces.</p>
-
-<h2>3 · The clock — latency is the binding constraint</h2>
-<p>Per-decision cost on 3s5z: <b>~27 s/decision</b> (range 25.5–30.1 s), <b>prefill-dominated</b>
-— the prompt is 2.4–5.7 K input tokens (the full unit-by-unit observation), output only
-~150–315 tokens. So latency scales with the <i>observation size</i>, not the generation.</p>
-<p>At ~27 s/decision the 4B is <b>~25× too slow</b> for second-scale RTS control (≈5× too slow even
-versus a generous 5 s deadline). LLM-PySC2's default deadline is <i>soft</i> — a late reply is
-applied anyway — so win-rate is deadline-invariant. We added a true real-time
-<b>drop-late</b> clock (<code>WCB_SC2_DROP_LATE=1</code>): a reply that misses its deadline is
-<b>discarded</b>. Validated at a 10 s deadline: <b>13/13 late replies dropped, attack actions
-45→1</b>, and the agent reverts to the auto-attack baseline. That is the program's thesis made
-concrete: <i>under a real clock, a too-slow model contributes nothing.</i></p>
-<p><b>The lever for real-time viability</b> is therefore not just a smaller model — it's
-<b>shrinking the observation prompt</b> (prefill is the cost) and <b>KV-cache reuse across ticks</b>.
-That is the efficiency sweep the program scopes next.</p>
-
-<h2>4 · Methods, reliability &amp; caveats</h2>
+<b>TL;DR</b>
 <ul>
-<li><b>Auto-attack confound</b> controlled with no-LLM runs; win/loss read from the
-<code>obs-list-episode&lt;N&gt;-{win,lose,tie}.pkl</code> suffix.</li>
-<li><b>Camera-calibration bootstrap</b> was run-fragile (some runs never queried the LLM). Fixed
-for reliability with a <code>world_range</code> guard + an env-gated force-proceed cap
-(<code>WCB_SC2_CALIB_CAP</code>); ~75% of runs now calibrate cleanly. A full "every run converges"
-fix is in progress.</li>
-<li><b>Single model</b> (4B); 8 GB GPU caps model size. Binomial CIs are wide; the pooled headline
-uses n≈48–64/side.</li>
-<li>Full data, code patch, and the evolving analysis trail: <code>results/sc2/sweep_2s3z_4B.md</code>
-in the repo.</li>
+<li><b>Capability —</b> on the balanced <code>3s5z</code> matchup the 4B only <b>matches the game's
+built-in auto-attack</b> (≈77% vs ≈67% win rate, +10 pp, <i>not</i> significant).</li>
+<li><b>Clock —</b> it takes <b>~27 s per decision</b>, about <b>25× too slow</b> to act in real time.
+The binding constraint is <b>latency, not capability</b>.</li>
+<li><b>Contribution —</b> a validated <b>drop-late</b> primitive (a true real-time clock that discards
+late decisions) — the reusable piece the program needs.</li>
+</ul>
+</div>
+
+<h2>1 · How it works</h2>
+<div class="flow">
+  <div class="node">StarCraft II<small>live game</small></div>
+  <div class="arr">→<small>harness:<br>game → text<br>(~3k tokens)</small></div>
+  <div class="node">LLM · Qwen3-4B<small>analysis (words)<br>+ commands</small></div>
+  <div class="arr">→<small>harness:<br>parse → clicks</small></div>
+  <div class="node">StarCraft II<small>action runs;<br>new state</small></div>
+</div>
+<ul>
+<li><b>Harness</b> = <b>LLM-PySC2</b>: the software between model and game. It turns the live game into a
+text description, sends it to the model, parses the reply back into in-game clicks, and advances the game.</li>
+<li><b>Command vocabulary</b> (a small fixed "language" the model writes): <code>&lt;Attack_Unit(tag)&gt;</code>,
+<code>&lt;Move_Screen([x,y])&gt;</code>, <code>&lt;Stop()&gt;</code>, and two unit abilities —
+<code>&lt;Blink([x,y])&gt;</code> (a <b>Stalker</b>'s short teleport, to reposition or escape) and
+<code>&lt;Charge()&gt;</code> (a <b>Zealot</b>'s rush to close in).</li>
+<li><b>The two unit types</b> in 3s5z: <b>Stalkers</b> (ranged) and <b>Zealots</b> (melee), 3 + 5 per side.</li>
 </ul>
 
-<p class="foot">World Commander Bench · StarCraft II testbed · generated 2026-06-21 on yubopc.
-Private GitLab Pages (project members only).</p>
+<h2>2 · Watch a game</h2>
+<video controls preload="metadata" poster="sc2_demo_poster.jpg">
+  <source src="sc2_demo.mp4" type="video/mp4">
+  Your browser can't play the video — <a href="sc2_demo.mp4">download it</a>.
+</video>
+<p class="cap">Top-down view so <b>every unit is visible</b> — allies cyan, enemy red; circles are
+Stalkers (ranged), squares are Zealots (melee); size tracks health, and units vanish as they die.
+Captions (in the lower band, never over the units) name each phase and show the real LLM command.
+Sped up — each real decision takes ~27 s. In this game the 4B is out-fought and loses.</p>
+<p>▶ <b>See the real 3D game:</b> <a href="sc2_demo_game.SC2Replay">download this StarCraft II replay</a>
+and open it in the game to watch the actual battle (the top-down view above is a clarity render of the
+same kind of game).</p>
 
+<h2>3 · Language → action: a decision walkthrough</h2>
+<p>Four moments from the game above. Each shows the <b>scene</b>, the model's <b>reasoning in words</b>,
+and the <b>command</b> it produced (focus-firing, then Blink/Charge micro as the fight turns).</p>
+
+<div class="wrow"><img src="scene1.jpg" alt="scene 1">
+  <div><b>① Opening (8 v 8)</b>
+  <p class="nl">"The enemy Zealots and Stalkers are close and our Zealots are low on health — attack the nearest enemy and reposition."</p>
+  <p class="act">&lt;Attack_Unit(0x..)&gt;  &lt;Move_Screen([82,64])&gt;</p></div></div>
+
+<div class="wrow"><img src="scene2.jpg" alt="scene 2">
+  <div><b>② Focus fire</b>
+  <p class="nl">"An enemy Zealot is at 11% health — a high-priority target; concentrate the team's fire to finish it."</p>
+  <p class="act">&lt;Stop()&gt;  &lt;Attack_Unit(0x..)&gt;  &lt;Attack_Unit(0x..)&gt;</p></div></div>
+
+<div class="wrow"><img src="scene3.jpg" alt="scene 3">
+  <div><b>③ Trading in the melee</b>
+  <p class="nl">"Facing the enemy Stalkers (ranged, armored) — attack, and Blink to a safer position."</p>
+  <p class="act">&lt;Attack_Unit(0x..)&gt;  &lt;Blink(0x.., [119,40])&gt;</p></div></div>
+
+<div class="wrow"><img src="scene4.jpg" alt="scene 4">
+  <div><b>④ Losing — last unit retreats</b>
+  <p class="nl">"Our last Stalker is at 3% health and critically damaged — Blink away to survive."</p>
+  <p class="act">&lt;Blink(0x.., [81,45])&gt;  &lt;Move_Screen([81,45])&gt;</p></div></div>
+
+<p class="cap">The reasoning is sensible RTS micro — focus the nearest/weakest enemy, use abilities — but
+"attack the nearest" is largely what units already do on their own, which is why the model's edge over
+auto-attack is small (Section 4).</p>
+
+<h2>4 · Results</h2>
+<h3>Capability — does the LLM beat the game's own AI?</h3>
+<p>SC2 units auto-attack on their own, so a win alone proves nothing. Controlling against a no-LLM
+baseline and pooling the high-n runs:</p>
+<table>
+<tr><th>condition</th><th>win rate</th><th>n</th></tr>
+<tr><td>LLM in the loop</td><td class="good">49/64 ≈ 77%</td><td>64</td></tr>
+<tr><td>no effective LLM (auto-attack)</td><td>32/48 ≈ 67%</td><td>48</td></tr>
+</table>
+<ul>
+<li>Difference <b>+10 pp, p ≈ 0.25 — not significant</b>; the gap <i>shrank</i> as n grew (+22 → +17 → +10).</li>
+<li>Win rate tracks the <b>matchup</b>: overwhelming maps auto-win, unwinnable maps auto-lose, and only the
+balanced 3s5z leaves any room — where the 4B adds a small, noisy lift.</li>
+</ul>
+<h3>The clock — latency is the wall</h3>
+<ul>
+<li><b>~27 s / decision</b> (range 25–30 s), <b>prefill-dominated</b> — the prompt is 2.4–5.7 k tokens
+(the full unit-by-unit state); output is only ~150–315 tokens.</li>
+<li>So the 4B is <b>~25× too slow</b> for second-scale control. The lever for real-time is a
+<b>shorter prompt + KV-cache reuse</b>, not just a smaller model.</li>
+<li><b>drop-late</b> (our real-time clock) discards a decision that misses its deadline. Validated: at a
+10 s deadline, 13/13 late replies dropped, attacks fell 45 → 1, and the agent reverts to auto-attack.</li>
+</ul>
+
+<h2>5 · Methods &amp; caveats</h2>
+<ul>
+<li>Win/loss read from the <code>obs-list-episode&lt;N&gt;-{win,lose,tie}.pkl</code> suffix; auto-attack
+confound controlled with no-LLM runs (<code>WCB_SC2_MAX_QUERIES=0</code>).</li>
+<li>The demo is rendered top-down from per-step unit data (<code>scripts/render_sc2_demo.py</code>), so it
+is camera-independent — every unit is always shown.</li>
+<li>Single model (4B); 8 GB GPU caps size. Binomial CIs are wide (pooled n ≈ 48–64/side).</li>
+<li>Full data, code patch, and the analysis trail: <code>results/sc2/sweep_2s3z_4B.md</code> in the repo.</li>
+</ul>
+
+<p class="foot">World Commander Bench · StarCraft II testbed · 2026-06-21 · private GitLab Pages (members only).</p>
 </body>
 </html>
