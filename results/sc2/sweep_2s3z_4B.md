@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21, 10:46 PM MDT (contention test RULED OUT: model ~7s even under SC2 load at 69-100% GPU util; the ~27s was harness retries, not GPU; decode-bound; parse/ground ~0.6s vs ~6.8s full)
+**Last updated:** 2026-06-21, 11:17 PM MDT (ROOT CAUSE: ~27s/decision was an IPv6 `localhost` timeout on the Windows→WSL2 call; fix = 127.0.0.1 → ~6s/decision validated end-to-end; decode-bound; parse/ground ~0.6s; GPU contention & retries both ruled out)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -167,16 +167,23 @@ This **overturns the earlier "prefill-dominated" guess.** On the 4060 the 4B pre
 - **A→C** (both): ~11×. The **parse+ground path — the system's job under a human commander — is ~0.6 s
   isolated**, an order of magnitude under the full call. Data backs the human-commander split.
 
-**In-game ~27 s vs ~6.8 s isolated — NOT GPU contention (tested, ruled out).** Re-ran the decomposition
-with SC2 rendering concurrently (GPU 69–100% util, mem 94%, game up throughout): latency was
-**unchanged** (A 7.06 s, B 2.15 s, C 0.61 s). The model and the game share the one 8 GB 4060 with no
-measurable penalty. The historical ~27 s/decision is **harness overhead**: the LLM-PySC2 client re-calls
-the model when the 4B's output doesn't parse (retries up to `MAX_LLM_QUERY_TIMES`, `llm_client.py:184`),
-so a logged "decision" is often several ~7 s calls. The **same vLLM instance** (~13 h uptime, identical
-flags) served both the ~27 s logs and these ~7 s measurements — so it isn't the serving config either.
-Real-time implication: the model itself is **~7 s full / ~0.6 s ground**, even with the game running; the
-lever is **fewer/shorter calls** (terse output, robust parsing, the human-commander split) — not a
-separate GPU. Method: `scripts/measure_ground_latency.py` (streaming TTFT vs decode, cache-bustable).
+**In-game ~27 s vs ~6.8 s isolated — ROOT CAUSE: an IPv6 `localhost` timeout, not the model/GPU/retries.**
+Bisected step by step:
+1. **GPU contention ruled out** — re-ran the decomposition with SC2 rendering concurrently (GPU 69–100%
+   util, mem 94%, game up throughout): latency **unchanged** (A 7.06 s, B 2.15 s, C 0.61 s).
+2. **No retries** — a fresh game logged 14 LLM calls for 14 decisions, 0 retries; `cost.txt` `query_time`
+   is per-attempt, so each attempt really was ~27 s.
+3. **Not the serving config** — the same vLLM instance (~13 h uptime, identical flags) served both the
+   ~27 s logs and my ~7 s direct calls.
+4. **The split is Windows vs WSL** — the harness runs on **Windows** and calls vLLM in **WSL2**. The
+   identical request is ~7 s from inside WSL but ~27 s from Windows, and the gap is **entirely
+   time-to-first-token** (0.07 s vs 21 s) — a **fixed ~21 s, independent of prompt size** (20 tok and
+   4000 tok both ≈ 21 s TTFT) → an IPv6 (`::1`) `localhost` resolution stall before IPv4 fallback.
+5. **Fix confirmed** — the identical Windows call via `127.0.0.1` is **0.09 s** TTFT, and a real game now
+   logs **~6 s/decision (4–8 s)**. **Action: set api_base to `http://127.0.0.1:8001/v1`, never `localhost`.**
+
+Net: the model is **~6 s full / ~0.6 s parse-ground**; the latency "wall" was ~75 % a config bug.
+Scripts: `outputs/net_test.py`, `outputs/net_small.py`, `scripts/measure_ground_latency.py`.
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs

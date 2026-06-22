@@ -36,8 +36,12 @@ Create a **Python 3.9** env, `pip install -e reference/LLM-PySC2`, plus `sniffio
 Run pysc2 as **Windows-native** Python so it can launch the Windows SC2 binary.
 
 **4. vLLM.** Qwen3-4B-AWQ fits the 4060's 8 GB. Run it in **WSL2** (Linux + CUDA);
-Windows reaches it at `localhost:8001` via WSL2 localhost forwarding. Set
-`WCB_SC2_API_BASE=http://localhost:8001/v1` (and `WCB_SC2_MODEL=Qwen/Qwen3-4B-AWQ`).
+Windows reaches it at `127.0.0.1:8001` via WSL2 localhost forwarding. Set
+`WCB_SC2_API_BASE=http://127.0.0.1:8001/v1` (and `WCB_SC2_MODEL=Qwen/Qwen3-4B-AWQ`).
+
+> **Use `127.0.0.1`, not `localhost`.** On Windows, `localhost` resolves to IPv6 `::1` first and stalls
+> ~21 s per request before falling back to IPv4 — it added ~21 s to *every* SC2 decision (~27 s instead
+> of ~6 s). `127.0.0.1` forces IPv4 and removes it. Verified: 0.09 s vs 21 s time-to-first-token.
 Arch is Ada (sm_89) — use a normal AWQ serve (no Turing `--enforce-eager` hack needed).
 
 **5. Run.** `pvz_task1` and SMAC `2s3z` (commands in `SC2.md`). On 5.0.x the camera

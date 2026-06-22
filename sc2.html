@@ -33,7 +33,7 @@
 <body>
 
 <h1>World Commander — StarCraft II testbed</h1>
-<p class="sub"><b>Updated:</b> 2026-06-21, 10:46 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
+<p class="sub"><b>Updated:</b> 2026-06-21, 11:17 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
 <b>Harness:</b> LLM-PySC2 (patched) · members-only</p>
 
 <div class="note">
@@ -53,10 +53,10 @@ and what it implies for the system — not "an AI that plays StarCraft."
 <li><b>Capability —</b> on a balanced matchup (<code>3s5z</code>) the 4B stand-in only <b>matches the
 game's built-in auto-attack</b> (≈77% vs ≈67% win rate; a +10 percentage-point gap that is <i>not</i>
 statistically significant).</li>
-<li><b>Clock —</b> latency is the binding constraint — but smaller than it first looked. A full
-reasoning call is <b>~7 s</b> and a bare grounded command <b>~0.6 s</b> on this GPU; the in-game ~27 s
-was <b>harness overhead</b> (output-parsing retries), not the model — and <b>not</b> GPU contention
-(tested, ruled out).</li>
+<li><b>Clock —</b> latency is the binding constraint — but far smaller than it first looked. Most of the
+in-game "~27 s/decision" was an <b>IPv6 <code>localhost</code> timeout</b> on the Windows→WSL2 call to the
+model; switching to <code>127.0.0.1</code> cuts a decision to <b>~6 s</b> (validated end-to-end), and a
+bare grounded command to <b>~0.6 s</b>. Not the model, not the GPU.</li>
 <li><b>Contribution —</b> a validated <b>drop-late</b> primitive: a true real-time clock that discards a
 command that misses its deadline (so a slow commander can't "rewind" the game).</li>
 </ul>
@@ -151,24 +151,23 @@ settles itself — an overwhelming force wins on its own, a hopeless one loses r
 Only a roughly even matchup (3s5z) leaves room for the commander to matter — and there the 4B's effect is
 small and within statistical noise.</li>
 </ul>
-<h3>The clock — latency is the wall</h3>
+<h3>The clock — where the latency actually went</h3>
 <ul>
-<li><b>A single inference call is ~7 s, and the cost is decode (generating the reply), not prefill.</b>
-Measured on the live 4B in isolation: reading ~5 k tokens of state takes ~1.6 s (~0.3 ms/tok), while
-<i>generating</i> runs at ~22 ms/tok — so the <b>length of the reply</b> dominates, not the size of the
-state. (This corrects an earlier "prefill-dominated" reading.)</li>
-<li><b>The lever is shorter output first, then shorter input.</b> On one real state we measured: full
-reasoning <b>6.8 s</b> → emit only the grounded action <b>2.1 s</b> (cut the chain-of-thought, ~3×) →
-shrink the state to the units the command needs <b>0.6 s</b> (~3.5× more) — together <b>~11×</b>.
-Prefix-caching across ticks removes most of the input cost in a live loop.</li>
-<li><b>GPU contention is <i>not</i> the bottleneck — we tested it.</b> Running the model while SC2
-rendered (GPU 69–100% util, memory 94%, game up throughout) left its latency <b>unchanged</b> (~7 s, same
-as isolated). The model and the game share one 8 GB 4060 fine. The ~27 s seen in-game is <b>harness
-overhead</b>: the client re-calls the LLM when the 4B's output doesn't parse (it retries up to a fixed
-limit), so one "decision" is often several ~7 s calls — not one slow call, and not the GPU.</li>
-<li><b>drop-late</b> (our real-time clock) discards a command that arrives after its deadline. Validated:
-at a 10 s deadline, 13/13 late replies were dropped, attacks fell 45 → 1, and the agent fell back to
-auto-attack — exactly the behaviour a real clock must enforce.</li>
+<li><b>Most of the "~27 s/decision" was an IPv6 <code>localhost</code> timeout — not the model.</b> The
+harness runs on Windows and calls vLLM in WSL2; resolving <code>localhost</code> tried IPv6
+(<code>::1</code>) first and stalled ~21 s before falling back to IPv4. The identical call via
+<code>127.0.0.1</code> has a <b>0.09 s</b> time-to-first-token vs <b>21 s</b>. Fix → a decision drops from
+~27 s to <b>~6 s</b> (validated end-to-end in the harness: 4–8 s/call).</li>
+<li><b>What's left is the model itself: ~6 s, and decode-bound.</b> Prefill of ~5 k tokens is ~1.6 s;
+generation runs at ~22 ms/tok, so the <b>reply length</b> is the cost. Measured on one state: full
+reasoning 6.8 s → grounded action only 2.1 s → grounded on a shrunk state <b>0.6 s</b> (~11× total). The
+lever is shorter output — the human-commander split removes the reasoning — then shorter input.</li>
+<li><b>GPU contention is <i>not</i> a factor — we tested it.</b> Running the model while SC2 rendered
+(GPU 69–100% util, 94% memory, game up throughout) left its latency <b>unchanged</b> (~7 s, same as
+isolated). The model and the game share one 8 GB 4060 fine — no separate GPU needed.</li>
+<li><b>drop-late</b> (our real-time clock) discards a command that arrives after its deadline. Validated
+under the pre-fix ~27 s latency: at a 10 s deadline, 13/13 late replies were dropped, attacks fell
+45 → 1, and the agent fell back to auto-attack — the behaviour a real clock must enforce.</li>
 </ul>
 <div class="note"><b>Measured — splitting the latency works.</b> In deployment the commander is a
 <b>human</b>, so the system's job is just <b>(b) parse + ground</b> a command — not <b>(a)</b> the
