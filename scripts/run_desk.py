@@ -22,7 +22,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from desk.commands import sample_command           # noqa: E402
+from desk.commander import LLMCommander, MockCommander  # noqa: E402
 from desk.eval import success_curve                # noqa: E402
 from desk.executor import MockDeskExecutor, RealDeskExecutor  # noqa: E402
 from desk.world import DeskWorld                    # noqa: E402
@@ -40,6 +40,8 @@ def main() -> None:
     ap.add_argument("--rest-x", type=float, default=0.0, help="hand rest/home position")
     ap.add_argument("--carryover", action="store_true",
                     help="hand stays where it last pressed (default: return to rest each round)")
+    ap.add_argument("--llm-commander", action="store_true",
+                    help="use an LLM as the commander (human stand-in); default scripted")
     ap.add_argument("--windows", default="300,500,800,1200,2000,3000", help="lit windows (ms)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--outdir", default="outputs")
@@ -50,22 +52,27 @@ def main() -> None:
     world = DeskWorld.make(n=a.n_buttons, speed=a.speed, rest_x=a.rest_x)
     executor = (MockDeskExecutor(rng=random.Random(a.seed + 1)) if a.mock
                 else RealDeskExecutor(a.base_url, a.api_key, a.model))
+    commander = (LLMCommander(a.base_url, a.api_key, a.model) if a.llm_commander
+                 else MockCommander())
 
-    rounds = []          # (grounded, parse_ground_ms, reach_ms)
+    rounds = []          # (grounded, executor_ms, reach_ms)
+    commander_ms = []
     grounded_n = 0
     for _ in range(a.rounds):
         if not a.carryover:
             world.reset_hand()       # hands relax to rest between rounds
         k = rng.randrange(a.n_buttons)
         world.lit = k
-        cmd = sample_command(world, rng)
+        tc = time.perf_counter()
+        cmd = commander.command(world, rng)            # commander (human stand-in) reasons
+        commander_ms.append((time.perf_counter() - tc) * 1000.0)
         t0 = time.perf_counter()
-        action = executor.act(world, cmd)
+        action = executor.act(world, cmd)              # executor parses + grounds (the focus)
         lat = (time.perf_counter() - t0) * 1000.0
         grounded = cmd.is_correct(action)
         grounded_n += int(grounded)
         reach = world.reach_ms(k)
-        rounds.append((grounded, lat, reach))
+        rounds.append((grounded, lat, reach))          # deadline budget = executor + reach
         if action:
             world.press(next(iter(action)))   # hand carries over to where it pressed
         world.lit = None
@@ -74,13 +81,17 @@ def main() -> None:
     reaches = [r for _, _, r in rounds]
     res = {"model": "mock" if a.mock else a.model, "rounds": a.rounds,
            "n_buttons": a.n_buttons, "speed": a.speed,
+           "commander": ("scripted (stand-in)" if not a.llm_commander
+                         else f"LLM stand-in ({a.model})"),
+           "commander_p50_ms": round(statistics.median(commander_ms), 1),
            "grounding_accuracy": round(grounded_n / a.rounds, 3),
            "parse_ground_p50_ms": round(statistics.median(lats), 1),
            "reach_p50_ms": round(statistics.median(reaches), 1),
            "frontier": [{"window_ms": c["window_ms"], "success_rate": round(c["success_rate"], 3)}
                         for c in success_curve(rounds, windows)]}
-    print(f"grounding {res['grounding_accuracy']} | parse+ground p50 {res['parse_ground_p50_ms']} ms "
-          f"| reach p50 {res['reach_p50_ms']} ms")
+    print(f"commander {res['commander']} p50 {res['commander_p50_ms']} ms | "
+          f"grounding {res['grounding_accuracy']} | executor(parse+ground) p50 "
+          f"{res['parse_ground_p50_ms']} ms | reach p50 {res['reach_p50_ms']} ms")
     for c in res["frontier"]:
         print(f"  W={c['window_ms']:.0f} ms -> success {c['success_rate']}")
     Path(a.outdir).mkdir(parents=True, exist_ok=True)

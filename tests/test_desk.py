@@ -46,6 +46,14 @@ def test_command_always_refers_to_the_lit_button():
     assert "lit" in sample_command(w, random.Random(0), kind="direct").text
 
 
+def test_mock_commander_commands_the_lit_button():
+    from desk.commander import MockCommander
+    w = _w(lit=1)   # blue (right) lit
+    cmd = MockCommander().command(w, random.Random(0))
+    assert cmd.acceptable == {1}          # commander always targets the lit button
+    assert isinstance(cmd.text, str) and cmd.text
+
+
 def test_round_success_needs_grounding_and_time():
     assert round_success(True, 300, 500, 1000) is True    # 800 <= 1000
     assert round_success(True, 600, 500, 1000) is False   # 1100 > 1000 (too slow)

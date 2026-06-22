@@ -47,9 +47,10 @@ def main() -> None:
         video = ('<h2>Demo</h2>\n<video controls muted playsinline preload="metadata" '
                  'style="width:100%;border:1px solid #e2e2e2;border-radius:6px">'
                  '<source src="desk_demo.mp4" type="video/mp4"></video>\n'
-                 '<p class="hint">A button lights; the LLM grounds the reference; the hand '
-                 'reaches and presses — in time when decide+reach &le; the window W, and '
-                 'misses when W is too short (round 3). Illustrative; numbers mirror the L0 run.</p>')
+                 '<p class="hint">A button lights; the commander orders; the executor grounds '
+                 'it; the character reaches and presses — in time when executor+reach &le; the '
+                 'window W, and misses when W is too short (round 3). Illustrative; numbers '
+                 'mirror the L0 run.</p>')
     html = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -59,14 +60,28 @@ def main() -> None:
 {NAV}
 <h1>Embodiment (E3) — commanding a body under a clock</h1>
 <p class="hint"><b>Updated:</b> {time.strftime('%Y-%m-%d, %I:%M %p %Z')} &middot; members-only</p>
-<p>A third World Commander environment. A character sits at a desk; a button <b>lights</b>
-for a window <i>W</i> and must be pressed before it goes dark. The command refers to the lit
-button (by "lit", colour, or side); the LLM <b>executor</b> grounds the reference to a button;
-pressing is a <b>timed reach</b> (distance / hand speed). Success requires both:
-the executor grounds correctly <i>and</i> <code>parse+ground latency + reach time &le; W</code>.
-So unlike E1/E2, <b>physical execution time</b> is part of the budget — the embodiment axis.
-The human supplies intent; the LLM only grounds the reference and never plans the reach
-(it hands off execution to the motion layer).</p>
+<p>A third World Commander environment: a character at a desk must press a button before
+it goes dark. It adds the axis E1/E2 lack — <b>physical execution time</b> — because acting
+is a real, timed motion.</p>
+
+<h2>How the experiment works</h2>
+<ol>
+<li><b>A button lights at random.</b> One button on the panel turns on for a window <i>W</i>
+and must be pressed before it goes dark; then all dark, then another, and so on.</li>
+<li><b>The commander reasons and issues an order.</b> In deployment a <b>human</b> watches the
+panel and commands. For these automated runs an <b>LLM commander stands in for the human</b>:
+it views the world state, reasons, and issues a natural-language order referring to the lit
+button.</li>
+<li><b>The executor parses, grounds, and acts.</b> A second LLM — the <b>executor</b> — reads
+the order plus the state, resolves <i>which</i> button it means, and the character <b>reaches</b>
+to press it (a timed reach: distance / hand speed).</li>
+<li><b>Success</b> = the executor grounded the right button <i>and</i>
+<code>executor processing time + reach time &le; W</code>.</li>
+</ol>
+<p><b>What we measure (the focus): the executor's processing time</b> — parse + ground. In
+deployment the human is the commander, so the system's real job is to turn each order into the
+right action fast enough to beat the clock. The commander's time is reported separately — it
+stands in for the human and is not on the system's critical path.</p>
 
 {video}
 
@@ -74,7 +89,9 @@ The human supplies intent; the LLM only grounds the reference and never plans th
 <img src="{uri}" alt="E3 success vs lit window">
 
 <h2>Results — {d['model']}, {d['rounds']} rounds, {d['n_buttons']} buttons (L0)</h2>
-<p>Executor grounding <b>{d['grounding_accuracy']:.2f}</b>; parse+ground p50
+<p>Commander (human stand-in): {d.get('commander', 'scripted (stand-in)')}, p50
+{d.get('commander_p50_ms', 0):.0f} ms — reported, <i>not</i> on the deadline path.<br>
+<b>Executor (the focus)</b> — grounding <b>{d['grounding_accuracy']:.2f}</b>, parse+ground p50
 <b>{d['parse_ground_p50_ms']:.0f} ms</b>; reach p50 <b>{d['reach_p50_ms']:.0f} ms</b>.</p>
 <table><tr><th>lit window W</th><th>success</th></tr>
 {drows}</table>
