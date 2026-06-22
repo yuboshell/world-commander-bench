@@ -35,7 +35,7 @@
 <div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Environments: <a href="index.html">Grid Arena (E1)</a> &middot; <b>StarCraft II (E2)</b> &middot; <a href="embodiment.html">Embodiment (E3)</a></div>
 
 <h1>World Commander — StarCraft II testbed</h1>
-<p class="sub"><b>Updated:</b> 2026-06-21, 11:17 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
+<p class="sub"><b>Updated:</b> 2026-06-22, 1:05 AM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
 <b>Harness:</b> LLM-PySC2 (patched) · members-only</p>
 
 <div class="note">
@@ -52,9 +52,10 @@ and what it implies for the system — not "an AI that plays StarCraft."
 <div class="tldr">
 <b>TL;DR</b>
 <ul>
-<li><b>Capability —</b> on a balanced matchup (<code>3s5z</code>) the 4B stand-in only <b>matches the
-game's built-in auto-attack</b> (≈77% vs ≈67% win rate; a +10 percentage-point gap that is <i>not</i>
-statistically significant).</li>
+<li><b>Capability —</b> the 4B stand-in only <b>matches the game's built-in auto-attack</b> on
+<code>3s5z</code> (~77% win rate vs ~67–81% — not significant), and this <b>held even after the latency
+fix</b> let it act ~3× more often (re-measured: 77% vs 81%, p≈0.7). Capability is a separate axis from
+latency — not just a speed problem.</li>
 <li><b>Clock —</b> latency is the binding constraint — but far smaller than it first looked. Most of the
 in-game "~27 s/decision" was an <b>IPv6 <code>localhost</code> timeout</b> on the Windows→WSL2 call to the
 model; switching to <code>127.0.0.1</code> cuts a decision to <b>~6 s</b> (validated end-to-end), and a
@@ -152,6 +153,10 @@ significant</b>; it <i>shrank</i> as we ran more games (+22 → +17 → +10).</l
 settles itself — an overwhelming force wins on its own, a hopeless one loses regardless of any commander.
 Only a roughly even matchup (3s5z) leaves room for the commander to matter — and there the 4B's effect is
 small and within statistical noise.</li>
+<li><b>Re-measured after the latency fix — still no gain.</b> The old ~27 s latency had capped the LLM at
+~1 decision/episode; the fix raised it to ~3. Yet the win rate didn't move: LLM 40/52 = <b>77%</b> vs
+auto-attack 29/36 = <b>81%</b> (p ≈ 0.68). So the null result is <i>not</i> a latency artifact — the 4B
+needs to be a better <i>commander</i>, not just a faster one.</li>
 </ul>
 <h3>The clock — where the latency actually went</h3>
 <ul>

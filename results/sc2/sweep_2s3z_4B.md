@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21, 11:17 PM MDT (ROOT CAUSE: ~27s/decision was an IPv6 `localhost` timeout on the Windows→WSL2 call; fix = 127.0.0.1 → ~6s/decision validated end-to-end; decode-bound; parse/ground ~0.6s; GPU contention & retries both ruled out)
+**Last updated:** 2026-06-22, 1:03 AM MDT (capability RE-MEASURED with the latency fix: LLM 77% vs auto-attack 81%, p=0.68 — still no benefit even at ~3 decisions/ep, so the null is NOT a latency artifact. Plus the IPv6 root cause: ~27s/decision was a `localhost` IPv6 timeout, fixed by 127.0.0.1 → ~6s; decode-bound; parse/ground ~0.6s)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -184,6 +184,31 @@ Bisected step by step:
 
 Net: the model is **~6 s full / ~0.6 s parse-ground**; the latency "wall" was ~75 % a config bug.
 Scripts: `outputs/net_test.py`, `outputs/net_small.py`, `scripts/measure_ground_latency.py`.
+
+## Capability re-measured WITH the latency fix (2026-06-22, 1:03 AM MDT)
+
+The original "null capability" was measured while the LLM was crippled by the ~27 s IPv6 latency
+(~1 decision/episode). With the fix (`127.0.0.1`, ~6 s/call) the LLM can act far more often, so I re-ran
+3s5z capability — **chunked** (fresh SC2 per chunk) to survive an intermittent agent-stuck bug (no-op
+flood / endless-loop / `unit … not find` that voids a whole run; ~1 in 6 runs). Kept only chunks that
+actually queried.
+
+| condition | win/total | win rate | decisions/episode |
+|---|---|---|---|
+| **LLM (latency-fixed)** | 40/52 | **77%** | ~3.2 (167 calls / 52 ep) |
+| **auto-attack** (0 LLM commands) | 29/36 | **81%** | 0 |
+
+Diff **−3.6 pp, z = −0.41, p = 0.68 — not significant** (if anything slightly negative).
+
+**The fix raised decisions/episode (~1 → ~3) but did NOT raise win rate** over auto-attack. So the null
+result was **not** a latency artifact: even acting ~3× more often, the 4B's tactical commands don't beat
+the units' built-in auto-attack on the balanced 3s5z map. **Capability is a separate axis from latency**
+— it needs a better commander (larger/smarter model, better prompting/grounding), not just a faster clock.
+
+*Caveats:* auto-attack win rate is noisy across runs (67–81%); the auto data here came from runs where
+the agent got stuck (0 LLM commands ≡ auto-attack — valid but incidental); `WCB_SC2_MAX_QUERIES=0`
+unexpectedly did NOT disable querying this session; modest n; the stuck-bug needs chunking to work
+around. A larger, cleanly-controlled sweep would tighten the CIs, but the direction is clear.
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
