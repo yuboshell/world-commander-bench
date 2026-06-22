@@ -33,7 +33,7 @@
 <body>
 
 <h1>World Commander — StarCraft II testbed</h1>
-<p class="sub"><b>Updated:</b> 2026-06-21, 10:09 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
+<p class="sub"><b>Updated:</b> 2026-06-21, 10:46 PM MDT · <b>Machine:</b> yubopc (RTX 4060, 8 GB) · <b>Game:</b> SC2 5.0.15 ·
 <b>Harness:</b> LLM-PySC2 (patched) · members-only</p>
 
 <div class="note">
@@ -53,8 +53,10 @@ and what it implies for the system — not "an AI that plays StarCraft."
 <li><b>Capability —</b> on a balanced matchup (<code>3s5z</code>) the 4B stand-in only <b>matches the
 game's built-in auto-attack</b> (≈77% vs ≈67% win rate; a +10 percentage-point gap that is <i>not</i>
 statistically significant).</li>
-<li><b>Clock —</b> the stand-in takes <b>~27 s per decision</b> — about <b>25× too slow</b> for
-second-scale real time. For the system, <b>latency is the binding constraint</b>, not commander skill.</li>
+<li><b>Clock —</b> latency is the binding constraint — but smaller than it first looked. A full
+reasoning call is <b>~7 s</b> and a bare grounded command <b>~0.6 s</b> on this GPU; the in-game ~27 s
+was <b>harness overhead</b> (output-parsing retries), not the model — and <b>not</b> GPU contention
+(tested, ruled out).</li>
 <li><b>Contribution —</b> a validated <b>drop-late</b> primitive: a true real-time clock that discards a
 command that misses its deadline (so a slow commander can't "rewind" the game).</li>
 </ul>
@@ -151,7 +153,7 @@ small and within statistical noise.</li>
 </ul>
 <h3>The clock — latency is the wall</h3>
 <ul>
-<li><b>~27 s per decision in-game — but the cost is decode (generating the reply), not prefill.</b>
+<li><b>A single inference call is ~7 s, and the cost is decode (generating the reply), not prefill.</b>
 Measured on the live 4B in isolation: reading ~5 k tokens of state takes ~1.6 s (~0.3 ms/tok), while
 <i>generating</i> runs at ~22 ms/tok — so the <b>length of the reply</b> dominates, not the size of the
 state. (This corrects an earlier "prefill-dominated" reading.)</li>
@@ -159,9 +161,11 @@ state. (This corrects an earlier "prefill-dominated" reading.)</li>
 reasoning <b>6.8 s</b> → emit only the grounded action <b>2.1 s</b> (cut the chain-of-thought, ~3×) →
 shrink the state to the units the command needs <b>0.6 s</b> (~3.5× more) — together <b>~11×</b>.
 Prefix-caching across ticks removes most of the input cost in a live loop.</li>
-<li><b>The in-game ~27 s is mostly ~4× GPU contention.</b> Same model and <code>--enforce-eager</code>;
-the only difference is that in a live game StarCraft II and vLLM share one 8 GB GPU (decode ~106 ms/tok
-in-game vs ~22 ms isolated). For real time, <b>give the model its own GPU</b> — or pay the penalty.</li>
+<li><b>GPU contention is <i>not</i> the bottleneck — we tested it.</b> Running the model while SC2
+rendered (GPU 69–100% util, memory 94%, game up throughout) left its latency <b>unchanged</b> (~7 s, same
+as isolated). The model and the game share one 8 GB 4060 fine. The ~27 s seen in-game is <b>harness
+overhead</b>: the client re-calls the LLM when the 4B's output doesn't parse (it retries up to a fixed
+limit), so one "decision" is often several ~7 s calls — not one slow call, and not the GPU.</li>
 <li><b>drop-late</b> (our real-time clock) discards a command that arrives after its deadline. Validated:
 at a 10 s deadline, 13/13 late replies were dropped, attacks fell 45 → 1, and the agent fell back to
 auto-attack — exactly the behaviour a real clock must enforce.</li>
@@ -170,8 +174,8 @@ auto-attack — exactly the behaviour a real clock must enforce.</li>
 <b>human</b>, so the system's job is just <b>(b) parse + ground</b> a command — not <b>(a)</b> the
 reasoning. Timed in isolation, <b>(b) is ~0.6 s</b> vs ~6.8 s for the full reasoning call — an order of
 magnitude, and the path toward real time. The command arena already isolates (b), so the two testbeds
-align. (All numbers isolated; under in-game GPU contention multiply by ~4 — hence "give the model its
-own GPU.")</div>
+align. (These numbers hold even with the game running on the same GPU — contention tested and ruled
+out; the historical ~27 s was harness retries, not inference.)</div>
 
 <h2>5 · Methods &amp; caveats</h2>
 <ul>

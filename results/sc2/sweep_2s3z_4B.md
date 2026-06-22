@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21, 10:09 PM MDT (latency decomposition MEASURED: decode-bound, not prefill; parse/ground ~0.6s isolated vs ~6.8s full, ~11x; in-game ~27s is ~4x GPU contention)
+**Last updated:** 2026-06-21, 10:46 PM MDT (contention test RULED OUT: model ~7s even under SC2 load at 69-100% GPU util; the ~27s was harness retries, not GPU; decode-bound; parse/ground ~0.6s vs ~6.8s full)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -167,11 +167,16 @@ This **overturns the earlier "prefill-dominated" guess.** On the 4060 the 4B pre
 - **A→C** (both): ~11×. The **parse+ground path — the system's job under a human commander — is ~0.6 s
   isolated**, an order of magnitude under the full call. Data backs the human-commander split.
 
-**In-game ~27 s vs ~6.8 s isolated (≈4×) = GPU contention.** Same model, same `--enforce-eager`; the
-difference is that a live game makes SC2 and vLLM share the one 8 GB 4060 (decode ~106 ms/tok in-game vs
-~22 ms isolated). Real-time implication: **isolate the model's GPU from the game**, or pay ~4×. Next
-test: re-run this decomposition with a game running concurrently to confirm the contention factor
-directly. Method: `scripts/measure_ground_latency.py` (streaming TTFT vs decode, cache-bustable).
+**In-game ~27 s vs ~6.8 s isolated — NOT GPU contention (tested, ruled out).** Re-ran the decomposition
+with SC2 rendering concurrently (GPU 69–100% util, mem 94%, game up throughout): latency was
+**unchanged** (A 7.06 s, B 2.15 s, C 0.61 s). The model and the game share the one 8 GB 4060 with no
+measurable penalty. The historical ~27 s/decision is **harness overhead**: the LLM-PySC2 client re-calls
+the model when the 4B's output doesn't parse (retries up to `MAX_LLM_QUERY_TIMES`, `llm_client.py:184`),
+so a logged "decision" is often several ~7 s calls. The **same vLLM instance** (~13 h uptime, identical
+flags) served both the ~27 s logs and these ~7 s measurements — so it isn't the serving config either.
+Real-time implication: the model itself is **~7 s full / ~0.6 s ground**, even with the game running; the
+lever is **fewer/shorter calls** (terse output, robust parsing, the human-commander split) — not a
+separate GPU. Method: `scripts/measure_ground_latency.py` (streaming TTFT vs decode, cache-bustable).
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
