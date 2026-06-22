@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -57,6 +58,7 @@ def main() -> None:
 <body>
 {NAV}
 <h1>Embodiment (E3) — commanding a body under a clock</h1>
+<p class="hint"><b>Updated:</b> {time.strftime('%Y-%m-%d, %I:%M %p %Z')} &middot; members-only</p>
 <p>A third World Commander environment. A character sits at a desk; a button <b>lights</b>
 for a window <i>W</i> and must be pressed before it goes dark. The command refers to the lit
 button (by "lit", colour, or side); the LLM <b>executor</b> grounds the reference to a button;

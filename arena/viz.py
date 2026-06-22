@@ -12,6 +12,7 @@ agent(s) in gold, so a command like "move the red one" always shows a red one.
 from __future__ import annotations
 
 import base64
+import time
 import io
 import math
 import statistics
@@ -414,6 +415,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
     run configuration, every metric defined, a grid legend, the charts explained,
     and an interactive replay (slider / step / play at an adjustable speed)."""
     out_path = Path(out_path)
+    generated = time.strftime("%Y-%m-%d, %I:%M %p %Z")
     metrics_uri = _data_uri_from_file(metrics_png)
     frames_js = "[\n" + ",\n".join(f'"{u}"' for u in frame_uris) + "\n]"
 
@@ -511,6 +513,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
 <div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Environments: <b>Grid Arena (E1)</b> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a></div>
 <h1>{title}</h1>
 <p class="hint">Natural-language command of agents in real time, under a latency budget. Phase-1 warm-up of the World Commander program.</p>
+<p class="hint"><b>Updated:</b> {generated} &middot; members-only</p>
 
 <p>Below is the arena in motion: coloured agents follow streamed natural-language
 orders while grey agents wander on their own clock. <b>Press Play</b> (or drag
