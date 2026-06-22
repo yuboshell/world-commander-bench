@@ -1,6 +1,6 @@
 # SC2 SMAC win-rate (Qwen3-4B-AWQ) — by map and by deadline
 
-**Last updated:** 2026-06-21 ~12:15 MDT (calibration: world_range guard + calib-cap committed (reliability + ~75% clean); analytic Path-B convergence attempted but offset drifts — needs visual debugging)
+**Last updated:** 2026-06-21, 9:55 PM MDT (added latency-decomposition next step: split commander-cognition vs parse/ground — the system's target is parse/ground)
 **Machine:** yubopc (RTX 4060, 8 GB) · **SC2:** 5.0.15 (Base96883) · **Harness:** LLM-PySC2 (patched)
 **Model/serving:** Qwen3-4B-AWQ via vLLM in WSL2 (`awq_marlin`, `--enforce-eager`,
 `--gpu-memory-utilization 0.65`, offline); Windows pysc2 reaches it at `localhost:8001`.
@@ -147,6 +147,14 @@ vs a generous 5 s deadline). This is *why* drop-late reverts the LLM to auto-att
 That is exactly the efficiency sweep (prompt size, KV-cache policy, VRAM budgets) the program
 scopes next — and the headline pairing is: *the 4B is capable enough to roughly match auto-attack
 but ~25× too slow to act in real time.*
+
+**Latency decomposition (next step).** In deployment the commander is a **human**, so the ~27 s should
+be split into **(a)** game-state understanding + command-forming (the human's job) and **(b)** command
+parsing + grounding (the system's job). The real latency target is **(b)** alone — measure the two
+separately. *Caveat:* latency is prefill-dominated (the ~3k-token state, not the ~200-token output), so
+removing the reasoning saves mostly decode time; the real lever for (b) is **shrinking the state prefill
+/ KV-cache reuse**, plus possibly a small model or deterministic code for grounding. The **command arena
+already isolates (b)** (grounding accuracy + latency), so the two testbeds align.
 
 ## Conclusion
 - **The 4B LLM's benefit is modest, noisy, and only on a *balanced* matchup.** Controlled vs
