@@ -11,6 +11,7 @@ pages:
     - cp sc2.html public/sc2.html
     - cp -f embodiment.html public/embodiment.html 2>/dev/null || true
     - cp -f motion.html public/motion.html 2>/dev/null || true
+    - cp -f graph-bpe-motion.html public/graph-bpe-motion.html 2>/dev/null || true  # standalone (graph-tokenization thread, not E1-E4)
     - cp -f desk_demo.mp4 public/ 2>/dev/null || true
     - cp -f sc2_latency.png public/ 2>/dev/null || true
     - cp -f sc2_demo.mp4 public/ 2>/dev/null || true
