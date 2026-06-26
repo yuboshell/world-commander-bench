@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="470" height="380" viewBox="0 0 470 380" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="aBlue"  markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 Z" fill="#2563EB"/></marker>
+    <marker id="aGray"  markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 Z" fill="#6B7280"/></marker>
+    <marker id="aAmber" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 Z" fill="#B45309"/></marker>
+    <marker id="aTeal"  markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 Z" fill="#0D9488"/></marker>
+    <marker id="aCmp"   markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 Z" fill="#9CA3AF"/></marker>
+  </defs>
+
+  <!-- the room -->
+  <rect x="18" y="18" width="434" height="344" rx="16" fill="none" stroke="#333" stroke-width="2"/>
+
+  <!-- compass: north is up -->
+  <line x1="424" y1="74" x2="424" y2="44" stroke="#9CA3AF" stroke-width="2" marker-end="url(#aCmp)"/>
+  <text x="417" y="96" font-size="15" fill="#9CA3AF">N</text>
+
+  <!-- agents: each moves in one of four directions -->
+  <!-- blue, north -->
+  <line x1="150" y1="206" x2="150" y2="150" stroke="#2563EB" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#aBlue)"/>
+  <circle cx="150" cy="224" r="17" fill="#2563EB"/>
+  <!-- gray, south -->
+  <line x1="245" y1="150" x2="245" y2="206" stroke="#6B7280" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#aGray)"/>
+  <circle cx="245" cy="132" r="17" fill="#6B7280"/>
+  <!-- amber, east -->
+  <line x1="190" y1="292" x2="250" y2="292" stroke="#B45309" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#aAmber)"/>
+  <circle cx="172" cy="292" r="17" fill="#D9A406"/>
+  <!-- teal, west -->
+  <line x1="338" y1="248" x2="278" y2="248" stroke="#0D9488" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#aTeal)"/>
+  <circle cx="356" cy="248" r="17" fill="#0D9488"/>
+  <!-- second blue, north -->
+  <line x1="320" y1="320" x2="320" y2="270" stroke="#2563EB" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#aBlue)"/>
+  <circle cx="320" cy="338" r="17" fill="#2563EB"/>
+</svg>

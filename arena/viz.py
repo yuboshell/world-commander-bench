@@ -510,7 +510,7 @@ def build_html_report(report: dict, metrics_png: str | Path,
   footer {{ margin-top:3rem; color:#777; font-size:.82rem; border-top:1px solid #eee; padding-top:.6rem; }}
 </style></head>
 <body>
-<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Reports: <b>Grid Arena (E1)</b> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <a href="literature.html">Literature</a></div>
+<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Reports: <a href="proposal.html">Proposal</a> &middot; <b>Grid Arena (E1)</b> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <a href="literature.html">Literature</a></div>
 <h1>{title}</h1>
 <p class="hint">Natural-language command of agents in real time, under a latency budget. Phase-1 warm-up of the World Commander program.</p>
 <p class="hint"><b>Updated:</b> {generated} &middot; members-only</p>

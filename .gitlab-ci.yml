@@ -13,6 +13,8 @@ pages:
     - cp -f motion.html public/motion.html 2>/dev/null || true
     - cp -f graph-bpe-motion.html public/graph-bpe-motion.html 2>/dev/null || true  # standalone (graph-tokenization thread, not E1-E4)
     - cp -f literature.html public/literature.html 2>/dev/null || true
+    - cp -f proposal.html public/proposal.html 2>/dev/null || true   # research proposal blog
+    - cp -rf fig public/ 2>/dev/null || true                         # proposal blog images (command-station.png, svgs)
     - cp -f desk_demo.mp4 public/ 2>/dev/null || true
     - cp -f sc2_latency.png public/ 2>/dev/null || true
     - cp -f sc2_demo.mp4 public/ 2>/dev/null || true

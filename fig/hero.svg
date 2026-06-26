@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="480" viewBox="0 0 540 480" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <!-- PLAYERS: solid filled humans wearing a comms headset (real people). currentColor = team. -->
+    <symbol id="player" viewBox="0 0 44 72">
+      <rect x="15" y="46" width="6.5" height="22" rx="3.25" fill="currentColor"/>
+      <rect x="22.5" y="46" width="6.5" height="22" rx="3.25" fill="currentColor"/>
+      <rect x="13" y="23" width="18" height="28" rx="8" fill="currentColor"/>
+      <line x1="29" y1="30" x2="43" y2="23" stroke="currentColor" stroke-width="6.5" stroke-linecap="round"/>
+      <circle cx="22" cy="13" r="9" fill="currentColor"/>
+      <path d="M 13.5 13 Q 22 1 30.5 13" fill="none" stroke="#1a1a1a" stroke-width="2.2"/>
+      <path d="M 30 15 Q 33 23 24.5 23.5" fill="none" stroke="#1a1a1a" stroke-width="2.2"/>
+      <circle cx="24" cy="23.5" r="1.8" fill="#1a1a1a"/>
+    </symbol>
+    <!-- AGENTS: line-art characters (virtual). currentColor = team. -->
+    <symbol id="run" viewBox="0 0 40 64">
+      <circle cx="24" cy="10" r="6" fill="currentColor"/>
+      <g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="16" x2="14" y2="37"/><line x1="14" y1="37" x2="31" y2="46"/><line x1="14" y1="37" x2="4" y2="53"/>
+        <line x1="19" y1="21" x2="29" y2="15"/><line x1="19" y1="21" x2="8" y2="29"/>
+      </g>
+    </symbol>
+    <symbol id="walk" viewBox="0 0 40 64">
+      <circle cx="19" cy="9" r="6" fill="currentColor"/>
+      <g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="16" x2="19" y2="37"/><line x1="19" y1="37" x2="27" y2="55"/><line x1="19" y1="37" x2="12" y2="55"/>
+        <line x1="19" y1="22" x2="26" y2="30"/><line x1="19" y1="22" x2="13" y2="29"/>
+      </g>
+    </symbol>
+    <symbol id="sit" viewBox="0 0 40 64">
+      <circle cx="15" cy="12" r="6" fill="currentColor"/>
+      <g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="15" y1="18" x2="15" y2="33"/><line x1="15" y1="33" x2="29" y2="33"/><line x1="29" y1="33" x2="29" y2="50"/><line x1="15" y1="24" x2="25" y2="30"/>
+      </g>
+    </symbol>
+    <marker id="tick" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 Z" fill="#333"/></marker>
+  </defs>
+
+  <!-- shared real-time clock -->
+  <circle cx="270" cy="40" r="23" fill="#ffffff" stroke="#333" stroke-width="2.5"/>
+  <line x1="270" y1="20" x2="270" y2="27" stroke="#333" stroke-width="2"/><line x1="270" y1="60" x2="270" y2="53" stroke="#333" stroke-width="2"/>
+  <line x1="250" y1="40" x2="257" y2="40" stroke="#333" stroke-width="2"/><line x1="290" y1="40" x2="283" y2="40" stroke="#333" stroke-width="2"/>
+  <line x1="270" y1="40" x2="259" y2="31" stroke="#333" stroke-width="2.5" stroke-linecap="round"/><line x1="270" y1="40" x2="283" y2="29" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+  <path d="M 272 14 A 26 26 0 0 1 298 41" fill="none" stroke="#333" stroke-width="2" marker-end="url(#tick)"/>
+
+  <!-- the virtual world: a thin screen the agents live inside -->
+  <rect x="44" y="150" width="452" height="296" rx="18" fill="none" stroke="#cfcfcf" stroke-width="1.5"/>
+
+  <!-- PLAYER 1 (blue), a real human outside the screen, commanding in -->
+  <use href="#player" x="14" y="22" width="52" height="84" style="color:#2563EB"/>
+  <text x="12" y="126" font-size="14" font-weight="600" fill="#2563EB">Player 1</text>
+  <path d="M 62 100 C 110 140, 140 210, 168 268" fill="none" stroke="#2563EB" stroke-width="2" stroke-dasharray="5 5" opacity="0.4"/>
+  <path d="M 62 104 C 130 150, 178 220, 206 276" fill="none" stroke="#2563EB" stroke-width="2" stroke-dasharray="5 5" opacity="0.4"/>
+
+  <!-- PLAYER 2 (amber), mirrored -->
+  <g transform="translate(526,22) scale(-1,1)"><use href="#player" width="52" height="84" style="color:#B45309"/></g>
+  <text x="456" y="126" font-size="14" font-weight="600" fill="#B45309">Player 2</text>
+  <path d="M 478 100 C 430 140, 400 210, 372 268" fill="none" stroke="#B45309" stroke-width="2" stroke-dasharray="5 5" opacity="0.4"/>
+  <path d="M 478 104 C 410 150, 362 220, 334 276" fill="none" stroke="#B45309" stroke-width="2" stroke-dasharray="5 5" opacity="0.4"/>
+
+  <!-- compass, inside the screen -->
+  <line x1="470" y1="196" x2="470" y2="174" stroke="#9CA3AF" stroke-width="2" marker-end="url(#tick)"/>
+  <text x="464" y="214" font-size="13" fill="#9CA3AF">N</text>
+
+  <!-- front-rank ground shadows -->
+  <g fill="#000" opacity="0.06">
+    <ellipse cx="168" cy="402" rx="16" ry="3.5"/><ellipse cx="130" cy="404" rx="15" ry="3.5"/><ellipse cx="210" cy="406" rx="16" ry="3.5"/>
+    <ellipse cx="372" cy="402" rx="16" ry="3.5"/><ellipse cx="410" cy="404" rx="15" ry="3.5"/><ellipse cx="330" cy="406" rx="16" ry="3.5"/>
+  </g>
+
+  <!-- ── BLUE agents (virtual), three ranks ──────────────────────────── -->
+  <use href="#walk" x="116" y="286" width="22" height="34" style="color:#2563EB"/>
+  <use href="#walk" x="144" y="284" width="22" height="34" style="color:#2563EB"/>
+  <use href="#walk" x="172" y="286" width="22" height="34" style="color:#2563EB"/>
+  <use href="#walk" x="198" y="288" width="22" height="34" style="color:#2563EB"/>
+  <use href="#run"  x="120" y="310" width="28" height="44" style="color:#2563EB"/>
+  <use href="#walk" x="154" y="312" width="28" height="44" style="color:#2563EB"/>
+  <use href="#run"  x="188" y="310" width="28" height="44" style="color:#2563EB"/>
+  <g stroke="#2563EB" stroke-width="2" opacity="0.32" stroke-linecap="round">
+    <line x1="126" y1="362" x2="142" y2="362"/><line x1="122" y1="374" x2="140" y2="374"/><line x1="128" y1="386" x2="144" y2="386"/>
+  </g>
+  <use href="#run"  x="148" y="340" width="40" height="62" style="color:#2563EB"/>
+  <use href="#walk" x="110" y="346" width="36" height="56" style="color:#2563EB"/>
+  <use href="#run"  x="190" y="344" width="40" height="62" style="color:#2563EB"/>
+
+  <!-- ── AMBER agents (virtual), mirrored ────────────────────────────── -->
+  <g transform="translate(424,286) scale(-1,1)"><use href="#walk" width="22" height="34" style="color:#B45309"/></g>
+  <g transform="translate(396,284) scale(-1,1)"><use href="#walk" width="22" height="34" style="color:#B45309"/></g>
+  <g transform="translate(368,286) scale(-1,1)"><use href="#walk" width="22" height="34" style="color:#B45309"/></g>
+  <g transform="translate(342,288) scale(-1,1)"><use href="#walk" width="22" height="34" style="color:#B45309"/></g>
+  <g transform="translate(420,310) scale(-1,1)"><use href="#run"  width="28" height="44" style="color:#B45309"/></g>
+  <g transform="translate(386,312) scale(-1,1)"><use href="#walk" width="28" height="44" style="color:#B45309"/></g>
+  <g transform="translate(352,310) scale(-1,1)"><use href="#run"  width="28" height="44" style="color:#B45309"/></g>
+  <g stroke="#B45309" stroke-width="2" opacity="0.32" stroke-linecap="round">
+    <line x1="398" y1="362" x2="414" y2="362"/><line x1="400" y1="374" x2="418" y2="374"/><line x1="396" y1="386" x2="412" y2="386"/>
+  </g>
+  <g transform="translate(392,340) scale(-1,1)"><use href="#run"  width="40" height="62" style="color:#B45309"/></g>
+  <g transform="translate(430,346) scale(-1,1)"><use href="#walk" width="36" height="56" style="color:#B45309"/></g>
+  <g transform="translate(350,344) scale(-1,1)"><use href="#sit"  width="40" height="62" style="color:#B45309"/></g>
+  <line x1="318" y1="402" x2="346" y2="402" stroke="#B45309" stroke-width="3"/>
+</svg>
