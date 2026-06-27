@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Commander</title>
+<style>
+  :root { --ink:#1a1a1a; --muted:#666; --rule:#e6e6e6; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system, system-ui, "Segoe UI", Roboto, sans-serif; color:var(--ink);
+         line-height:1.62; max-width:760px; margin:0 auto; padding:0 1.3rem 4rem; }
+  .nav { font-size:.9rem; color:var(--muted); border-bottom:1px solid #eee; padding:.7rem 0 .6rem;
+         margin-bottom:1.6rem; }
+  .nav a { color:#36c; text-decoration:none; } .nav a:hover { text-decoration:underline; }
+  header.mast { text-align:center; padding:1.6rem 0 0; border-bottom:1px solid var(--rule);
+                padding-bottom:1.6rem; }
+  header.mast h1 { font-size:2.2rem; letter-spacing:-.015em; margin:0 0 .35rem; }
+  header.mast .tag { color:var(--muted); font-size:1.04rem; margin:0 auto; max-width:30em; }
+  header.mast .upd { color:var(--muted); font-size:.84rem; margin:1rem 0 0; }
+  h2 { font-size:1.18rem; margin:2.6rem 0 1.1rem; }
+  .members { display:grid; grid-template-columns:repeat(auto-fit, minmax(215px, 1fr)); gap:1rem; }
+  .member { border:1px solid var(--rule); border-radius:10px; padding:1rem 1.1rem; }
+  .member .nm { font-weight:650; font-size:1.02rem; }
+  .member .aff { color:var(--muted); font-size:.86rem; margin:.15rem 0 .65rem; }
+  .member .ri-h { color:var(--muted); font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; }
+  .member .ri { font-size:.88rem; line-height:1.5; margin-top:.15rem; }
+  .para { font-size:1.04rem; margin:0 0 .4rem; }
+  .pipe { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:1.3rem 0 .7rem; }
+  .box { border-radius:8px; padding:10px 13px; font-size:.86rem; text-align:center; border:2px solid; }
+  .shared { background:#e8eefc; border-color:#5577bb; }
+  .edge { background:#fdeeee; border-color:#bb5555; }
+  .arr { color:#bbb; font-size:1.3rem; }
+  .execs { display:flex; flex-direction:column; gap:7px; }
+  .legend { color:var(--muted); font-size:.82rem; line-height:1.5; margin:.3rem 0 0; }
+  @media (max-width:520px){ header.mast h1{font-size:1.8rem;} }
+</style></head>
+<body>
+<div class="nav">Reports: <b>Home</b> &middot; <a href="proposal.html">Proposal</a> &middot; <a href="index.html">Grid Arena (E1)</a> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <a href="literature.html">Literature</a> &middot; <a href="graph-bpe-motion.html">Motion BPE</a></div>
+
+<header class="mast">
+  <h1>World Commander</h1>
+  <p class="tag">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
+  <p class="upd"><b>Updated:</b> 2026-06-27 MDT</p>
+</header>
+
+<h2>Members</h2>
+<div class="members">
+  <div class="member">
+    <div class="nm">Yubo Huang</div>
+    <div class="aff">University of Alberta</div>
+    <div class="ri-h">Interests</div>
+    <div class="ri">Computer vision and graphics; human motion generation; natural-language command of agents.</div>
+  </div>
+  <div class="member">
+    <div class="nm">Enmao Diao</div>
+    <div class="aff">DreamSoul, China</div>
+    <div class="ri-h">Interests</div>
+    <div class="ri">Efficient LLM inference (KV-cache compression); graph / structured-data tokenization.</div>
+  </div>
+  <div class="member">
+    <div class="nm">Hongsong Tang</div>
+    <div class="aff">Tencent Timi Studio</div>
+    <div class="ri-h">Interests</div>
+    <div class="ri">Reinforcement learning, large language models, distributed systems, game theory; large-scale game NLP (Honor of Kings).</div>
+  </div>
+</div>
+
+<h2>The paradigm</h2>
+<p class="para">A human issues free-form natural-language commands; a language-model pipeline executes them as coordinated multi-agent behaviour &mdash; game units or full-body crowd motion &mdash; in real time, under a latency and memory budget.</p>
+<div class="pipe">
+  <div class="box shared">free-form / abstract<br>command</div><span class="arr">&rarr;</span>
+  <div class="box shared">interpreter<br>(LLM)</div><span class="arr">&rarr;</span>
+  <div class="box shared">coordination<br>assignment / MARL</div><span class="arr">&rarr;</span>
+  <div class="execs">
+    <div class="box edge">game units: unit commands</div>
+    <div class="box edge">crowd: full-body motion</div>
+  </div>
+</div>
+<p class="legend">Blue is the domain-agnostic shared middle (the budget wedge sits on the interpreter; coordination is the multi-agent layer). Red is the domain-specific executor.</p>
+
+</body></html>
