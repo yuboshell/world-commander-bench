@@ -10,11 +10,11 @@ identical on every page. They are currently enforced by hand in the committed HT
 Every page carries the same bar, immediately after `<body>`, current page in `<b>`:
 
 ```html
-<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Reports: <a href="proposal.html">Proposal</a> &middot; <a href="index.html">Grid Arena (E1)</a> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <a href="literature.html">Literature</a> &middot; <a href="graph-bpe-motion.html">Graph-BPE</a></div>
+<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Reports: <a href="proposal.html">Proposal</a> &middot; <a href="index.html">Grid Arena (E1)</a> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <a href="literature.html">Literature</a> &middot; <a href="graph-bpe-motion.html">Motion BPE</a></div>
 ```
 
-- Order: **Proposal · Grid Arena (E1) · StarCraft II (E2) · Embodiment (E3) · Crowd Motion (E4) · Literature · Graph-BPE**.
-- `graph-bpe-motion.html` (Graph-BPE) is a standalone aside (not E1-E4, not public) but is
+- Order: **Proposal · Grid Arena (E1) · StarCraft II (E2) · Embodiment (E3) · Crowd Motion (E4) · Literature · Motion BPE**.
+- `graph-bpe-motion.html` (Motion BPE) is a standalone aside (not E1-E4, not public) but is
   the **trailing** item on every bar; it is `<b>`-bold on its own page, a link elsewhere.
 - The bar has **three sources that must stay in sync**:
   - static committed HTML (sc2.html, motion.html, literature.html, graph-bpe-motion.html, proposal.html),
