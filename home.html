@@ -19,10 +19,11 @@
   h2 { font-size:1.18rem; margin:2.6rem 0 1.1rem; }
   .members { display:grid; grid-template-columns:repeat(auto-fit, minmax(245px, 1fr)); gap:1rem; }
   .member { border:1px solid var(--rule); border-radius:10px; padding:.9rem 1.1rem; }
-  .member .nm { font-weight:650; font-size:1.05rem; margin-bottom:.25rem; }
-  .member .bio { font-size:.88rem; line-height:1.5; }
-  .member .bio b { color:var(--muted); font-weight:600; }
-  .member .bio .tbd { color:#aaa; font-style:italic; }
+  .member .nm { font-weight:650; font-size:1.05rem; }
+  .member .aff { font-size:.9rem; margin:.1rem 0 .4rem; }
+  .member .line { font-size:.86rem; line-height:1.5; margin-top:.2rem; }
+  .member .line b { color:var(--muted); font-weight:600; }
+  .member .tbd { color:#aaa; font-style:italic; }
   .para { font-size:1.04rem; margin:0 0 .4rem; }
   .pipe { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:1.3rem 0 .7rem; }
   .box { border-radius:8px; padding:10px 13px; font-size:.86rem; text-align:center; border:2px solid; }
@@ -46,15 +47,21 @@
 <div class="members">
   <div class="member">
     <div class="nm">Yubo Huang</div>
-    <div class="bio">University of Alberta. <b>Interests:</b> <span class="tbd">(to add)</span></div>
+    <div class="aff">University of Alberta</div>
+    <div class="line"><b>Education:</b> <span class="tbd">(to add)</span></div>
+    <div class="line"><b>Interests:</b> <span class="tbd">(to add)</span></div>
   </div>
   <div class="member">
     <div class="nm">Enmao Diao</div>
-    <div class="bio">DreamSoul, China. <b>Prev:</b> PhD Duke, MS Harvard, BS Georgia Tech. <b>Interests:</b> distributed machine learning, efficient machine learning, signal processing, artificial intelligence.</div>
+    <div class="aff">DreamSoul, China</div>
+    <div class="line"><b>Education:</b> PhD Duke, MS Harvard, BS Georgia Tech</div>
+    <div class="line"><b>Interests:</b> distributed machine learning, efficient machine learning, signal processing, artificial intelligence</div>
   </div>
   <div class="member">
     <div class="nm">Hongsong Tang</div>
-    <div class="bio">Tencent Timi Studio. <b>Prev:</b> BS &amp; PhD, BUPT. <b>Interests:</b> reinforcement learning, large language models, distributed systems, and game theory.</div>
+    <div class="aff">Tencent Timi Studio</div>
+    <div class="line"><b>Education:</b> BS &amp; PhD, BUPT</div>
+    <div class="line"><b>Interests:</b> reinforcement learning, large language models, distributed systems, and game theory</div>
   </div>
 </div>
 
