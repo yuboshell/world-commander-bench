@@ -24,6 +24,12 @@
   .member .line { font-size:.86rem; line-height:1.5; margin-top:.2rem; }
   .member .line b { color:var(--muted); font-weight:600; }
   .member .tbd { color:#aaa; font-style:italic; }
+  details.fold { margin-top:2.6rem; }
+  details.fold > summary { list-style:none; cursor:pointer; font-size:1.18rem; font-weight:600; user-select:none; }
+  details.fold > summary::-webkit-details-marker { display:none; }
+  details.fold > summary::before { content:"\25B8"; color:var(--muted); font-weight:400; margin-right:.45rem; font-size:.8em; }
+  details.fold[open] > summary::before { content:"\25BE"; }
+  details.fold[open] > summary { margin-bottom:1.1rem; }
   .para { font-size:1.04rem; margin:0 0 .4rem; }
   .pipe { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:1.3rem 0 .7rem; }
   .box { border-radius:8px; padding:10px 13px; font-size:.86rem; text-align:center; border:2px solid; }
@@ -40,15 +46,16 @@
 <header class="mast">
   <h1>World Commander</h1>
   <p class="tag">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-  <p class="upd"><b>Updated:</b> 2026-06-27, 6:41 PM MDT</p>
+  <p class="upd"><b>Updated:</b> 2026-06-27, 7:06 PM MDT</p>
 </header>
 
-<h2>Members</h2>
+<details class="fold">
+<summary>Members</summary>
 <div class="members">
   <div class="member">
     <div class="nm">Yubo Huang</div>
     <div class="aff">University of Alberta</div>
-    <div class="line"><b>Education:</b> MEng &amp; BS, BUPT</div>
+    <div class="line"><b>Education:</b> MEng &amp; BS BUPT</div>
     <div class="line"><b>Interests:</b> <span class="tbd">(to add)</span></div>
   </div>
   <div class="member">
@@ -60,10 +67,11 @@
   <div class="member">
     <div class="nm">Hongsong Tang</div>
     <div class="aff">Tencent Timi Studio</div>
-    <div class="line"><b>Education:</b> PhD &amp; BS, BUPT</div>
+    <div class="line"><b>Education:</b> PhD &amp; BS BUPT</div>
     <div class="line"><b>Interests:</b> reinforcement learning, large language models, distributed systems, and game theory</div>
   </div>
 </div>
+</details>
 
 <h2>The paradigm</h2>
 <p class="para">A human issues free-form natural-language commands; a language-model pipeline executes them as coordinated multi-agent behaviour &mdash; game units or full-body crowd motion &mdash; in real time, under a latency and memory budget.</p>
