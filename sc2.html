@@ -4,11 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World Commander — StarCraft II testbed report</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet">
 <style>
-  :root{--fg:#1a1a1a;--mut:#666;--acc:#2b6cb0;--good:#2f855a;--bad:#c53030;--box:#f7f8fa;--line:#e2e8f0;}
-  body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--fg);max-width:880px;margin:0 auto;padding:28px 20px 90px;line-height:1.5;}
-  h1{font-size:1.7rem;margin:0 0 4px;} h2{font-size:1.25rem;margin:2em 0 .4em;border-bottom:2px solid var(--line);padding-bottom:4px;}
-  h3{font-size:1.02rem;margin:1.2em 0 .3em;} .sub{color:var(--mut);font-size:.9rem;margin:0 0 16px;}
+  /* page-specific report styles (generic base now in style.css) */
+  :root{--mut:#666;--acc:#2b6cb0;--good:#2f855a;--bad:#c53030;--box:#f7f8fa;--line:#e2e8f0;}
+  h2{font-size:1.25rem;margin:2em 0 .4em;border-bottom:2px solid var(--line);padding-bottom:4px;}
+  h3{font-size:1.02rem;margin:1.2em 0 .3em;}
   ul{margin:.4em 0 .8em;padding-left:1.2em;} li{margin:.25em 0;}
   code{background:var(--box);padding:1px 5px;border-radius:4px;font-size:.88em;}
   .tldr{background:var(--box);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:12px 18px;margin:16px 0;}
@@ -31,12 +33,24 @@
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Reports: <a href="home.html">Home</a> &middot; <a href="proposal.html">Proposal</a> &middot; <a href="index.html">Grid Arena (E1)</a> &middot; <b>StarCraft II (E2)</b> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <a href="literature.html">Literature</a> &middot; <a href="graph-bpe-motion.html">Motion BPE</a></div>
-<p class="hint"><b>Updated:</b> 2026-06-22, 1:05 AM MDT &middot; <b>Machine:</b> yubopc (RTX 4060, 8 GB) &middot; <b>Game:</b> SC2 5.0.15 ·
-<b>Harness:</b> LLM-PySC2 (patched) &middot; members-only</p>
+<header class="mast">
+  <h1>World Commander &mdash; StarCraft II testbed</h1>
+  <p class="subtitle">Real-time strategy command through natural language: can a stream of commands be followed in real time?</p>
+  <p class="upd"><b>Updated:</b> 2026-06-22, 1:05 AM MDT &middot; yubopc (RTX 4060, 8 GB) &middot; SC2 5.0.15 &middot; LLM-PySC2 (patched) &middot; members-only</p>
+</header>
 
-<h1>World Commander — StarCraft II testbed</h1>
+<p class="topnav">
+  <a href="home.html">Home</a> &nbsp;/&nbsp;
+  <a href="proposal.html">Proposal</a> &nbsp;/&nbsp;
+  <a href="index.html">Grid Arena (E1)</a> &nbsp;/&nbsp;
+  <a href="sc2.html" class="active">StarCraft II (E2)</a> &nbsp;/&nbsp;
+  <a href="embodiment.html">Embodiment (E3)</a> &nbsp;/&nbsp;
+  <a href="motion.html">Crowd Motion (E4)</a> &nbsp;/&nbsp;
+  <a href="literature.html">Literature</a> &nbsp;/&nbsp;
+  <a href="graph-bpe-motion.html">Motion BPE</a>
+</p>
 
 <div class="note">
 <b>What this is.</b> World Commander studies <b>real-time strategy command through natural language</b>:
@@ -199,6 +213,8 @@ out; the historical ~27 s was harness retries, not inference.)</div>
 <li>Full data, code patch, and the analysis trail: <code>results/sc2/sweep_2s3z_4B.md</code> in the repo.</li>
 </ul>
 
-<p class="foot">World Commander Bench · StarCraft II testbed · 2026-06-21 · private GitLab Pages (members only).</p>
+<p class="foot">World Commander Bench · StarCraft II testbed · private GitLab Pages (members only).</p>
+<p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
+</div>
 </body>
 </html>

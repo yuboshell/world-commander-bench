@@ -3,10 +3,10 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World Commander — Literature Review</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet">
 <style>
-  body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 1080px; color:#1a1a1a;
-         line-height:1.55; padding:0 1rem; }
-  h1 { font-size:1.5rem; margin-bottom:.2rem; }
+  /* page-specific literature styles (generic base now in style.css) */
   h2 { font-size:1.15rem; margin-top:2.2rem; border-bottom:1px solid #eee; padding-bottom:.2rem; }
   .hint { color:#666; font-size:.86rem; }
   /* open-quadrant 2x2 — native, matches the body type (no baked-in PNG) */
@@ -42,12 +42,26 @@
   dl.d dt { font-weight:600; color:#555; } dl.d dd { margin:0; }
 </style></head>
 <body>
-<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Reports: <a href="home.html">Home</a> &middot; <a href="proposal.html">Proposal</a> &middot; <a href="index.html">Grid Arena (E1)</a> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <b>Literature</b> &middot; <a href="graph-bpe-motion.html">Motion BPE</a></div>
-<p class="hint"><b>Updated:</b> 2026-06-24, 12:25 AM MDT &middot; members-only</p>
-<h1>World Commander — Literature Review</h1>
-<p class="hint">The paradigm: a human gives free-form natural-language commands; an LLM-based pipeline
+<div class="wrap">
+
+<header class="mast">
+  <h1>World Commander — Literature Review</h1>
+  <p class="subtitle">The paradigm: a human gives free-form natural-language commands; an LLM-based pipeline
 executes them as coordinated multi-agent behaviour — RTS units or full-body crowd motion — in real
 time, under a compute budget. 73 references, tagged.</p>
+  <p class="upd"><b>Updated:</b> 2026-06-24, 12:25 AM MDT &middot; members-only</p>
+</header>
+
+<p class="topnav">
+  <a href="home.html">Home</a> &nbsp;/&nbsp;
+  <a href="proposal.html">Proposal</a> &nbsp;/&nbsp;
+  <a href="index.html">Grid Arena (E1)</a> &nbsp;/&nbsp;
+  <a href="sc2.html">StarCraft II (E2)</a> &nbsp;/&nbsp;
+  <a href="embodiment.html">Embodiment (E3)</a> &nbsp;/&nbsp;
+  <a href="motion.html">Crowd Motion (E4)</a> &nbsp;/&nbsp;
+  <a href="literature.html" class="active">Literature</a> &nbsp;/&nbsp;
+  <a href="graph-bpe-motion.html">Motion BPE</a>
+</p>
 
 <h2>The paradigm</h2>
 <div class="pipe">
@@ -143,4 +157,6 @@ World Commander — literature review. Source of record: <code>survey/command-cr
 <code>LITERATURE.md</code>; regenerate with <code>python build_lit_page.py --publish</code>.
 Members-only; not for public hosting.
 </footer>
+<p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
+</div>
 </body></html>

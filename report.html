@@ -3,10 +3,10 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World Commander — Grid Arena (E1)</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet">
 <style>
-  body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 920px;
-         color: #1a1a1a; line-height: 1.5; padding: 0 1rem; }
-  h1 { font-size: 1.4rem; margin-bottom: .2rem; }
+  /* page-specific report styles (generic base now in style.css) */
   h2 { font-size: 1.1rem; margin-top: 2.2rem; border-bottom: 1px solid #eee; padding-bottom: .2rem; }
   .summary { background:#f3f5f7; border-radius:8px; padding:.7rem 1rem; font-size:1rem; }
   table { border-collapse: collapse; margin:.6rem 0; font-size:.92rem; }
@@ -30,10 +30,24 @@
   footer { margin-top:3rem; color:#777; font-size:.82rem; border-top:1px solid #eee; padding-top:.6rem; }
 </style></head>
 <body>
-<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Reports: <a href="home.html">Home</a> &middot; <a href="proposal.html">Proposal</a> &middot; <b>Grid Arena (E1)</b> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <a href="literature.html">Literature</a> &middot; <a href="graph-bpe-motion.html">Motion BPE</a></div>
-<p class="hint"><b>Updated:</b> 2026-06-22, 12:23 AM MDT &middot; members-only</p>
-<h1>World Commander — Grid Arena (E1)</h1>
-<p class="hint">Natural-language command of agents in real time, under a latency budget. Phase-1 warm-up of the World Commander program.</p>
+<div class="wrap">
+
+<header class="mast">
+  <h1>World Commander &mdash; Grid Arena (E1)</h1>
+  <p class="subtitle">Natural-language command of agents in real time, under a latency budget. Phase-1 warm-up of the World Commander program.</p>
+  <p class="upd"><b>Updated:</b> 2026-06-22, 12:23 AM MDT &middot; members-only</p>
+</header>
+
+<p class="topnav">
+  <a href="home.html">Home</a> &nbsp;/&nbsp;
+  <a href="proposal.html">Proposal</a> &nbsp;/&nbsp;
+  <a href="index.html" class="active">Grid Arena (E1)</a> &nbsp;/&nbsp;
+  <a href="sc2.html">StarCraft II (E2)</a> &nbsp;/&nbsp;
+  <a href="embodiment.html">Embodiment (E3)</a> &nbsp;/&nbsp;
+  <a href="motion.html">Crowd Motion (E4)</a> &nbsp;/&nbsp;
+  <a href="literature.html">Literature</a> &nbsp;/&nbsp;
+  <a href="graph-bpe-motion.html">Motion BPE</a>
+</p>
 
 <p>Below is the arena in motion: coloured agents follow streamed natural-language
 orders while grey agents wander on their own clock. <b>Press Play</b> (or drag
@@ -325,4 +339,7 @@ Self-contained report (images and frames embedded); regenerate with
 <code>scripts/visualize.py</code>. Grounding/latency are real measurements; a
 late action is dropped under the unpausable clock.
 </footer>
+
+<p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
+</div>
 </body></html>

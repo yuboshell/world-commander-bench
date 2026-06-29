@@ -6,12 +6,13 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="googlebot" content="noindex, nofollow">
 <title>World Commander</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet">
 <style>
+  /* page-specific report styles (generic base now in style.css) */
 :root { --ink:#1b1b1b; --muted:#1b1b1b; --link:#1a5fb4; --rule:#b8b8b8; }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { font-family: "Times New Roman", Times, Georgia, serif; color: var(--ink); background:#fff; line-height:1.62; font-size:18px; margin:0; }
-.wrap { max-width: 730px; margin: 0 auto; padding: 46px 22px 90px; }
 header.title { text-align: center; border-top: 4px solid var(--ink); padding: 14px 0 0; margin-bottom: 22px; }
 header.title h1 { font-size: 1.7rem; margin:0 0 12px; padding-bottom: 12px; line-height:1.24; border-bottom: 1px solid var(--ink); }
 header.title .sub { font-style: italic; color: var(--muted); font-size:1.06rem; margin:0 0 12px; }
@@ -57,12 +58,26 @@ section.notes .bk { text-decoration:none; }
 </style>
 </head>
 <body>
-<div style="font-family:-apple-system,system-ui,sans-serif;font-size:.9rem;color:#666;max-width:730px;margin:0 auto;padding:14px 22px 0;border-bottom:1px solid #eee">Reports: <a href="home.html">Home</a> &middot; <b>Proposal</b> &middot; <a href="index.html">Grid Arena (E1)</a> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <a href="literature.html">Literature</a> &middot; <a href="graph-bpe-motion.html">Motion BPE</a></div>
-<p style="font-family:-apple-system,system-ui,sans-serif;max-width:730px;margin:.4rem auto 0;padding:0 22px;color:#666;font-size:.86rem"><b>Updated:</b> 2026-06-21 &middot; members-only</p>
 <div class="wrap">
 
+<header class="mast">
+  <h1>World Commander: Natural-Language Command of Agent Crowds in Real-Time Strategy Games Under Latency and Memory Budgets</h1>
+  <p class="subtitle">A research program: a human commands agent crowds in a real-time strategy game through natural language, and a language model executes the orders under latency and memory budgets.</p>
+  <p class="upd"><b>Updated:</b> 2026-06-21 &middot; members-only</p>
+</header>
+
+<p class="topnav">
+  <a href="home.html">Home</a> &nbsp;/&nbsp;
+  <a href="proposal.html" class="active">Proposal</a> &nbsp;/&nbsp;
+  <a href="index.html">Grid Arena (E1)</a> &nbsp;/&nbsp;
+  <a href="sc2.html">StarCraft II (E2)</a> &nbsp;/&nbsp;
+  <a href="embodiment.html">Embodiment (E3)</a> &nbsp;/&nbsp;
+  <a href="motion.html">Crowd Motion (E4)</a> &nbsp;/&nbsp;
+  <a href="literature.html">Literature</a> &nbsp;/&nbsp;
+  <a href="graph-bpe-motion.html">Motion BPE</a>
+</p>
+
 <header class="title">
-<h1>World Commander: Natural-Language Command of Agent Crowds in Real-Time Strategy Games Under Latency and Memory Budgets</h1>
 <div class="authors">
 <div class="author"><span class="an">Yubo Huang</span><br>University of Alberta<br><span class="ae">yubo16@ualberta.ca</span></div>
 <div class="author"><span class="an">Enmao Diao</span><br>DreamSoul, China<br><span class="ae">enmao.diao@dreamsoul.com</span></div>
@@ -203,6 +218,7 @@ section.notes .bk { text-decoration:none; }
 </ol>
 </section>
 
+<p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
 </div>
 </body>
 </html>
