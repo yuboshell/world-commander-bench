@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-06-29, 1:36 AM MDT</p>
+    <p class="upd"><b>Updated:</b> 2026-06-29, 11:42 AM MDT</p>
   </header>
 
   <p class="topnav">
@@ -59,10 +59,18 @@
     <div class="box shared">interpreter<br>(LLM)</div><span class="arr">&rarr;</span>
     <div class="box shared">coordination<br>assignment / MARL</div><span class="arr">&rarr;</span>
     <div class="execs">
-      <div class="erow"><div class="box edge">game units: unit commands</div></div>
-      <div class="erow"><div class="box edge">crowd: full-body motion</div><span class="arr">&rarr;</span><div class="box grow">real-time executor<br>Leaf 1 &middot; now</div></div>
+      <div class="erow"><div class="box edge">game units<br>discrete commands</div></div>
+      <div class="erow"><div class="box edge">crowd<br>full-body motion</div><span class="arr">&rarr;</span><div class="box grow">real-time executor<br>Leaf 1 &middot; now</div></div>
     </div>
   </div>
+  <ul class="stages">
+    <li><b>Free-form / abstract command</b> &mdash; the commander's order in plain language, from concrete ("attack the left flank") to abstract ("hold the line, stay aggressive").</li>
+    <li><b>Interpreter (LLM)</b> &mdash; turns that command into structured intent the agents can act on, fast enough for the live clock and within a memory budget.</li>
+    <li><b>Coordination (assignment / MARL)</b> &mdash; splits the intent across the many agents (who does what), by assignment rules or a learned multi-agent policy.</li>
+    <li><b>Executor &mdash; game units:</b> issues <b>discrete</b> commands to each unit (move, attack, use an ability) at the game's tick &mdash; the strategy-game domain (e.g. StarCraft II).</li>
+    <li><b>Executor &mdash; crowd:</b> generates <b>continuous</b> full-body motion for each character (locomotion, gesture, holding formation), frame by frame &mdash; the crowd-motion domain.</li>
+  </ul>
+
   <p class="legend">Blue is the domain-agnostic shared middle (the budget wedge sits on the interpreter; coordination is the multi-agent layer). Red is the domain-specific executor. <b style="color:#2f8132">Green</b> is where the tree is growing now &mdash; we add a box and arrow to the trunk for each leaf as it grows.</p>
 
   <h2>Growing now</h2>

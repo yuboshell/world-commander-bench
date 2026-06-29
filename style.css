@@ -46,6 +46,8 @@ details.fold[open] > summary { margin-bottom:1rem; }
 .para { font-size:15px; margin:0 0 .55rem; }
 .focus { font-size:15px; margin:0 0 .55rem; } .focus b { font-weight:700; }
 .legend { color:#888; font-size:12.5px; line-height:1.5; margin:.3rem 0 0; }
+.stages { font-size:14px; line-height:1.55; margin:.7rem 0 .2rem; padding-left:1.15em; }
+.stages li { margin:.4em 0; }
 
 /* paradigm flowchart */
 .pipe { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:1.1rem 0 .5rem; }
