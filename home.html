@@ -47,7 +47,7 @@
 <header class="mast">
   <h1>World Commander</h1>
   <p class="tag">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-  <p class="upd"><b>Updated:</b> 2026-06-29, 1:01 AM MDT</p>
+  <p class="upd"><b>Updated:</b> 2026-06-29, 1:15 AM MDT</p>
 </header>
 
 <details class="fold">
@@ -87,44 +87,10 @@
 </div>
 <p class="legend">Blue is the domain-agnostic shared middle (the budget wedge sits on the interpreter; coordination is the multi-agent layer). Red is the domain-specific executor.</p>
 
-<h2>The program, as a tree</h2>
-<svg viewBox="0 0 660 410" width="100%" style="max-width:660px;display:block;margin:.4rem auto 0" font-family="-apple-system,system-ui,sans-serif">
-  <!-- trunk + root -->
-  <path d="M322,360 L329,256 L343,256 L350,360 Z" fill="#9c8569"/>
-  <rect x="289" y="364" width="94" height="26" rx="6" fill="#f3f5f7" stroke="#d3dae1"/>
-  <text x="336" y="381" text-anchor="middle" font-size="12.5" fill="#555">Paradigm</text>
-  <!-- dormant grey branches + buds (left) -->
-  <path d="M330,270 C 250,254 180,244 148,240" fill="none" stroke="#cdcdcd" stroke-width="3.5"/>
-  <path d="M332,296 C 250,296 186,298 148,300" fill="none" stroke="#cdcdcd" stroke-width="3.5"/>
-  <path d="M335,324 C 256,336 192,346 148,350" fill="none" stroke="#cdcdcd" stroke-width="3.5"/>
-  <g font-size="12" fill="#9a9a9a">
-    <rect x="16" y="226" width="132" height="26" rx="6" fill="#f7f7f7" stroke="#e4e4e4"/><text x="82" y="243" text-anchor="middle">Coordination</text>
-    <rect x="16" y="287" width="132" height="26" rx="6" fill="#f7f7f7" stroke="#e4e4e4"/><text x="82" y="304" text-anchor="middle">Efficiency</text>
-    <rect x="16" y="337" width="132" height="26" rx="6" fill="#f7f7f7" stroke="#e4e4e4"/><text x="82" y="354" text-anchor="middle">Tokenization</text>
-  </g>
-  <!-- benchmark done bud (right-lower) -->
-  <path d="M347,298 C 410,298 450,300 470,300" fill="none" stroke="#bcd9bc" stroke-width="3.5"/>
-  <rect x="470" y="287" width="168" height="26" rx="6" fill="#f0f7f0" stroke="#bcd9bc"/>
-  <text x="554" y="304" text-anchor="middle" font-size="12" fill="#4f7a4f">Benchmark &#10003; (E1/E2)</text>
-  <!-- main thick green branch + active project -->
-  <path d="M336,258 C 352,206 396,166 440,150" fill="none" stroke="#2f8132" stroke-width="12" stroke-linecap="round"/>
-  <rect x="378" y="120" width="278" height="40" rx="9" fill="#eaf5ea" stroke="#2f8132" stroke-width="1.5"/>
-  <text x="517" y="145" text-anchor="middle" font-size="14" font-weight="600" fill="#1b5e20">Real-time crowd-motion command</text>
-  <!-- task 1 leaf (solid) -->
-  <line x1="470" y1="120" x2="470" y2="94" stroke="#2f8132" stroke-width="4"/>
-  <rect x="403" y="66" width="134" height="28" rx="14" fill="#2f8132"/>
-  <text x="470" y="84" text-anchor="middle" font-size="12.5" font-weight="600" fill="#fff">Task 1 &middot; real-time</text>
-  <!-- future twigs (faint, dotted) -->
-  <path d="M398,120 C 384,102 376,92 372,84" fill="none" stroke="#9ccc9c" stroke-width="2.5" stroke-dasharray="3 4"/>
-  <circle cx="371" cy="80" r="5" fill="none" stroke="#9ccc9c" stroke-width="2"/>
-  <path d="M600,120 C 612,102 616,90 616,82" fill="none" stroke="#9ccc9c" stroke-width="2.5" stroke-dasharray="3 4"/>
-  <circle cx="616" cy="78" r="5" fill="none" stroke="#9ccc9c" stroke-width="2"/>
-  <text x="616" y="100" text-anchor="middle" font-size="10" fill="#9bbf9b">later</text>
-</svg>
-<p class="legend">One trunk (the paradigm), one thick branch grown now (real-time crowd-motion command), its first leaf (Task 1). The other projects stay thin, dormant buds &mdash; they grow only when this branch needs them.</p>
-
-<h2>Current focus</h2>
-<p class="focus"><b>Real-time crowd-motion command</b> &mdash; grounding a command into a small crowd's coordinated full-body motion, in real time, on a budget.</p>
-<p class="focus"><b>Task 1 &mdash; close the real-time gap:</b> swap E4's OmniControl (~16&times; too slow) for a real-time controllable model (MotionLCM / DART / CAMDM), and measure the frontier &mdash; FPS, latency, VRAM, grounding, FID &mdash; on yubopc.</p>
+<h2>Growing now</h2>
+<p class="focus">The flowchart above is the <b>trunk</b> &mdash; the stable paradigm. We grow it the way a tree grows: <b>one branch at a time, one leaf at a time</b>, and a new branch starts only once this one can stand on its own.</p>
+<p class="focus"><b>Branch &mdash; real-time crowd-motion command:</b> grounding a command into a small crowd's coordinated full-body motion, in real time, on a budget.</p>
+<p class="focus"><b>Leaf 1 &mdash; close the real-time gap:</b> swap E4's OmniControl (~16&times; too slow) for a real-time controllable model (MotionLCM / DART / CAMDM), and measure the frontier &mdash; FPS, latency, VRAM, grounding, FID &mdash; on yubopc.</p>
+<p class="legend">Dormant buds, grown only when this branch needs them: coordination, efficiency (KV-cache in-game), tokenization. Benchmark (E1/E2): done.</p>
 
 </body></html>
