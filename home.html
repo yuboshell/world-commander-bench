@@ -30,14 +30,8 @@
   details.fold > summary::before { content:"\25B8"; color:var(--muted); font-weight:400; margin-right:.45rem; font-size:.8em; }
   details.fold[open] > summary::before { content:"\25BE"; }
   details.fold[open] > summary { margin-bottom:1.1rem; }
-  .para { font-size:1.04rem; margin:0 0 .4rem; }
-  .pipe { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:1.3rem 0 .7rem; }
-  .box { border-radius:8px; padding:10px 13px; font-size:.86rem; text-align:center; border:2px solid; }
-  .shared { background:#e8eefc; border-color:#5577bb; }
-  .edge { background:#fdeeee; border-color:#bb5555; }
-  .arr { color:#bbb; font-size:1.3rem; }
-  .execs { display:flex; flex-direction:column; gap:7px; }
-  .legend { color:var(--muted); font-size:.82rem; line-height:1.5; margin:.3rem 0 0; }
+  .para { font-size:1.04rem; margin:0 0 .55rem; }
+  .focus { font-size:1.04rem; margin:0 0 .55rem; } .focus b { font-weight:650; }
   @media (max-width:520px){ header.mast h1, header.mast .tag { font-size:1.2rem; } }
 </style></head>
 <body>
@@ -46,7 +40,7 @@
 <header class="mast">
   <h1>World Commander</h1>
   <p class="tag">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-  <p class="upd"><b>Updated:</b> 2026-06-27, 7:40 PM MDT</p>
+  <p class="upd"><b>Updated:</b> 2026-06-29, 12:48 AM MDT</p>
 </header>
 
 <details class="fold">
@@ -74,16 +68,10 @@
 </details>
 
 <h2>The paradigm</h2>
-<p class="para">A human issues free-form natural-language commands; a language-model pipeline executes them as coordinated multi-agent behaviour &mdash; game units or full-body crowd motion &mdash; in real time, under a latency and memory budget.</p>
-<div class="pipe">
-  <div class="box shared">free-form / abstract<br>command</div><span class="arr">&rarr;</span>
-  <div class="box shared">interpreter<br>(LLM)</div><span class="arr">&rarr;</span>
-  <div class="box shared">coordination<br>assignment / MARL</div><span class="arr">&rarr;</span>
-  <div class="execs">
-    <div class="box edge">game units: unit commands</div>
-    <div class="box edge">crowd: full-body motion</div>
-  </div>
-</div>
-<p class="legend">Blue is the domain-agnostic shared middle (the budget wedge sits on the interpreter; coordination is the multi-agent layer). Red is the domain-specific executor.</p>
+<p class="para">A human commands agents in plain language; a language model turns the command into coordinated action &mdash; in real time, on a normal GPU.</p>
+
+<h2>Current focus</h2>
+<p class="focus"><b>Real-time crowd-motion command</b> &mdash; grounding a command into a small crowd's coordinated full-body motion, in real time, on a budget.</p>
+<p class="focus"><b>Task 1 &mdash; close the real-time gap:</b> swap E4's OmniControl (~16&times; too slow) for a real-time controllable model (MotionLCM / DART / CAMDM), and measure the frontier &mdash; FPS, latency, VRAM, grounding, FID &mdash; on yubopc.</p>
 
 </body></html>
