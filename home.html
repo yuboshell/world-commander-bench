@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-06-29, 11:42 AM MDT</p>
+    <p class="upd"><b>Updated:</b> 2026-06-29, 1:37 PM MDT</p>
   </header>
 
   <p class="topnav">
@@ -76,6 +76,40 @@
   <h2>Growing now</h2>
   <p class="focus"><b>Leaf 1 &mdash; close the real-time gap:</b> swap E4's OmniControl (~16&times; too slow) for a real-time controllable model (MotionLCM / DART / CAMDM), and measure the frontier &mdash; FPS, latency, VRAM, grounding, FID &mdash; on yubopc.</p>
   <p class="legend">Dormant buds, grown only when this branch needs them: coordination, efficiency (KV-cache in-game), tokenization. Benchmark (E1/E2): done.</p>
+
+  <h2>Related work &amp; background</h2>
+  <p class="para">World Commander sits among several research lines; its position is the corner none of them occupy. A 73-paper survey (see <a href="literature.html">Literature</a>) groups the prior work into clusters:</p>
+  <ul class="stages">
+    <li><b>LLM agents in real-time games</b> &mdash; an LLM issuing commands in a strategy game while the clock runs. HLA (AAMAS 2024), AVA (arXiv 2026), Adaptive Command (arXiv 2025), VideoGameBench (arXiv 2025), AgileThinker (arXiv 2025); AlphaStar (Nature 2019) is the full-RL precedent.</li>
+    <li><b>Efficient LLM inference under budgets</b> &mdash; bounding latency and KV-cache memory at inference time. Speculative Actions (arXiv 2025), Pitfalls of KV Cache Compression (ACL 2026), OBCache (ICML 2026), H2O, SnapKV, StreamingLLM.</li>
+    <li><b>Vision-language-action models</b> &mdash; a slow reasoning backbone feeding a fast action head. &pi;0 (arXiv 2024), OpenVLA (arXiv 2024), Fast-in-Slow (arXiv 2025); NL&rarr;StarCraft II grounding (SPIE 2019) and CALVIN (RA-L 2022) for language-conditioned execution.</li>
+    <li><b>State representation &amp; world models</b> &mdash; compressing structured state into fewer tokens per decision. Graph Tokenization (Guo, Diao, ICLR 2026), IRIS / &Delta;-IRIS (ICLR 2023 / ICML 2024), VQ-VAE (NeurIPS 2017), WHAM (Nature 2025).</li>
+    <li><b>Crowd &amp; real-time motion generation</b> &mdash; text-driven and streaming full-body motion. CrowdMoGen (IJCV 2025), MotionLCM (ECCV 2024), MotionPCM (arXiv 2025), MotionStreamer (ICCV 2025), MotionBricks (SIGGRAPH 2026), InterGen (IJCV 2024).</li>
+  </ul>
+  <p class="para">Across the survey, 43 papers take free-form commands, 22 run in real time, 31 are multi-agent, and 17 measure compute &mdash; but <b>none combine all four</b>. The closest five (free-form, real-time, multi-agent) are every one budget-blind. That corner &mdash; free-form command of a real-time, multi-agent system under a compute budget &mdash; is what the program targets, in both executor domains.</p>
+
+  <h2>Challenges</h2>
+  <ul class="stages">
+    <li><b>The empty corner.</b> No surveyed paper combines free-form command, real time, many agents, and a compute budget &mdash; the program has to build the setting, not just a method.</li>
+    <li><b>Abstract-intent grounding.</b> Concrete commands ("move to the ridge") are measurable; abstract ones ("be aggressive", "look panicked") have no ground truth &mdash; the genuinely novel, hard part. Likely tools: classify-then-act, reward-from-language, or preference data, not supervision. (E4: abstract grounding rose 0.18&rarr;0.74 &mdash; first evidence it is tractable.)</li>
+    <li><b>The live clock.</b> Efficiency methods (KV-cache eviction, quantization) are validated only on static text; mid-game, discarding the wrong information changes the outcome, so quality must be scored in-game (grounding / win rate), not by perplexity.</li>
+    <li><b>No data.</b> The two corpora the program needs &mdash; command&rarr;coordination and command&rarr;crowd-motion &mdash; do not exist; both must be synthesized (sim &rarr; LLM-paraphrase &rarr; render), plus a small human-issued set as the honest test.</li>
+    <li><b>Coordination at crowd scale.</b> Turning one command into per-agent goals is rule-based at small N but needs a learned policy (RL / MARL) to scale; the O(N&sup2;) interaction sim is a known bottleneck.</li>
+    <li><b>The budget frontier.</b> Holding quality while bounding FPS, end-to-end latency, and VRAM on one consumer GPU &mdash; the trade-off the whole program is measured against.</li>
+  </ul>
+
+  <h2>Works to reproduce</h2>
+  <p class="para">Ordered by priority. The first block serves <b>Leaf 1</b> (real-time motion); the rest seed the other projects.</p>
+  <table class="repro">
+    <tr><th>Work</th><th>Venue</th><th>Why reproduce</th><th>Serves</th></tr>
+    <tr><td>MotionLCM</td><td>ECCV 2024</td><td>real-time (~30&nbsp;ms) controllable text-to-motion via latent-consistency distillation &mdash; the model to put in place of E4's OmniControl</td><td>Leaf 1</td></tr>
+    <tr><td>MotionPCM</td><td>arXiv 2025</td><td>phased-consistency upgrade: &gt;30&nbsp;FPS single-step, +38.9% FID over MotionLCM &mdash; strongest current real-time candidate</td><td>Leaf 1</td></tr>
+    <tr><td>MotionStreamer / FloodDiffusion</td><td>ICCV 2025 / arXiv 2025</td><td>streaming generation &mdash; commands arrive mid-motion; per-frame re-conditioning without restarting</td><td>Leaf 1</td></tr>
+    <tr><td>CrowdMoGen</td><td>IJCV 2025</td><td>LLM Crowd Scene Planner + collective generator &mdash; the closest "LLM commands a crowd"; offline, so the real-time angle is ours to add</td><td>P5 crowds</td></tr>
+    <tr><td>Graph Tokenization</td><td>ICLR 2026 (Diao)</td><td>reversible graph&rarr;tokens + BPE &mdash; the template for a game-state tokenizer</td><td>P3</td></tr>
+    <tr><td>OBCache, SnapKV, H2O</td><td>ICML 2026 / arXiv</td><td>KV-cache eviction to port into the in-game loop and score by win rate, not perplexity</td><td>P2</td></tr>
+    <tr><td>HLA, &pi;0</td><td>AAMAS 2024 / arXiv 2024</td><td>the slow-mind / fast-executor split to adapt for commander + executor</td><td>architecture</td></tr>
+  </table>
 
   <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
 
