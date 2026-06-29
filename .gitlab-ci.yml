@@ -9,6 +9,7 @@ pages:
     - mkdir -p public
     - cp report.html public/index.html
     - cp -f home.html public/home.html
+    - cp -f style.css public/style.css                               # shared Jon Barron stylesheet
     - cp sc2.html public/sc2.html
     - cp -f embodiment.html public/embodiment.html 2>/dev/null || true
     - cp -f motion.html public/motion.html 2>/dev/null || true

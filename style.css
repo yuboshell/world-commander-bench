@@ -1,0 +1,78 @@
+/* World Commander report hub — design adapted from Jon Barron's website
+   (https://jonbarron.info), via Leonid Keselman's Jekyll fork, ported to static
+   HTML. White background, Lato, blue (#1772d0) links, centered ~800px column. */
+
+html, body { margin:0; padding:0; background:#fff; }
+
+a { color:#1772d0; text-decoration:none; }
+a:focus, a:hover { color:#f09228; text-decoration:none; }
+
+body, td, th, tr, p, a, li { font-family:'Lato', Verdana, Helvetica, sans-serif; font-size:14px; }
+strong, b { font-family:'Lato', Verdana, Helvetica, sans-serif; }
+p { line-height:1.5; }
+
+h1 { font-family:'Lato', Verdana, Helvetica, sans-serif; font-size:32px; font-weight:normal; text-align:center; margin:14px 0; }
+h2 { font-family:'Lato', Verdana, Helvetica, sans-serif; font-size:22px; font-weight:normal; margin:2.2rem 0 .9rem; }
+h3 { font-family:'Lato', Verdana, Helvetica, sans-serif; font-size:16px; font-weight:700; margin:0; }
+
+/* centered single column */
+.wrap { max-width:800px; margin:0 auto; padding:1.6rem 1.3rem 3rem; }
+
+/* header / masthead */
+.mast { text-align:center; padding-bottom:.3rem; }
+.mast .subtitle { font-size:15px; color:#333; margin:6px auto 0; max-width:34em; line-height:1.45; }
+.mast .upd { color:#999; font-size:12.5px; margin:11px 0 0; }
+
+/* top navigation */
+.topnav { text-align:center; font-size:15px; margin:.7em 0 1.7em; border-bottom:1px solid #eee; padding-bottom:1.1em; line-height:2; }
+.topnav a.active { color:#000; font-weight:700; }
+
+/* foldable members */
+details.fold { margin:1.4rem 0; }
+details.fold > summary { list-style:none; cursor:pointer; font-size:22px; user-select:none; }
+details.fold > summary::-webkit-details-marker { display:none; }
+details.fold > summary::before { content:"\25B8"; color:#999; margin-right:.45rem; font-size:.7em; }
+details.fold[open] > summary::before { content:"\25BE"; }
+details.fold[open] > summary { margin-bottom:1rem; }
+.members { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; }
+.member { border:1px solid #e6e6e6; border-radius:10px; padding:.9rem 1.05rem; }
+.member .nm { font-weight:700; font-size:16px; }
+.member .aff { font-size:13px; margin:.1rem 0 .4rem; }
+.member .line { font-size:13px; line-height:1.5; margin-top:.2rem; }
+.member .line b { color:#888; }
+.member .tbd { color:#aaa; font-style:italic; }
+
+/* report content */
+.para { font-size:15px; margin:0 0 .55rem; }
+.focus { font-size:15px; margin:0 0 .55rem; } .focus b { font-weight:700; }
+.legend { color:#888; font-size:12.5px; line-height:1.5; margin:.3rem 0 0; }
+
+/* paradigm flowchart */
+.pipe { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:1.1rem 0 .5rem; }
+.box { border-radius:8px; padding:10px 13px; font-size:13px; text-align:center; border:2px solid; }
+.shared { background:#e8eefc; border-color:#5577bb; }
+.edge { background:#fdeeee; border-color:#bb5555; }
+.arr { color:#bbb; font-size:1.3rem; }
+.execs { display:flex; flex-direction:column; gap:7px; }
+.erow { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.grow { background:#eafaea; border-color:#2f8132; color:#1b5e20; }
+
+/* project / publication rows (for the report pages that list items) */
+.proj-row { display:flex; gap:1rem; align-items:flex-start; margin:1.1rem 0; }
+.proj-img img { max-width:160px; height:auto; border-radius:6px; }
+
+/* footer attribution */
+.attribution { text-align:center; font-size:12px; color:#aaa; margin-top:3rem; }
+.attribution a { font-size:12px; }
+
+/* responsive */
+@media screen and (max-width:720px) {
+  body, td, th, tr, p, a { font-size:15px; }
+  h1 { font-size:28px; } h2 { font-size:20px; }
+  .topnav { font-size:14px; }
+  .proj-row { flex-direction:column; }
+  .proj-img img { max-width:240px; }
+}
+@media screen and (max-width:480px) {
+  h1 { font-size:24px; } h2 { font-size:18px; } h3 { font-size:15px; }
+}

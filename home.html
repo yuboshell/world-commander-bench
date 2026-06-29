@@ -1,96 +1,76 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>World Commander</title>
-<style>
-  :root { --ink:#1a1a1a; --muted:#666; --rule:#e6e6e6; }
-  * { box-sizing:border-box; }
-  body { font-family:-apple-system, system-ui, "Segoe UI", Roboto, sans-serif; color:var(--ink);
-         line-height:1.62; max-width:760px; margin:0 auto; padding:0 1.3rem 4rem; }
-  .nav { font-size:.9rem; color:var(--muted); border-bottom:1px solid #eee; padding:.7rem 0 .6rem;
-         margin-bottom:1.6rem; }
-  .nav a { color:#36c; text-decoration:none; } .nav a:hover { text-decoration:underline; }
-  header.mast { text-align:center; font-family:"Times New Roman", Times, Georgia, serif;
-                border-bottom:1px solid var(--rule); padding:.6rem 0 1.3rem; }
-  header.mast h1 { font-size:1.4rem; font-weight:400; line-height:1.3; letter-spacing:0; margin:0 0 .35rem; }
-  header.mast .tag { color:var(--ink); font-size:1.4rem; font-weight:400; margin:0 auto; max-width:32em; line-height:1.3; }
-  header.mast .upd { font-family:-apple-system,system-ui,sans-serif; color:var(--muted); font-size:.82rem; margin:1rem 0 0; }
-  h2 { font-size:1.18rem; margin:2.6rem 0 1.1rem; }
-  .members { display:grid; grid-template-columns:repeat(auto-fit, minmax(245px, 1fr)); gap:1rem; }
-  .member { border:1px solid var(--rule); border-radius:10px; padding:.9rem 1.1rem; }
-  .member .nm { font-weight:650; font-size:1.05rem; }
-  .member .aff { font-size:.9rem; margin:.1rem 0 .4rem; }
-  .member .line { font-size:.86rem; line-height:1.5; margin-top:.2rem; }
-  .member .line b { color:var(--muted); font-weight:600; }
-  .member .tbd { color:#aaa; font-style:italic; }
-  details.fold { margin-top:2.6rem; }
-  details.fold > summary { list-style:none; cursor:pointer; font-size:1.18rem; font-weight:600; user-select:none; }
-  details.fold > summary::-webkit-details-marker { display:none; }
-  details.fold > summary::before { content:"\25B8"; color:var(--muted); font-weight:400; margin-right:.45rem; font-size:.8em; }
-  details.fold[open] > summary::before { content:"\25BE"; }
-  details.fold[open] > summary { margin-bottom:1.1rem; }
-  .para { font-size:1.04rem; margin:0 0 .55rem; }
-  .focus { font-size:1.04rem; margin:0 0 .55rem; } .focus b { font-weight:650; }
-  .pipe { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:1.1rem 0 .5rem; }
-  .box { border-radius:8px; padding:10px 13px; font-size:.86rem; text-align:center; border:2px solid; }
-  .shared { background:#e8eefc; border-color:#5577bb; }
-  .edge { background:#fdeeee; border-color:#bb5555; }
-  .arr { color:#bbb; font-size:1.3rem; }
-  .execs { display:flex; flex-direction:column; gap:7px; }
-  .erow { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
-  .grow { background:#eafaea; border-color:#2f8132; color:#1b5e20; }
-  .legend { color:var(--muted); font-size:.82rem; line-height:1.5; margin:.3rem 0 0; }
-  @media (max-width:520px){ header.mast h1, header.mast .tag { font-size:1.2rem; } }
-</style></head>
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>World Commander</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet">
+</head>
 <body>
-<div class="nav">Reports: <b>Home</b> &middot; <a href="proposal.html">Proposal</a> &middot; <a href="index.html">Grid Arena (E1)</a> &middot; <a href="sc2.html">StarCraft II (E2)</a> &middot; <a href="embodiment.html">Embodiment (E3)</a> &middot; <a href="motion.html">Crowd Motion (E4)</a> &middot; <a href="literature.html">Literature</a> &middot; <a href="graph-bpe-motion.html">Motion BPE</a></div>
+<div class="wrap">
 
-<header class="mast">
-  <h1>World Commander</h1>
-  <p class="tag">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-  <p class="upd"><b>Updated:</b> 2026-06-29, 1:26 AM MDT</p>
-</header>
+  <header class="mast">
+    <h1>World Commander</h1>
+    <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
+    <p class="upd"><b>Updated:</b> 2026-06-29, 1:36 AM MDT</p>
+  </header>
 
-<details class="fold">
-<summary>Members</summary>
-<div class="members">
-  <div class="member">
-    <div class="nm">Yubo Huang</div>
-    <div class="aff">University of Alberta</div>
-    <div class="line"><b>Education:</b> MEng &amp; BS BUPT</div>
-    <div class="line"><b>Interests:</b> <span class="tbd">(to add)</span></div>
+  <p class="topnav">
+    <a href="home.html" class="active">Home</a> &nbsp;/&nbsp;
+    <a href="proposal.html">Proposal</a> &nbsp;/&nbsp;
+    <a href="index.html">Grid Arena (E1)</a> &nbsp;/&nbsp;
+    <a href="sc2.html">StarCraft II (E2)</a> &nbsp;/&nbsp;
+    <a href="embodiment.html">Embodiment (E3)</a> &nbsp;/&nbsp;
+    <a href="motion.html">Crowd Motion (E4)</a> &nbsp;/&nbsp;
+    <a href="literature.html">Literature</a> &nbsp;/&nbsp;
+    <a href="graph-bpe-motion.html">Motion BPE</a>
+  </p>
+
+  <details class="fold">
+  <summary>Members</summary>
+  <div class="members">
+    <div class="member">
+      <div class="nm">Yubo Huang</div>
+      <div class="aff">University of Alberta</div>
+      <div class="line"><b>Education:</b> MEng &amp; BS BUPT</div>
+      <div class="line"><b>Interests:</b> <span class="tbd">(to add)</span></div>
+    </div>
+    <div class="member">
+      <div class="nm">Enmao Diao</div>
+      <div class="aff">DreamSoul, China</div>
+      <div class="line"><b>Education:</b> PhD Duke, MS Harvard, BS Georgia Tech</div>
+      <div class="line"><b>Interests:</b> distributed machine learning, efficient machine learning, signal processing, artificial intelligence</div>
+    </div>
+    <div class="member">
+      <div class="nm">Hongsong Tang</div>
+      <div class="aff">Tencent Timi Studio</div>
+      <div class="line"><b>Education:</b> PhD &amp; BS BUPT</div>
+      <div class="line"><b>Interests:</b> reinforcement learning, large language models, distributed systems, and game theory</div>
+    </div>
   </div>
-  <div class="member">
-    <div class="nm">Enmao Diao</div>
-    <div class="aff">DreamSoul, China</div>
-    <div class="line"><b>Education:</b> PhD Duke, MS Harvard, BS Georgia Tech</div>
-    <div class="line"><b>Interests:</b> distributed machine learning, efficient machine learning, signal processing, artificial intelligence</div>
+  </details>
+
+  <h2>The paradigm</h2>
+  <p class="para">A human commands agents in plain language; a language model turns the command into coordinated action &mdash; in real time, on a normal GPU.</p>
+  <div class="pipe">
+    <div class="box shared">free-form / abstract<br>command</div><span class="arr">&rarr;</span>
+    <div class="box shared">interpreter<br>(LLM)</div><span class="arr">&rarr;</span>
+    <div class="box shared">coordination<br>assignment / MARL</div><span class="arr">&rarr;</span>
+    <div class="execs">
+      <div class="erow"><div class="box edge">game units: unit commands</div></div>
+      <div class="erow"><div class="box edge">crowd: full-body motion</div><span class="arr">&rarr;</span><div class="box grow">real-time executor<br>Leaf 1 &middot; now</div></div>
+    </div>
   </div>
-  <div class="member">
-    <div class="nm">Hongsong Tang</div>
-    <div class="aff">Tencent Timi Studio</div>
-    <div class="line"><b>Education:</b> PhD &amp; BS BUPT</div>
-    <div class="line"><b>Interests:</b> reinforcement learning, large language models, distributed systems, and game theory</div>
-  </div>
+  <p class="legend">Blue is the domain-agnostic shared middle (the budget wedge sits on the interpreter; coordination is the multi-agent layer). Red is the domain-specific executor. <b style="color:#2f8132">Green</b> is where the tree is growing now &mdash; we add a box and arrow to the trunk for each leaf as it grows.</p>
+
+  <h2>Growing now</h2>
+  <p class="focus"><b>Leaf 1 &mdash; close the real-time gap:</b> swap E4's OmniControl (~16&times; too slow) for a real-time controllable model (MotionLCM / DART / CAMDM), and measure the frontier &mdash; FPS, latency, VRAM, grounding, FID &mdash; on yubopc.</p>
+  <p class="legend">Dormant buds, grown only when this branch needs them: coordination, efficiency (KV-cache in-game), tokenization. Benchmark (E1/E2): done.</p>
+
+  <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
+
 </div>
-</details>
-
-<h2>The paradigm</h2>
-<p class="para">A human commands agents in plain language; a language model turns the command into coordinated action &mdash; in real time, on a normal GPU.</p>
-<div class="pipe">
-  <div class="box shared">free-form / abstract<br>command</div><span class="arr">&rarr;</span>
-  <div class="box shared">interpreter<br>(LLM)</div><span class="arr">&rarr;</span>
-  <div class="box shared">coordination<br>assignment / MARL</div><span class="arr">&rarr;</span>
-  <div class="execs">
-    <div class="erow"><div class="box edge">game units: unit commands</div></div>
-    <div class="erow"><div class="box edge">crowd: full-body motion</div><span class="arr">&rarr;</span><div class="box grow">real-time executor<br>Leaf 1 &middot; now</div></div>
-  </div>
-</div>
-<p class="legend">Blue is the domain-agnostic shared middle (the budget wedge sits on the interpreter; coordination is the multi-agent layer). Red is the domain-specific executor. <b style="color:#2f8132">Green</b> is where the tree is growing now &mdash; we add a box and arrow to the trunk for each leaf as it grows.</p>
-
-<h2>Growing now</h2>
-<p class="focus"><b>Leaf 1 &mdash; close the real-time gap:</b> swap E4's OmniControl (~16&times; too slow) for a real-time controllable model (MotionLCM / DART / CAMDM), and measure the frontier &mdash; FPS, latency, VRAM, grounding, FID &mdash; on yubopc.</p>
-<p class="legend">Dormant buds, grown only when this branch needs them: coordination, efficiency (KV-cache in-game), tokenization. Benchmark (E1/E2): done.</p>
-
-</body></html>
+</body>
+</html>
