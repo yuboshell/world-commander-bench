@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-06-29, 1:37 PM MDT</p>
+    <p class="upd"><b>Updated:</b> 2026-06-29, 10:43 PM MDT</p>
   </header>
 
   <p class="topnav">
@@ -71,7 +71,9 @@
     <li><b>Executor &mdash; crowd:</b> generates <b>continuous</b> full-body motion for each character (locomotion, gesture, holding formation), frame by frame &mdash; the crowd-motion domain.</li>
   </ul>
 
-  <p class="legend">Blue is the domain-agnostic shared middle (the budget wedge sits on the interpreter; coordination is the multi-agent layer). Red is the domain-specific executor. <b style="color:#2f8132">Green</b> is where the tree is growing now &mdash; we add a box and arrow to the trunk for each leaf as it grows.</p>
+  <p class="para"><b>The program grows like a tree:</b> the shared pipeline is the <i>trunk</i>, the executors are its <i>branches</i>, and each task is a <i>leaf</i>. We grow one leaf at a time (the green box marks the one in progress).</p>
+
+  <p class="legend">Colours follow the tree: the <b>trunk</b> (brown) is the domain-agnostic shared pipeline (the budget wedge sits on the interpreter; coordination is the multi-agent layer); the <b>branches</b> (olive) are the domain-specific executors; the <b style="color:#2f8132">leaf</b> (green) is the task in progress &mdash; a box is added for each leaf as it grows.</p>
 
   <h2>Growing now</h2>
   <p class="focus"><b>Leaf 1 &mdash; close the real-time gap:</b> swap E4's OmniControl (~16&times; too slow) for a real-time controllable model (MotionLCM / DART / CAMDM), and measure the frontier &mdash; FPS, latency, VRAM, grounding, FID &mdash; on yubopc.</p>

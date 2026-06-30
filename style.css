@@ -55,8 +55,8 @@ table.repro th { background:#f7f8fa; font-weight:700; }
 /* paradigm flowchart */
 .pipe { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:1.1rem 0 .5rem; }
 .box { border-radius:8px; padding:10px 13px; font-size:13px; text-align:center; border:2px solid; }
-.shared { background:#e8eefc; border-color:#5577bb; }
-.edge { background:#fdeeee; border-color:#bb5555; }
+.shared { background:#ece2d3; border-color:#9c8569; }   /* trunk  */
+.edge { background:#edf0dd; border-color:#94a35a; }     /* branch */
 .arr { color:#bbb; font-size:1.3rem; }
 .execs { display:flex; flex-direction:column; gap:7px; }
 .erow { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
