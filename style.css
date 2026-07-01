@@ -34,10 +34,11 @@ details.fold > summary::-webkit-details-marker { display:none; }
 details.fold > summary::before { content:"\25B8"; color:#999; margin-right:.45rem; font-size:.7em; }
 details.fold[open] > summary::before { content:"\25BE"; }
 details.fold[open] > summary { margin-bottom:1rem; }
-.members { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; }
-.member { border:1px solid #e6e6e6; border-radius:10px; padding:.9rem 1.05rem; }
-.member .nm { font-weight:700; font-size:16px; }
-.member .aff { font-size:13px; margin:.1rem 0 .4rem; }
+.members { display:flex; flex-direction:column; gap:.8rem; }
+.member { display:flex; align-items:flex-start; gap:1rem; border:1px solid #e6e6e6; border-radius:10px; padding:.9rem 1.05rem; }
+.member .avatar { flex:0 0 68px; width:68px; height:68px; border-radius:8px; background:#eee; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; color:#999; font-weight:700; font-size:20px; letter-spacing:.5px; }
+.member .minfo { flex:1 1 auto; min-width:0; }
+.member .nm { font-weight:700; font-size:16px; margin-bottom:.25rem; }
 .member .line { font-size:13px; line-height:1.5; margin-top:.2rem; }
 .member .line b { color:#888; }
 .member .tbd { color:#aaa; font-style:italic; }
