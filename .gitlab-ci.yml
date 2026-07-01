@@ -18,6 +18,7 @@ pages:
     - cp -f proposal.html public/proposal.html 2>/dev/null || true   # research proposal blog
     - cp -rf fig public/ 2>/dev/null || true                         # proposal blog images (command-station.png, svgs)
     - cp -rf people public/ 2>/dev/null || true                      # member portraits (home.html)
+    - cp -rf survey public/ 2>/dev/null || true                      # full survey CSV (literature.html download link)
     - cp -f desk_demo.mp4 public/ 2>/dev/null || true
     - cp -f sc2_latency.png public/ 2>/dev/null || true
     - cp -f sc2_demo.mp4 public/ 2>/dev/null || true
