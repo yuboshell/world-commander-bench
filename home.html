@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-02, 5:25 AM MDT</p>
+    <p class="upd"><b>Updated:</b> 2026-07-02, 5:35 AM MDT</p>
   </header>
 
   <p class="topnav">
@@ -102,15 +102,6 @@
   </ul>
   <p class="legend">Parked, kept in view: the fine executor (real-time generated motion, Phase 3) and crowd coordination. The <a href="graph-bpe-motion.html">Motion BPE</a> thread runs as a standalone parallel project and becomes the fine executor's on-ramp.</p>
 
-  <h2>Recent decisions</h2>
-  <ul class="stages">
-    <li><b>2026-07-01 &mdash; executor axis = level of detail.</b> The two branches are distinguished by the executor's output &mdash; coarse discrete actions the engine actuates vs fine continuous motion the model generates &mdash; not by "units vs crowd" (a crowd is also units, and scale is a separate axis both share).</li>
-    <li><b>2026-07-01 &mdash; coarse first, in parallel.</b> M0 (arena, amax) and M1 (SC2, yubopc) proceed together: mature environments, no training needed, clean metrics. The fine track defers to Phase 3.</li>
-    <li><b>2026-07-02 &mdash; win rate demoted to context.</b> The LLM's SC2 win-rate edge (~+10 pp) was not significant and shrank as n grew: its commands are largely redundant with auto-attack. Macro command-following fidelity is the unconfounded headline.</li>
-    <li><b>2026-07-02 &mdash; the arena is an instrument, not a benchmark.</b> It appears in the paper as a ground-truth probe and ablation, run once the main result defines what needs isolating &mdash; not as a parallel milestone. Effort concentrates on the SC2 macro task and the efficiency methods.</li>
-    <li><b>2026-07-02 &mdash; Motion BPE stays standalone.</b> Its thesis (what BPE buys over raw VQ tokens: reversible, training-free, variable-length motifs, and a latency/memory win) targets the motion-generation community; it merges with this program only at Phase-3 embodiment.</li>
-  </ul>
-
   <h2>The projects</h2>
   <p class="para">Each project is one paper-sized unit, and each must answer a question its community already values, whether or not that community cares about the game. Status mirrors the tree above.</p>
   <table class="repro">
@@ -156,6 +147,17 @@
     <tr><td>OBCache, SnapKV, H2O</td><td>ICML 2026 / arXiv</td><td>KV-cache eviction to port into the in-game loop and score by win rate, not perplexity</td><td>P2</td></tr>
     <tr><td>HLA, &pi;0</td><td>AAMAS 2024 / arXiv 2024</td><td>the slow-mind / fast-executor split to adapt for commander + executor</td><td>architecture</td></tr>
   </table>
+
+  <details class="fold">
+  <summary>Recent decisions</summary>
+  <ul class="stages">
+    <li><b>2026-07-01 &mdash; executor axis = level of detail.</b> The two branches are distinguished by the executor's output &mdash; coarse discrete actions the engine actuates vs fine continuous motion the model generates &mdash; not by "units vs crowd" (a crowd is also units, and scale is a separate axis both share).</li>
+    <li><b>2026-07-01 &mdash; coarse first.</b> The discrete-action track leads: mature environments, no training needed, clean metrics. The fine track defers to Phase 3.</li>
+    <li><b>2026-07-02 &mdash; win rate demoted to context.</b> The LLM's SC2 win-rate edge (~+10 pp) was not significant and shrank as n grew: its commands are largely redundant with auto-attack. Macro command-following fidelity is the unconfounded headline.</li>
+    <li><b>2026-07-02 &mdash; the arena is an instrument, not a benchmark.</b> It appears in the paper as a ground-truth probe and ablation, run once the main result defines what needs isolating &mdash; not as a parallel milestone. Effort concentrates on the SC2 macro task and the efficiency methods.</li>
+    <li><b>2026-07-02 &mdash; Motion BPE stays standalone.</b> Its thesis (what BPE buys over raw VQ tokens: reversible, training-free, variable-length motifs, and a latency/memory win) targets the motion-generation community; it merges with this program only at Phase-3 embodiment.</li>
+  </ul>
+  </details>
 
   <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
 
