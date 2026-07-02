@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-02, 6:10 AM MDT</p>
+    <p class="upd"><b>Updated:</b> 2026-07-02, 6:45 AM MDT</p>
   </header>
 
   <p class="topnav">
@@ -103,15 +103,15 @@
   <p class="legend">Parked, kept in view: the fine executor (real-time generated motion, Phase 3) and crowd coordination. The <a href="graph-bpe-motion.html">Motion BPE</a> thread runs as a standalone parallel project and becomes the fine executor's on-ramp.</p>
 
   <h2>The projects</h2>
-  <p class="para">Each project is one paper-sized unit, and each must answer a question its community already values, whether or not that community cares about the game. Status mirrors the tree above.</p>
+  <p class="para">Each project is one paper-sized unit, and each must answer a question its community already values, whether or not that community cares about the game. Status mirrors the tree above; each project links to its <a href="plans.html">research plan</a> (objective, hypothesis, design, milestones, risks, venue).</p>
   <table class="repro">
     <tr><th>Project</th><th>Question</th><th>Community</th><th>Status</th></tr>
-    <tr><td>P1 &mdash; Real-time command benchmark</td><td>What does command cost at game speed &mdash; macro command-following fidelity across the deadline &times; VRAM frontier?</td><td>LLM agents / efficient inference</td><td><b>active &mdash; Leaf 1</b></td></tr>
-    <tr><td>P2 &mdash; Efficiency methods in-game</td><td>Which method (KV-cache eviction, distillation, speculative actions) preserves execution fidelity most cheaply in a live game loop?</td><td>efficient ML</td><td>next &mdash; Milestone 2</td></tr>
-    <tr><td>P3 &mdash; Game-state tokenizer</td><td>Can a learned tokenizer cut tokens per decision at equal command-following fidelity?</td><td>efficient ML / representation</td><td>planned</td></tr>
-    <tr><td>P4 &mdash; Command&rarr;coordination</td><td>Can one order become many agents' goals through a learned policy (RL / MARL) at crowd scale?</td><td>multi-agent RL</td><td>dormant bud</td></tr>
-    <tr><td>P5 &mdash; Crowd-motion executor</td><td>Can language-commanded, full-body crowds run in real time on one consumer GPU?</td><td>motion generation / graphics</td><td>parked &mdash; Phase 3</td></tr>
-    <tr><td>Motion BPE (standalone)</td><td>What does BPE buy over raw VQ motion tokens &mdash; reversible, training-free, variable-length motifs at a lower budget?</td><td>motion generation</td><td>parallel project</td></tr>
+    <tr><td><a href="plans.html#p1">P1 &mdash; Real-time command benchmark</a></td><td>What does command cost at game speed &mdash; macro command-following fidelity across the deadline &times; VRAM frontier?</td><td>LLM agents / efficient inference</td><td><b>active &mdash; Leaf 1</b></td></tr>
+    <tr><td><a href="plans.html#p2">P2 &mdash; Efficiency methods in-game</a></td><td>Which method (KV-cache eviction, distillation, speculative actions) preserves execution fidelity most cheaply in a live game loop?</td><td>efficient ML</td><td>next &mdash; Milestone 2</td></tr>
+    <tr><td><a href="plans.html#p3">P3 &mdash; Game-state tokenizer</a></td><td>Can a learned tokenizer cut tokens per decision at equal command-following fidelity?</td><td>efficient ML / representation</td><td>planned</td></tr>
+    <tr><td><a href="plans.html#p4">P4 &mdash; Command&rarr;coordination</a></td><td>Can one order become many agents' goals through a learned policy (RL / MARL) at crowd scale?</td><td>multi-agent RL</td><td>dormant bud</td></tr>
+    <tr><td><a href="plans.html#p5">P5 &mdash; Crowd-motion executor</a></td><td>Can language-commanded, full-body crowds run in real time on one consumer GPU?</td><td>motion generation / graphics</td><td>parked &mdash; Phase 3</td></tr>
+    <tr><td><a href="plans.html#bpe">Motion BPE (standalone)</a></td><td>What does BPE buy over raw VQ motion tokens &mdash; reversible, training-free, variable-length motifs at a lower budget?</td><td>motion generation</td><td>parallel project</td></tr>
   </table>
 
   <h2>Related work &amp; background</h2>
