@@ -65,6 +65,7 @@ table.repro th { background:#f7f8fa; font-weight:700; }
 .execs { display:flex; flex-direction:column; gap:7px; }
 .erow { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
 .grow { background:#eafaea; border-color:#2f8132; color:#1b5e20; }
+.parked { background:#f4f4f4; border-color:#bbb; color:#888; }
 
 /* project / publication rows (for the report pages that list items) */
 .proj-row { display:flex; gap:1rem; align-items:flex-start; margin:1.1rem 0; }

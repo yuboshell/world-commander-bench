@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-06-29, 10:43 PM MDT</p>
+    <p class="upd"><b>Updated:</b> 2026-07-02, 5:10 AM MDT</p>
   </header>
 
   <p class="topnav">
@@ -77,8 +77,8 @@
     <div class="box shared">interpreter<br>(LLM)</div><span class="arr">&rarr;</span>
     <div class="box shared">coordination<br>assignment / MARL</div><span class="arr">&rarr;</span>
     <div class="execs">
-      <div class="erow"><div class="box edge">coarse: discrete actions<br>(game API)</div></div>
-      <div class="erow"><div class="box edge">fine: continuous motion<br>(generated)</div><span class="arr">&rarr;</span><div class="box grow">real-time executor<br>Leaf 1 &middot; now</div></div>
+      <div class="erow"><div class="box edge">coarse: discrete actions<br>(game API)</div><span class="arr">&rarr;</span><div class="box grow">macro command benchmark<br>Leaf 1 &middot; now</div></div>
+      <div class="erow"><div class="box edge">fine: continuous motion<br>(generated)</div><span class="arr">&rarr;</span><div class="box parked">real-time motion executor<br>parked &middot; Phase 3</div></div>
     </div>
   </div>
   <ul class="stages">
@@ -91,11 +91,25 @@
 
   <p class="para"><b>The program grows like a tree:</b> the shared pipeline is the <i>trunk</i>, the executors are its <i>branches</i>, and each task is a <i>leaf</i>. We grow one leaf at a time (the green box marks the one in progress).</p>
 
-  <p class="legend">Colours follow the tree: the <b>trunk</b> (brown) is the domain-agnostic shared pipeline (the budget wedge sits on the interpreter; coordination is the multi-agent layer); the <b>branches</b> (olive) are the domain-specific executors; the <b style="color:#2f8132">leaf</b> (green) is the task in progress &mdash; a box is added for each leaf as it grows.</p>
+  <p class="legend">Colours follow the tree: the <b>trunk</b> (brown) is the domain-agnostic shared pipeline (the budget wedge sits on the interpreter; coordination is the multi-agent layer); the <b>branches</b> (olive) are the domain-specific executors; the <b style="color:#2f8132">leaf</b> (green) is the task in progress &mdash; a box is added for each leaf as it grows; a <b>grey</b> box is a parked bud, kept in view but not being grown.</p>
 
   <h2>Growing now</h2>
-  <p class="focus"><b>Leaf 1 &mdash; close the real-time gap:</b> swap E4's OmniControl (~16&times; too slow) for a real-time controllable model (MotionLCM / DART / CAMDM), and measure the frontier &mdash; FPS, latency, VRAM, grounding, FID &mdash; on yubopc.</p>
-  <p class="legend">Dormant buds, grown only when this branch needs them: coordination, efficiency (KV-cache in-game), tokenization. Benchmark (E1/E2): done.</p>
+  <p class="focus"><b>Leaf 1 &mdash; the macro command benchmark (coarse branch):</b> StarCraft II with the clock unpaused. The headline metric is <b>macro command-following fidelity</b> &mdash; did the executor build, expand, switch tech, and set army composition as ordered &mdash; across the deadline &times; VRAM frontier. Not win rate: units fight on autopilot, so win rate measures the game, not the executor (the 4B LLM's edge was ~+10 pp and not significant).</p>
+  <ul class="stages">
+    <li><b>M0 (amax):</b> the grid-arena frontier against a deployed model &mdash; the clean, controlled instrument for grounding + deadline sweeps. Preliminary numbers exist; it supports the paper, it is not the benchmark.</li>
+    <li><b>M1 (yubopc):</b> the SC2 macro-fidelity harness &mdash; LLM executes a fixed scripted strategy under hard drop-late, isolating execution from strategy. Runs in parallel with M0; neither needs training.</li>
+    <li><b>M2:</b> one efficiency method (KV-cache eviction / distilled commander / speculative actions) applied to whatever M1 shows as the binding cost, at equal fidelity &mdash; the paper's payload.</li>
+  </ul>
+  <p class="legend">Parked, kept in view: the fine executor (real-time generated motion, Phase 3) and crowd coordination. The <a href="graph-bpe-motion.html">Motion BPE</a> thread runs as a standalone parallel project and becomes the fine executor's on-ramp.</p>
+
+  <h2>Recent decisions</h2>
+  <ul class="stages">
+    <li><b>2026-07-01 &mdash; executor axis = level of detail.</b> The two branches are distinguished by the executor's output &mdash; coarse discrete actions the engine actuates vs fine continuous motion the model generates &mdash; not by "units vs crowd" (a crowd is also units, and scale is a separate axis both share).</li>
+    <li><b>2026-07-01 &mdash; coarse first, in parallel.</b> M0 (arena, amax) and M1 (SC2, yubopc) proceed together: mature environments, no training needed, clean metrics. The fine track defers to Phase 3.</li>
+    <li><b>2026-07-02 &mdash; win rate demoted to context.</b> The LLM's SC2 win-rate edge (~+10 pp) was not significant and shrank as n grew: its commands are largely redundant with auto-attack. Macro command-following fidelity is the unconfounded headline.</li>
+    <li><b>2026-07-02 &mdash; the arena is an instrument, not a benchmark.</b> It appears in the paper as a ground-truth probe and ablation; effort shifts to the SC2 macro task and the efficiency methods.</li>
+    <li><b>2026-07-02 &mdash; Motion BPE stays standalone.</b> Its thesis (what BPE buys over raw VQ tokens: reversible, training-free, variable-length motifs, and a latency/memory win) targets the motion-generation community; it merges with this program only at Phase-3 embodiment.</li>
+  </ul>
 
   <h2>Related work &amp; background</h2>
   <p class="para">World Commander sits among several research lines; its position is the corner none of them occupy. A 73-paper survey (see <a href="literature.html">Literature</a>) groups the prior work into clusters:</p>
@@ -106,7 +120,7 @@
     <li><b>State representation &amp; world models</b> &mdash; compressing structured state into fewer tokens per decision. Graph Tokenization (Guo, Diao, ICLR 2026), IRIS / &Delta;-IRIS (ICLR 2023 / ICML 2024), VQ-VAE (NeurIPS 2017), WHAM (Nature 2025).</li>
     <li><b>Crowd &amp; real-time motion generation</b> &mdash; text-driven and streaming full-body motion. CrowdMoGen (IJCV 2025), MotionLCM (ECCV 2024), MotionPCM (arXiv 2025), MotionStreamer (ICCV 2025), MotionBricks (SIGGRAPH 2026), InterGen (IJCV 2024).</li>
   </ul>
-  <p class="para">Across the survey, 43 papers take free-form commands, 22 run in real time, 31 are multi-agent, and 17 measure compute &mdash; but <b>none combine all four</b>. The closest five (free-form, real-time, multi-agent) are every one budget-blind. That corner &mdash; free-form command of a real-time, multi-agent system under a compute budget &mdash; is what the program targets, in both executor domains.</p>
+  <p class="para">Across the survey, 43 papers take free-form commands, 22 run in real time, 31 are multi-agent, and 17 measure compute &mdash; but <b>none combine all four</b>. The closest five (free-form, real-time, multi-agent) are every one budget-blind. That corner &mdash; free-form command of a real-time, multi-agent system under a compute budget &mdash; is what the program targets, in both executor domains. In one phrase: <b>efficient machine learning, evaluated in closed-loop games instead of static corpora</b> &mdash; the field follows the claim (equal quality at lower cost), and the setting is the one place that claim has never been tested.</p>
 
   <h2>Challenges</h2>
   <ul class="stages">
@@ -119,12 +133,12 @@
   </ul>
 
   <h2>Works to reproduce</h2>
-  <p class="para">Ordered by priority. The first block serves <b>Leaf 1</b> (real-time motion); the rest seed the other projects.</p>
+  <p class="para">Ordered by thread. The KV-cache and tokenization rows serve the active benchmark (<b>Leaf 1</b>) and its methods; the motion rows serve the parked fine executor and the standalone Motion BPE thread.</p>
   <table class="repro">
     <tr><th>Work</th><th>Venue</th><th>Why reproduce</th><th>Serves</th></tr>
-    <tr><td>MotionLCM</td><td>ECCV 2024</td><td>real-time (~30&nbsp;ms) controllable text-to-motion via latent-consistency distillation &mdash; the model to put in place of E4's OmniControl</td><td>Leaf 1</td></tr>
-    <tr><td>MotionPCM</td><td>arXiv 2025</td><td>phased-consistency upgrade: &gt;30&nbsp;FPS single-step, +38.9% FID over MotionLCM &mdash; strongest current real-time candidate</td><td>Leaf 1</td></tr>
-    <tr><td>MotionStreamer / FloodDiffusion</td><td>ICCV 2025 / arXiv 2025</td><td>streaming generation &mdash; commands arrive mid-motion; per-frame re-conditioning without restarting</td><td>Leaf 1</td></tr>
+    <tr><td>MotionLCM</td><td>ECCV 2024</td><td>real-time (~30&nbsp;ms) controllable text-to-motion via latent-consistency distillation &mdash; the model to put in place of E4's OmniControl</td><td>fine executor (parked)</td></tr>
+    <tr><td>MotionPCM</td><td>arXiv 2025</td><td>phased-consistency upgrade: &gt;30&nbsp;FPS single-step, +38.9% FID over MotionLCM &mdash; strongest current real-time candidate</td><td>fine executor (parked)</td></tr>
+    <tr><td>MotionStreamer / FloodDiffusion</td><td>ICCV 2025 / arXiv 2025</td><td>streaming generation &mdash; commands arrive mid-motion; per-frame re-conditioning without restarting</td><td>fine executor (parked)</td></tr>
     <tr><td>CrowdMoGen</td><td>IJCV 2025</td><td>LLM Crowd Scene Planner + collective generator &mdash; the closest "LLM commands a crowd"; offline, so the real-time angle is ours to add</td><td>P5 crowds</td></tr>
     <tr><td>Graph Tokenization</td><td>ICLR 2026 (Diao)</td><td>reversible graph&rarr;tokens + BPE &mdash; the template for a game-state tokenizer</td><td>P3</td></tr>
     <tr><td>OBCache, SnapKV, H2O</td><td>ICML 2026 / arXiv</td><td>KV-cache eviction to port into the in-game loop and score by win rate, not perplexity</td><td>P2</td></tr>

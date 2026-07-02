@@ -63,7 +63,7 @@ section.notes .bk { text-decoration:none; }
 <header class="mast">
   <h1>World Commander: Natural-Language Command of Agent Crowds in Real-Time Strategy Games Under Latency and Memory Budgets</h1>
   <p class="subtitle">A research program: a human commands agent crowds in a real-time strategy game through natural language, and a language model executes the orders under latency and memory budgets.</p>
-  <p class="upd"><b>Updated:</b> 2026-06-21 &middot; public</p>
+  <p class="upd"><b>Updated:</b> 2026-07-02 &middot; public</p>
 </header>
 
 <p class="topnav">
@@ -150,15 +150,16 @@ section.notes .bk { text-decoration:none; }
 </figure>
 
 <h3 id="sec-3-2">3.2. StarCraft II with the clock running</h3>
-<p>The second stage moves to StarCraft II, built on existing tools for operating the game from text <a class="cite" href="#ref-3">[3]</a><a class="cite" href="#ref-5">[5]</a>, with one decisive change: the clock does not pause. Each decision is given a fixed latency budget and a fixed memory budget; a decision that arrives late does not take effect, as for a human player. This is where the efficiency methods of Section <a class="cite" href="#sec-2-3">2.3</a> are evaluated, the question being which of them preserve playing strength when a wrongly evicted detail can decide the outcome.</p>
+<p>The second stage moves to StarCraft II, built on existing tools for operating the game from text <a class="cite" href="#ref-3">[3]</a><a class="cite" href="#ref-5">[5]</a>, with one decisive change: the clock does not pause. Each decision is given a fixed latency budget and a fixed memory budget; a decision that arrives late does not take effect, as for a human player. This is where the efficiency methods of Section <a class="cite" href="#sec-2-3">2.3</a> are evaluated. The headline measure is <b>command-following fidelity on macro orders</b> &mdash; did the system build, expand, switch technology, and set army composition as ordered &mdash; across the latency and memory budgets. Macro is the unconfounded target: units already fight on the game's autopilot, so win rate largely measures the game rather than the executor (in an early run the language model's win-rate edge, roughly ten points, was not statistically significant, and its combat commands proved largely redundant with the autopilot). Win rate is therefore reported only as context. The question becomes which efficiency methods preserve execution fidelity when a wrongly evicted detail &mdash; a scouted technology switch, a standing expansion order &mdash; can decide it. Near term, the arena and this harness proceed in parallel on separate machines, since neither requires model training.</p>
 
 <h3 id="sec-3-3">3.3. Methods and milestones</h3>
 <p>As currently planned, the program comprises three projects, each a contribution that a wider community already values:</p>
 <ul>
 <li><strong>The benchmark itself</strong>: a measure of how inexpensive real-time command can be made.</li>
 <li><strong>A compact encoding of game state</strong>: each decision consumes fewer tokens, and therefore less latency and memory, building on recent work that compresses structured data <a class="cite" href="#ref-24">[24]</a>.</li>
-<li><strong>Real-time motion for commanded crowds</strong> (a later goal): generating their on-screen motion on a single GPU <a class="cite" href="#ref-30">[30]</a><a class="cite" href="#ref-33">[33]</a>, so that the units a commander directs actually move.</li>
+<li><strong>Real-time motion for commanded crowds</strong> (a later goal): generating their on-screen motion on a single GPU <a class="cite" href="#ref-30">[30]</a><a class="cite" href="#ref-33">[33]</a>, so that the units a commander directs actually move. A standalone motion-tokenization thread is this project's on-ramp: byte-pair encoding over discretized motion finds reusable multi-frame movement primitives, compressing sequences roughly sevenfold &mdash; fewer tokens per second of motion is what makes a real-time generated executor affordable.</li>
 </ul>
+<p>In one phrase, the program is <b>efficient machine learning evaluated in closed-loop games</b> rather than on static corpora: each project's claim is equal quality at lower cost, and the running game is the one setting where that claim has not yet been tested.</p>
 
 <h2 id="sec-4">4. Outlook</h2>
 <p>The long-term aim, several years away, is a new kind of game directed by natural-language command (Figure <a class="cite" href="#fig-1">1</a>) rather than by rapid manual input. StarCraft II is the proving ground rather than the destination; the same interface could front other games. Because each stage answers a question that an existing research community already cares about, the program yields results well before that game is realised.</p>

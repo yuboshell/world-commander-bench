@@ -27,7 +27,7 @@
   <h1>Graph / BPE Tokenization of Human Motion — v0 viability probe</h1>
   <p class="subtitle">Can graph/BPE tokenization — Diao &amp; Guo's idea — be a substrate for generating
 <b>human motion</b>? First, the precondition: does motion even have reusable BPE motifs?</p>
-  <p class="upd"><b>Updated:</b> 2026-06-23, 10:17 PM MDT &middot; public</p>
+  <p class="upd"><b>Updated:</b> 2026-07-02, 5:10 AM MDT &middot; public</p>
 </header>
 
 <p class="topnav">
@@ -91,6 +91,19 @@ clips are ~½–1 min, so top motifs recur only 2–3×); <b>(3)</b> the differe
 <b>MotionGPT</b> (LLM + <i>VQ</i> motion tokens), the thesis must be what <b>BPE</b> buys (reversible,
 training-free, interpretable, variable-length motifs); <b>(4)</b> confirm Diao's solved “reverse”
 reconstructs motion exactly; <b>(5)</b> then actually train the generator.</p>
+
+<h2>Placement in the program (decided 2026-07-02)</h2>
+<p>This thread is a <b>standalone parallel project</b>, not a component of the near-term World
+Commander benchmark. Its thesis targets the <b>motion-generation community</b>: what BPE buys over
+raw VQ tokens — reversible, training-free, interpretable, <i>variable-length</i> motifs, plus a
+measured latency/memory win (a ~7× shorter sequence means ~7× fewer autoregressive steps per second
+of generated motion). Its next milestones, in dependency order: <b>(a)</b> replace the k-means
+stand-in with a trained VQ-VAE and verify round-trip reconstruction — the quality ceiling for
+everything downstream; <b>(b)</b> a small autoregressive generator with the key ablation
+<i>BPE-motif tokens vs raw VQ tokens at equal compute budget</i>; <b>(c)</b> single character first,
+crowd deferred. It merges with World Commander only at Phase-3 embodiment, where cheap motion tokens
+are what make a real-time generated executor affordable — until then the two share exactly one
+sentence in the proposal.</p>
 
 <footer>
 Graph/BPE tokenization of human motion — v0 viability probe. CPU-only forward measurement on Emily
