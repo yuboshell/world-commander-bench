@@ -77,16 +77,16 @@
     <div class="box shared">interpreter<br>(LLM)</div><span class="arr">&rarr;</span>
     <div class="box shared">coordination<br>assignment / MARL</div><span class="arr">&rarr;</span>
     <div class="execs">
-      <div class="erow"><div class="box edge">game units<br>discrete commands</div></div>
-      <div class="erow"><div class="box edge">crowd<br>full-body motion</div><span class="arr">&rarr;</span><div class="box grow">real-time executor<br>Leaf 1 &middot; now</div></div>
+      <div class="erow"><div class="box edge">coarse: discrete actions<br>(game API)</div></div>
+      <div class="erow"><div class="box edge">fine: continuous motion<br>(generated)</div><span class="arr">&rarr;</span><div class="box grow">real-time executor<br>Leaf 1 &middot; now</div></div>
     </div>
   </div>
   <ul class="stages">
     <li><b>Free-form / abstract command</b> &mdash; the commander's order in plain language, from concrete ("attack the left flank") to abstract ("hold the line, stay aggressive").</li>
     <li><b>Interpreter (LLM)</b> &mdash; turns that command into structured intent the agents can act on, fast enough for the live clock and within a memory budget.</li>
     <li><b>Coordination (assignment / MARL)</b> &mdash; splits the intent across the many agents (who does what), by assignment rules or a learned multi-agent policy.</li>
-    <li><b>Executor &mdash; game units:</b> issues <b>discrete</b> commands to each unit (move, attack, use an ability) at the game's tick &mdash; the strategy-game domain (e.g. StarCraft II).</li>
-    <li><b>Executor &mdash; crowd:</b> generates <b>continuous</b> full-body motion for each character (locomotion, gesture, holding formation), frame by frame &mdash; the crowd-motion domain.</li>
+    <li><b>Executor &mdash; coarse (discrete actions):</b> issues high-level orders through the game API (move, attack, use an ability); the engine actuates them &mdash; the strategy-game domain (e.g. StarCraft II).</li>
+    <li><b>Executor &mdash; fine (continuous motion):</b> generates full-body motion itself, frame by frame (locomotion, gesture, holding formation) &mdash; the embodiment domain. Both executors are multi-agent; <b>scale</b> (few &rarr; crowd) is a separate axis.</li>
   </ul>
 
   <p class="para"><b>The program grows like a tree:</b> the shared pipeline is the <i>trunk</i>, the executors are its <i>branches</i>, and each task is a <i>leaf</i>. We grow one leaf at a time (the green box marks the one in progress).</p>
