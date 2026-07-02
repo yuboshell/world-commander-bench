@@ -16,7 +16,8 @@ pages:
     - cp -f motion.html public/motion.html 2>/dev/null || true
     - cp -f graph-bpe-motion.html public/graph-bpe-motion.html 2>/dev/null || true  # standalone (graph-tokenization thread, not E1-E4)
     - cp -f literature.html public/literature.html 2>/dev/null || true
-    - cp -f proposal.html public/proposal.html 2>/dev/null || true   # research proposal blog
+    - cp -f ideation.html public/ideation.html 2>/dev/null || true   # ideation page (abstract + idea + outlook)
+    - cp -f proposal.html public/proposal.html 2>/dev/null || true   # redirect stub -> ideation.html
     - cp -rf fig public/ 2>/dev/null || true                         # proposal blog images (command-station.png, svgs)
     - cp -rf people public/ 2>/dev/null || true                      # member portraits (home.html)
     - cp -rf survey public/ 2>/dev/null || true                      # full survey CSV (literature.html download link)

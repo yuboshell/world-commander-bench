@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+<title>World Commander — Ideation</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet">
+<style>
+  /* page-specific styles (generic base in style.css) */
+:root { --ink:#1b1b1b; --muted:#1b1b1b; --link:#1a5fb4; --rule:#b8b8b8; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+section.abstract { margin: 0 0 26px; padding: 0 9%; }
+section.abstract .abs-h { text-align:center; font-weight:bold; font-size:1.15rem; margin:0 0 7px; }
+section.abstract p { font-size:0.96rem; margin:0; text-align: justify; hyphens: auto; }
+figure { margin: 28px 0; text-align:center; }
+figure img { max-width:100%; height:auto; display:inline-block; border:1px solid var(--rule); border-radius:4px; }
+figcaption { font-size:0.9rem; color:var(--muted); margin-top:8px; text-align:left; }
+figcaption .credit { color: var(--muted); }
+h2 { font-size:1.24rem; margin:26px 0 9px; }
+p { margin: 0 0 16px; }
+.wrap > p { text-align: justify; hyphens: auto; }
+a { color: var(--link); }
+a.cite { text-decoration:none; }
+a.cite:hover { text-decoration:underline; }
+section.refs ol { list-style:none; padding-left:0; margin:0; font-size:0.92rem; line-height:1.5; }
+section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
+.pointer { border:1px solid var(--rule); background:#fafafa; border-radius:6px; padding:12px 18px; margin: 22px 0; font-size:0.95rem; }
+@media (max-width: 540px){ body{font-size:17px;} .wrap{padding:30px 16px 70px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <h1>World Commander: Natural-Language Command of Agent Crowds in Real-Time Strategy Games Under Latency and Memory Budgets</h1>
+  <p class="subtitle">The ideation page: where the program comes from and where it is going. The current state lives on the pages it points to.</p>
+  <p class="upd"><b>Updated:</b> 2026-07-02, 7:20 AM MDT &middot; public</p>
+</header>
+
+<p class="topnav">
+  <a href="home.html">Home</a> &nbsp;/&nbsp;
+  <a href="ideation.html" class="active">Ideation</a> &nbsp;/&nbsp;
+  <a href="literature.html">Literature</a> &nbsp;/&nbsp;
+  <a href="plans.html">Plans</a> &nbsp;/&nbsp;
+  <a href="index.html">Grid Arena (E1)</a> &nbsp;/&nbsp;
+  <a href="sc2.html">StarCraft II (E2)</a> &nbsp;/&nbsp;
+  <a href="embodiment.html">Embodiment (E3)</a> &nbsp;/&nbsp;
+  <a href="motion.html">Crowd Motion (E4)</a> &nbsp;/&nbsp;
+  <a href="graph-bpe-motion.html">Motion BPE</a>
+</p>
+
+<section class="abstract">
+<div class="abs-h">Abstract</div>
+<p>World Commander is a research program in which a human commands crowds of agents in a real-time strategy game through natural language: the commander issues orders, from broad strategy down to individual unit moves, and a language model executes them as in-game actions while the game continues to run. The central question is how much this costs, in latency and memory, and how that cost can be reduced. The efficient-inference methods that could reduce it, such as cache eviction, quantization, and distillation, are at present evaluated only on static text benchmarks, never inside a game in progress, where discarding the wrong information can change the outcome. This program evaluates such methods in that setting, across environments of increasing difficulty, from a toy arena to StarCraft II, then to several human commanders at once, and in time a full game. As currently planned, its projects target results that adjacent research communities already value: a benchmark for the cost of real-time command, a compact encoding of game state, and, later, real-time motion for commanded crowds.</p>
+</section>
+
+<h2 id="sec-1">1. The idea</h2>
+<p>In a real-time strategy game such as StarCraft II, most of a player's effort goes into manual control rather than strategy: selecting units, locating commands, and issuing hundreds of actions per minute. Deciding what to do is a small fraction of the effort; the remainder is mechanical work imposed by the interface.</p>
+<p>A different interaction model is already familiar from other settings. With a coding assistant, the human states an intent, the assistant performs the low-level steps, and the human reviews and redirects. Applied to a strategy game, the player becomes a commander who observes, decides, and issues orders, from broad strategy to individual moves, for the units to carry out (Figures <a class="cite" href="#fig-1">1</a> and <a class="cite" href="#fig-2">2</a>). A voice-commanded strategy game appeared as early as 2008 (Tom Clancy's EndWar <a class="cite" href="#ref-1">[1]</a>), but it recognised only a fixed grammar of roughly seventy phrases; what was missing was free-form language understanding. Modern language models provide it. What they still lack is speed: a model can interpret a command but is too slow to act while the game continues.</p>
+
+<figure id="fig-1">
+<img src="fig/command-station.png?v=2" alt="A real-time strategy game directed by natural-language command.">
+<figcaption><strong>Figure 1.</strong> The envisaged end state: a real-time strategy game directed by natural-language command rather than by manual input. <span class="credit">Image generated with GPT Image 2.</span></figcaption>
+</figure>
+
+<figure id="fig-2">
+<img src="fig/hero.svg" alt="Two players each commanding their own crowd of agents by natural language." style="max-height:300px;">
+<figcaption><strong>Figure 2.</strong> The target capability: agent crowds directed in real time by natural language; here, two players each command their own.</figcaption>
+</figure>
+
+<p>The program therefore begins from a concrete question: how much does it cost, in latency and memory, for a language model to execute a commander's orders quickly enough to play, and how can that cost be reduced?</p>
+
+<h2 id="sec-2">2. Outlook</h2>
+<p>The long-term aim, several years away, is a new kind of game directed by natural-language command (Figure <a class="cite" href="#fig-1">1</a>) rather than by rapid manual input. StarCraft II is the proving ground rather than the destination; the same interface could front other games. Because each stage answers a question that an existing research community already cares about, the program yields results well before that game is realised.</p>
+
+<div class="pointer"><b>Where the rest lives.</b> This page keeps only the idea; the working content moved to the pages that own it: the paradigm, the projects, and the current focus are on <a href="home.html">Home</a>; each project's research plan (hypothesis, design, milestones, risks, venue) is on <a href="plans.html">Plans</a>; the related work and the full 81-reference survey are on <a href="literature.html">Literature</a>; the per-environment reports are E1&ndash;E4 in the navigation bar.</div>
+
+<section class="refs">
+<h2>Reference</h2>
+<ol>
+<li id="ref-1">[1] Ubisoft. <em>Tom Clancy's EndWar</em>. 2008. <a href="https://en.wikipedia.org/wiki/Tom_Clancy%27s_EndWar">wikipedia.org</a></li>
+</ol>
+<p style="font-size:.92rem;color:#666">The full, filterable bibliography (81 references) lives on the <a href="literature.html">Literature</a> page.</p>
+</section>
+
+<p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
+
+</div>
+</body>
+</html>
