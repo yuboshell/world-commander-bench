@@ -19,7 +19,7 @@
   <header class="mast">
     <h1>World Commander — Research Plans</h1>
     <p class="subtitle">One practical plan per project: objective, hypothesis, approach, experimental design, milestones, risks, venue. Grounded in the measured results and decisions to date.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-02, 6:40 AM MDT &middot; public</p>
+    <p class="upd"><b>Updated:</b> 2026-07-02, 7:05 AM MDT &middot; public</p>
   </header>
 
   <p class="topnav">
@@ -34,15 +34,17 @@
     <a href="graph-bpe-motion.html">Motion BPE</a>
   </p>
 
-  <p class="para">Each plan follows the same skeleton so they can be compared and criticized: <b>objective</b> (the question), a <b>falsifiable hypothesis</b>, the <b>approach</b>, the <b>experimental design</b> (environment, baselines, metrics), <b>milestones</b>, <b>risks with de-risking</b>, and the <b>target venue</b>. Plans are living documents: the P2 plan should be sanity-checked with Enmao (efficient ML), P4 with Hongsong (RL/MARL), and P5 with the motion-generation side before work starts.</p>
+  <p class="para">Each plan follows the same skeleton so they can be compared and criticized: <b>objective</b> (the question), a <b>falsifiable hypothesis</b>, <b>positioning</b> (nearest work and the delta), the <b>approach</b>, the <b>experimental design</b> (environment, baselines, metrics), <b>milestones</b>, <b>reproduce first</b> (the systems to stand up before starting), <b>risks with de-risking</b> (each plan's challenges), and the <b>target venue</b>. Program-level background and challenges stay on <a href="home.html">Home</a>; the full field map is on <a href="literature.html">Literature</a>. Plans are living documents: the P2 plan should be sanity-checked with Enmao (efficient ML), P4 with Hongsong (RL/MARL), and P5 with the motion-generation side before work starts.</p>
 
   <h2 id="p1">P1 — Real-time command benchmark <span style="color:#2f8132">(active — Leaf 1)</span></h2>
   <p class="para"><b>Objective.</b> Measure what real-time command costs: macro command-following fidelity as a function of the decision deadline and the VRAM budget, in StarCraft II with the clock unpaused.</p>
   <ul class="stages">
     <li><b>Hypothesis.</b> Fidelity degrades sharply once the deadline crosses the model's decision latency (already observed as the drop-late frontier, ~87% &rarr; ~62% around the ~25 s latency), and the degradation ordering across models and budgets is <i>not</i> predicted by static-text benchmarks.</li>
+    <li><b>Positioning.</b> TextStarCraft II and LLM-PySC2 already drive SC2 by language, but with the clock paused or slowed; VideoGameBench and AgileThinker measure real-time pressure for single agents. The delta: an unpaused clock, a mechanical macro-fidelity score, and the budget frontier as the headline.</li>
     <li><b>Approach.</b> LLM-PySC2 harness, hard drop-late clock (validated), a scripted commander issuing a fixed macro strategy (build orders, expansions, tech switches, composition targets); executors are off-the-shelf and pruned LLMs (1B&ndash;70B), prompted &mdash; no training in this project.</li>
     <li><b>Experimental design.</b> The core engineering is the <b>order schema</b>: each macro order maps to an observable game-state predicate (built X by t? expanded on cue? composition within tolerance?), so fidelity is scored mechanically per order. Sweep (deadline &times; VRAM &times; model scale); hundreds of orders per point (per-order scoring gives far larger n than per-game win rate, the 06-21 lesson). Memory probes: orders whose execution depends on information observed minutes earlier (a scouted tech switch) &mdash; the eviction stress test. Win rate reported only as context.</li>
     <li><b>Milestones.</b> (1) Order schema + fidelity scorer; (2) frontier sweep at 2&ndash;3 model scales; (3) memory-probe suite; (4) public harness + report.</li>
+    <li><b>Reproduce first.</b> the LLM-PySC2 baseline agent loop, and TextStarCraft II's chain-of-summarization prompting as the observation baseline.</li>
     <li><b>Risks / de-risking.</b> Metric gaming (orders followed while the game collapses) &mdash; pair fidelity with a game-state sanity band; auto-attack leakage &mdash; keep the schema strictly macro; scoring ambiguity &mdash; freeze the predicate definitions before the sweep and publish them.</li>
     <li><b>Venue.</b> NeurIPS Datasets &amp; Benchmarks or ICLR (benchmark + analysis). <b>Machines:</b> yubopc (SC2) + amax (model serving).</li>
   </ul>
@@ -51,9 +53,11 @@
   <p class="para"><b>Objective.</b> Determine which inference-efficiency method preserves execution fidelity most cheaply inside the live game loop.</p>
   <ul class="stages">
     <li><b>Hypothesis.</b> The method ranking established on static text (perplexity, LongBench-style recall) <i>re-ranks</i> under the live clock: game-state streams violate the heavy-hitter/attention-sink assumptions, and one evicted standing order is catastrophic where one dropped token in prose is benign.</li>
+    <li><b>Positioning.</b> H2O, SnapKV, StreamingLLM, and OBCache are all validated on static text; Pitfalls of KV Cache Compression and DefensiveKV already show eviction is fragile and task-dependent. The delta: the first closed-loop, task-grounded comparison, plus the game-aware variant.</li>
     <li><b>Approach.</b> Port KV-cache eviction (StreamingLLM sinks, H2O, SnapKV, OBCache), quantization, and one lossless accelerator (speculative decoding / speculative actions) into the P1 harness; compare at equal (latency, VRAM). The method contribution: a <b>game-aware eviction</b> variant that pins entity state and standing orders (exploiting entity lifetimes and spatial locality) instead of attention statistics.</li>
     <li><b>Experimental design.</b> One variable at a time (fix VRAM, sweep deadline; then the reverse); P1's fidelity + memory probes as the score; a failure taxonomy &mdash; <i>which class of order gets forgotten by which method</i> &mdash; as the analysis payload.</li>
     <li><b>Milestones.</b> (1) One method end-to-end (= the program's Milestone 2); (2) the full sweep; (3) game-aware eviction prototype vs the ported baselines.</li>
+    <li><b>Reproduce first.</b> one eviction method's reference implementation (SnapKV or OBCache) on a long-context task, then the same method inside the vLLM serving stack.</li>
     <li><b>Risks / de-risking.</b> Serving-stack engineering (KV hooks in vLLM) &mdash; start with the method whose reference code is closest to vLLM; latency&ndash;memory confounds &mdash; the one-variable protocol above.</li>
     <li><b>Venue.</b> ICML / NeurIPS (efficient inference). <b>Lead fit:</b> Enmao's field; Yubo owns the harness.</li>
   </ul>
@@ -62,9 +66,11 @@
   <p class="para"><b>Objective.</b> Cut tokens per decision at equal command-following fidelity by replacing text serialization of game state with a learned discrete code.</p>
   <ul class="stages">
     <li><b>Hypothesis.</b> A learned tokenizer over structured state (entities, positions, event streams) reaches several-fold fewer tokens per decision than text serialization at equal fidelity, and the saving compounds: fewer tokens &rarr; lower latency <i>and</i> smaller KV cache.</li>
+    <li><b>Positioning.</b> Graph Tokenization (ICLR 2026) turns structured data into tokens; IRIS / &Delta;-IRIS learn discrete world-model codes that cut tokens per step. The delta: tokens-per-decision at equal command-following fidelity, measured in a live loop rather than offline.</li>
     <li><b>Approach.</b> Graph tokenization (the Graph Tokenization ICLR 2026 line) over StarCraft II replay states; delta/stream encoding for successive states (the &Delta;-IRIS observation); a small adapter so the executor LLM reads the codes (this project does include light training, unlike P1).</li>
     <li><b>Experimental design.</b> Corpus from SC2 replays; drop-in comparison inside the P1 harness &mdash; text serialization vs learned codes at matched budgets; measure tokens/decision, end-to-end latency, fidelity, plus state-reconstruction quality as the tokenizer's own ceiling check.</li>
     <li><b>Milestones.</b> (1) Replay corpus + state schema; (2) tokenizer v0 (graph &rarr; codes, reconstruction validated); (3) harness integration and the frontier comparison.</li>
+    <li><b>Reproduce first.</b> the Graph Tokenization pipeline on a small graph corpus, and the &Delta;-IRIS tokenizer on a toy environment.</li>
     <li><b>Risks / de-risking.</b> The LLM may not exploit learned codes without adaptation &mdash; budget for the adapter from the start; map/patch drift &mdash; hold out maps; losing human readability &mdash; keep a code&rarr;text decoder for debugging.</li>
     <li><b>Venue.</b> ICLR / NeurIPS (representation + efficiency). <b>Lead:</b> Enmao; depends on the P1 harness.</li>
   </ul>
@@ -73,9 +79,11 @@
   <p class="para"><b>Objective.</b> Turn one order into many agents' goals with a learned policy that scales past rule-based assignment.</p>
   <ul class="stages">
     <li><b>Hypothesis.</b> Rule-based assignment satisfies concrete orders at small N but degrades with crowd size and order abstraction ("hold the line" has no per-unit rule); a MARL policy conditioned on the interpreted order closes that gap at bounded compute.</li>
+    <li><b>Positioning.</b> MAPPO / QMIX are the standard cooperative-MARL baselines (SMAC benchmark); SMAC-R1 has an LLM write decision-tree scripts offline; CrowdMoGen plans a crowd with an LLM but offline. The delta: language-conditioned coordination, scored by order satisfaction under a compute budget.</li>
     <li><b>Approach.</b> First quantify the gap: rule-based assignment in the arena and SC2 squad scenarios, scored by per-order satisfaction as N grows. Then a learned layer (MAPPO/QMIX-family), reward = command satisfaction + cost penalties, curriculum from small N; the interpreter's structured intent is the policy's conditioning input.</li>
     <li><b>Experimental design.</b> Order satisfaction vs N (rules vs learned); coordination quality (collisions, coverage, formation error); training and inference compute reported &mdash; the budget axis stays.</li>
     <li><b>Milestones.</b> (1) Rule baseline + gap curve; (2) small-N MARL matching rules; (3) the scale study where rules break and the policy holds.</li>
+    <li><b>Reproduce first.</b> MAPPO on SMAC via a maintained reference implementation (e.g. EPyMARL), before any custom environment work.</li>
     <li><b>Risks / de-risking.</b> The O(N&sup2;) interaction simulation (known bottleneck) &mdash; neighbour pruning / spatial hashing before any learning; reward hacking on abstract orders &mdash; start with concrete orders, add reward-from-language or preference data only when needed.</li>
     <li><b>Venue.</b> AAMAS or a NeurIPS/ICLR MARL track. <b>Lead:</b> Hongsong. Dormant until P1 exposes the coordination gap in data.</li>
   </ul>
@@ -84,9 +92,11 @@
   <p class="para"><b>Objective.</b> Language-commanded, full-body crowds generated in real time on one consumer GPU. <span class="plan-meta">(Condensed from the detailed protocol in the docs repo, <code>plan/research-plan.md</code>.)</span></p>
   <ul class="stages">
     <li><b>Hypothesis.</b> A per-character real-time generator (the MotionLCM/MotionPCM class) plus a coordination layer can hold command satisfaction and motion realism while meeting an FPS/VRAM budget that scales to tens of characters &mdash; the budget-frontier curve <i>is</i> the contribution (the 0/81 corner of the survey).</li>
+    <li><b>Positioning.</b> CrowdMoGen commands a crowd by language but offline; MotionLCM / MotionPCM are real-time but single-character; InterGen handles interaction for two. The delta: all three at once &mdash; language, crowd, real time &mdash; under one GPU's budget (the survey's empty corner).</li>
     <li><b>Approach.</b> Interpreter &rarr; coordination layer &rarr; per-character real-time generator; swap the current offline model (OmniControl, ~16&times; too slow) for a real-time one; synthesize the missing command&rarr;motion corpus (sim &rarr; LLM paraphrase &rarr; render) with a small human-issued set as the honest test.</li>
     <li><b>Experimental design.</b> Command satisfaction (concrete orders scored mechanically; abstract ones human-rated), realism (FID on HumanML3D protocol), and the budget frontier (FPS, latency, VRAM vs character count); baselines: CrowdMoGen (offline) and independent per-character generation (no coordination).</li>
     <li><b>Milestones.</b> (1) Single character, real-time swap validated; (2) small crowd + coordination layer; (3) the budget-frontier study.</li>
+    <li><b>Reproduce first.</b> MotionLCM's real-time demo end to end, then CrowdMoGen's planner + generator (both already in the works-to-reproduce table on the home page).</li>
     <li><b>Risks / de-risking.</b> Synthetic&rarr;real phrasing gap &mdash; test on the human set and measure the drop; abstract-intent grounding (the genuinely open part) &mdash; classify-then-act or reward-from-language, not supervision; crowd realism &mdash; the coordination layer plus collision/formation metrics.</li>
     <li><b>Venue.</b> SIGGRAPH / CVPR (motion generation &amp; graphics). Parked until Phase 3; Motion BPE below is its on-ramp.</li>
   </ul>
@@ -95,9 +105,11 @@
   <p class="para"><b>Objective.</b> Establish what BPE buys over raw VQ motion tokens: reversible, training-free, variable-length motifs &mdash; and a measured latency/memory win for generation.</p>
   <ul class="stages">
     <li><b>Hypothesis.</b> BPE over discretized motion (v0 probe: compression to 0.13&times; vs 0.43&times; for a shuffled control; motifs up to 32 frames) yields ~7&times; fewer autoregressive steps per second of generated motion at equal quality &mdash; a budget win no fixed-length VQ pipeline (MotionGPT, T2M-GPT) provides.</li>
+    <li><b>Positioning.</b> TM2T introduced VQ motion tokens; T2M-GPT and MotionGPT generate from fixed-length VQ codes; MoMask upgrades to residual VQ. None applies a BPE layer. The delta: reversible, training-free, variable-length motifs and an equal-budget win, or a clean null result.</li>
     <li><b>Approach.</b> (a) Replace the k-means stand-in with a trained VQ-VAE and verify round-trip reconstruction &mdash; the quality ceiling for everything downstream; (b) train a small autoregressive generator on motif tokens; (c) strengthen the probe's control with an AR(1)/Markov surrogate to separate true recurrence from temporal smoothness.</li>
     <li><b>Experimental design.</b> The key ablation: <b>BPE-motif tokens vs raw VQ tokens, same generator, same compute budget</b> &mdash; FID / R-precision on the HumanML3D protocol at matched steps and latency, plus tokens-per-second-of-motion. Single character only; crowd is out of scope.</li>
     <li><b>Milestones.</b> (1) VQ-VAE + round-trip check; (2) generator + the BPE-vs-VQ ablation; (3) the differentiator analysis vs MotionGPT (reversibility, interpretability of motifs, budget).</li>
+    <li><b>Reproduce first.</b> T2M-GPT's VQ-VAE (it is also the raw-VQ ablation baseline) and MoMask's residual VQ (the tokenizer upgrade path).</li>
     <li><b>Risks / de-risking.</b> Reconstruction ceiling too low &mdash; residual VQ (the MoMask recipe) as the upgrade path; motif reuse too sparse on small data &mdash; scale sequences/subjects before concluding; "BPE gain washes out after training" &mdash; that is exactly what the equal-budget ablation decides, and a null result is still publishable as an analysis.</li>
     <li><b>Venue.</b> Motion-generation community (CVPR / ECCV / SIGGRAPH Asia). Merges with the program only at Phase-3 embodiment.</li>
   </ul>
