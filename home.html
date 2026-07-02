@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-02, 5:50 AM MDT</p>
+    <p class="upd"><b>Updated:</b> 2026-07-02, 6:10 AM MDT</p>
   </header>
 
   <p class="topnav">
@@ -115,7 +115,7 @@
   </table>
 
   <h2>Related work &amp; background</h2>
-  <p class="para">World Commander sits among several research lines; its position is the corner none of them occupy. A 73-paper survey (see <a href="literature.html">Literature</a>) groups the prior work into clusters:</p>
+  <p class="para">World Commander sits among several research lines; its position is the corner none of them occupy. An 81-paper survey (see <a href="literature.html">Literature</a>) groups the prior work into clusters:</p>
   <ul class="stages">
     <li><b>LLM agents in real-time games</b> &mdash; an LLM issuing commands in a strategy game while the clock runs. HLA (AAMAS 2024), AVA (arXiv 2026), Adaptive Command (arXiv 2025), VideoGameBench (arXiv 2025), AgileThinker (arXiv 2025); AlphaStar (Nature 2019) is the full-RL precedent.</li>
     <li><b>Efficient LLM inference under budgets</b> &mdash; bounding latency and KV-cache memory at inference time. Speculative Actions (arXiv 2025), Pitfalls of KV Cache Compression (ACL 2026), OBCache (ICML 2026), H2O, SnapKV, StreamingLLM.</li>
@@ -123,7 +123,7 @@
     <li><b>State representation &amp; world models</b> &mdash; compressing structured state into fewer tokens per decision. Graph Tokenization (Guo, Diao, ICLR 2026), IRIS / &Delta;-IRIS (ICLR 2023 / ICML 2024), VQ-VAE (NeurIPS 2017), WHAM (Nature 2025).</li>
     <li><b>Crowd &amp; real-time motion generation</b> &mdash; text-driven and streaming full-body motion. CrowdMoGen (IJCV 2025), MotionLCM (ECCV 2024), MotionPCM (arXiv 2025), MotionStreamer (ICCV 2025), MotionBricks (SIGGRAPH 2026), InterGen (IJCV 2024). Foundations: T2M / HumanML3D (CVPR 2022, the field's benchmark), MDM (ICLR 2023), T2M-GPT (CVPR 2023), MotionGPT (NeurIPS 2023), MoMask (CVPR 2024).</li>
   </ul>
-  <p class="para">Across the survey, 43 papers take free-form commands, 22 run in real time, 31 are multi-agent, and 17 measure compute &mdash; but <b>none combine all four</b>. The closest five (free-form, real-time, multi-agent) are every one budget-blind. That corner &mdash; free-form command of a real-time, multi-agent system under a compute budget &mdash; is what the program targets, in both executor domains. In one phrase: <b>efficient machine learning, evaluated in closed-loop games instead of static corpora</b> &mdash; the field follows the claim (equal quality at lower cost), and the setting is the one place that claim has never been tested.</p>
+  <p class="para">Across the survey, 51 papers take free-form commands, 22 run in real time, 31 are multi-agent, and 17 measure compute &mdash; but <b>none combine all four</b>. The closest five (free-form, real-time, multi-agent) are every one budget-blind. That corner &mdash; free-form command of a real-time, multi-agent system under a compute budget &mdash; is what the program targets, in both executor domains. In one phrase: <b>efficient machine learning, evaluated in closed-loop games instead of static corpora</b> &mdash; the field follows the claim (equal quality at lower cost), and the setting is the one place that claim has never been tested.</p>
 
   <h2>Challenges</h2>
   <ul class="stages">
