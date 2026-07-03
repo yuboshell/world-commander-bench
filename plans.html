@@ -19,7 +19,7 @@
   <header class="mast">
     <h1>World Commander — Research Plans</h1>
     <p class="subtitle">One practical plan per project: objective, hypothesis, approach, experimental design, milestones, risks, venue. Grounded in the measured results and decisions to date.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-02, 7:05 AM MDT &middot; public</p>
+    <p class="upd"><b>Updated:</b> 2026-07-02, 7:55 AM MDT &middot; public</p>
   </header>
 
   <p class="topnav">
@@ -80,7 +80,7 @@
   <ul class="stages">
     <li><b>Hypothesis.</b> Rule-based assignment satisfies concrete orders at small N but degrades with crowd size and order abstraction ("hold the line" has no per-unit rule); a MARL policy conditioned on the interpreted order closes that gap at bounded compute.</li>
     <li><b>Positioning.</b> MAPPO / QMIX are the standard cooperative-MARL baselines (SMAC benchmark); SMAC-R1 has an LLM write decision-tree scripts offline; CrowdMoGen plans a crowd with an LLM but offline. The delta: language-conditioned coordination, scored by order satisfaction under a compute budget.</li>
-    <li><b>Approach.</b> First quantify the gap: rule-based assignment in the arena and SC2 squad scenarios, scored by per-order satisfaction as N grows. Then a learned layer (MAPPO/QMIX-family), reward = command satisfaction + cost penalties, curriculum from small N; the interpreter's structured intent is the policy's conditioning input.</li>
+    <li><b>Approach.</b> First quantify the gap: rule-based assignment in the arena and SC2 squad scenarios, scored by per-order satisfaction as N grows. Then a learned layer (MAPPO/QMIX-family), reward = command satisfaction + cost penalties, curriculum from small N; the interpreter's structured intent is the policy's conditioning input. The output space is per-agent <b>goals</b> (discrete) or continuous <b>root trajectories</b> &mdash; the middle rung of the detail ladder, where the engine animates along the generated path (2026-07-02 discussion with Xirui Shi and Ji Yang).</li>
     <li><b>Experimental design.</b> Order satisfaction vs N (rules vs learned); coordination quality (collisions, coverage, formation error); training and inference compute reported &mdash; the budget axis stays.</li>
     <li><b>Milestones.</b> (1) Rule baseline + gap curve; (2) small-N MARL matching rules; (3) the scale study where rules break and the policy holds.</li>
     <li><b>Reproduce first.</b> MAPPO on SMAC via a maintained reference implementation (e.g. EPyMARL), before any custom environment work.</li>

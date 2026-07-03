@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-02, 7:40 AM MDT</p>
+    <p class="upd"><b>Updated:</b> 2026-07-02, 7:55 AM MDT</p>
   </header>
 
   <p class="topnav">
@@ -79,6 +79,7 @@
     <div class="box shared">Coordination<br>assignment / MARL</div><span class="arr">&rarr;</span>
     <div class="execs">
       <div class="erow"><div class="box edge">Coarse: discrete actions<br>(game API)</div><span class="arr">&rarr;</span><div class="box grow">Macro command benchmark<br>Leaf 1 &middot; now</div></div>
+      <div class="erow"><div class="box edge">Medium: trajectories<br>(root paths)</div></div>
       <div class="erow"><div class="box edge">Fine: continuous motion<br>(generated)</div><span class="arr">&rarr;</span><div class="box parked">Real-time motion executor<br>Phase 3 &middot; parked</div></div>
     </div>
   </div>
@@ -87,7 +88,8 @@
     <li><b>Interpreter (LLM)</b> &mdash; turns that command into structured intent the agents can act on, fast enough for the live clock and within a memory budget.</li>
     <li><b>Coordination (assignment / MARL)</b> &mdash; splits the intent across the many agents (who does what), by assignment rules or a learned multi-agent policy.</li>
     <li><b>Executor &mdash; coarse (discrete actions):</b> issues high-level orders through the game API (move, attack, use an ability); the engine actuates them &mdash; the strategy-game domain (e.g. StarCraft II).</li>
-    <li><b>Executor &mdash; fine (continuous motion):</b> generates full-body motion itself, frame by frame (locomotion, gesture, holding formation) &mdash; the embodiment domain. Both executors are multi-agent; <b>scale</b> (few &rarr; crowd) is a separate axis.</li>
+    <li><b>Executor &mdash; medium (trajectories):</b> generates each character's <b>root path</b> &mdash; where it goes, a few numbers per frame &mdash; and the engine's animation system fills in the limbs. The cheap continuous rung, adjacent to coordination (P4).</li>
+    <li><b>Executor &mdash; fine (continuous motion):</b> generates full-body motion itself, frame by frame (locomotion, gesture, holding formation) &mdash; the embodiment domain. All three levels are multi-agent; <b>scale</b> (few &rarr; crowd) is a separate axis.</li>
   </ul>
 
   <p class="para"><b>The program grows like a tree:</b> the shared pipeline is the <i>trunk</i>, the executors are its <i>branches</i>, and each task is a <i>leaf</i>. We grow one leaf at a time (the green box marks the one in progress).</p>
@@ -110,7 +112,7 @@
     <tr><td><a href="plans.html#p1">P1 &mdash; Real-time command benchmark</a></td><td>What does command cost at game speed &mdash; macro command-following fidelity across the deadline &times; VRAM frontier?</td><td>LLM agents / efficient inference</td><td><b>active &mdash; Leaf 1</b></td></tr>
     <tr><td><a href="plans.html#p2">P2 &mdash; Efficiency methods in-game</a></td><td>Which method (KV-cache eviction, distillation, speculative actions) preserves execution fidelity most cheaply in a live game loop?</td><td>efficient ML</td><td>next &mdash; Milestone 2</td></tr>
     <tr><td><a href="plans.html#p3">P3 &mdash; Game-state tokenizer</a></td><td>Can a learned tokenizer cut tokens per decision at equal command-following fidelity?</td><td>efficient ML / representation</td><td>planned</td></tr>
-    <tr><td><a href="plans.html#p4">P4 &mdash; Command&rarr;coordination</a></td><td>Can one order become many agents' goals through a learned policy (RL / MARL) at crowd scale?</td><td>multi-agent RL</td><td>dormant bud</td></tr>
+    <tr><td><a href="plans.html#p4">P4 &mdash; Command&rarr;coordination</a></td><td>Can one order become many agents' goals and trajectories through a learned policy (RL / MARL) at crowd scale?</td><td>multi-agent RL</td><td>dormant bud</td></tr>
     <tr><td><a href="plans.html#p5">P5 &mdash; Crowd-motion executor</a></td><td>Can language-commanded, full-body crowds run in real time on one consumer GPU?</td><td>motion generation / graphics</td><td>parked &mdash; Phase 3</td></tr>
     <tr><td><a href="plans.html#bpe">Motion BPE (standalone)</a></td><td>What does BPE buy over raw VQ motion tokens &mdash; reversible, training-free, variable-length motifs at a lower budget?</td><td>motion generation</td><td>parallel project</td></tr>
   </table>
@@ -156,6 +158,7 @@
     <li><b>2026-07-01 &mdash; coarse first.</b> The discrete-action track leads: mature environments, no training needed, clean metrics. The fine track defers to Phase 3.</li>
     <li><b>2026-07-02 &mdash; win rate demoted to context.</b> The LLM's SC2 win-rate edge (~+10 pp) was not significant and shrank as n grew: its commands are largely redundant with auto-attack. Macro command-following fidelity is the unconfounded headline.</li>
     <li><b>2026-07-02 &mdash; the arena is an instrument, not a benchmark.</b> It appears in the paper as a ground-truth probe and ablation, run once the main result defines what needs isolating &mdash; not as a parallel milestone. Effort concentrates on the SC2 macro task and the efficiency methods.</li>
+    <li><b>2026-07-02 &mdash; trajectories join the axis as the middle rung.</b> From discussion with Xirui Shi and Ji Yang: full-body generation is too costly for games near-term, but a continuous <b>root path</b> is a few numbers per character per frame and the engine animates along it. The detail ladder is now discrete actions &rarr; trajectories &rarr; full-body motion.</li>
     <li><b>2026-07-02 &mdash; Motion BPE stays standalone.</b> Its thesis (what BPE buys over raw VQ tokens: reversible, training-free, variable-length motifs, and a latency/memory win) targets the motion-generation community; it merges with this program only at Phase-3 embodiment.</li>
   </ul>
   </details>
