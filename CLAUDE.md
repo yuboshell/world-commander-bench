@@ -2,8 +2,9 @@
 
 The implementation repo for the **World Commander** program's Phase-1 benchmark.
 This repo is **code only**; the canonical research docs (proposal, literature,
-decisions) live in the separate private repo `DreamSoul-AI/world-commander` — clone
-it and read its `index.md` if you need the *why*.
+decisions) live in the separate repo `yuboshell/world-commander` (GitHub; GitLab
+mirror `worldcommander/world-commander`) — clone it and read its `index.md` if you
+need the *why*.
 
 ## What's here
 - The **command arena**: a minimal grid world where colour-tagged agents move in one

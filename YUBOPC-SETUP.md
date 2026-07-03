@@ -11,16 +11,21 @@ Windows/Mac** — the Linux headless package caps at 4.10. So win-rate work runs
 camera never centers units, so the LLM is never queried and win-rate is impossible.
 
 ## Hosting note
-My GitHub account (`yubohuangai`) is **suspended** — use **GitLab** only
-(I'm `huangyubo`). Don't push to GitHub. Mirror to the GitLab remotes below.
+GitHub is canonical again under the `yuboshell` account (the 2026-06-20 suspension
+hit the old `yubohuangai` account; it and the `DreamSoul-AI` org stay retired).
+GitLab (`worldcommander/*`) is kept as a mirror: after commits, push both —
+`git push && git push gitlab`.
 
 ## Steps
 
-**1. Repos (GitLab).** Install/auth `glab` first (`winget install GLab.GLab`, or in
-WSL2; then `glab auth login`). Clone:
-- `https://gitlab.com/worldcommander/world-commander-bench.git`  ← this repo
-- `https://gitlab.com/worldcommander/world-commander.git`  (research docs)
-- `https://gitlab.com/huangyubo/memex.git`  (my knowledge base, optional)
+**1. Repos (GitHub canonical, GitLab mirror).** Install/auth `gh` first
+(`winget install GitHub.cli`; then `gh auth login`). Clone:
+- `https://github.com/yuboshell/world-commander-bench.git`  ← this repo
+- `https://github.com/yuboshell/world-commander.git`  (research docs)
+- `https://gitlab.com/huangyubo/memex.git`  (my knowledge base, optional; GitLab-tracked)
+
+Then add the mirror remote to the two world-commander repos:
+`git remote add gitlab https://gitlab.com/worldcommander/<repo>.git`
 
 **2. SC2 5.0.x.** Install via the Battle.net client (latest retail is ≥5.0.13).
 Then copy `reference/LLM-PySC2/llm_pysc2/maps/{llm_smac,llm_pysc2}` into the retail

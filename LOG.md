@@ -4,6 +4,15 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-07-03 — Hosting docs updated: GitHub canonical again; suspension alert retired
+
+GitHub is back as the canonical host (`yuboshell/world-commander-bench`, remote
+`origin`); GitLab (`worldcommander/world-commander-bench`, remote `gitlab`) stays as a
+mirror — push both (`git push && git push gitlab`). Updated `YUBOPC-SETUP.md` (hosting
+note + clone URLs), repointed `CLAUDE.md`'s research-repo reference (the `DreamSoul-AI`
+org is retired), and deleted `ALERT-github-suspended.md` (obsolete; see git history and
+the 2026-06-20 entry below). yubopc's local remotes realigned the same day.
+
 ## 2026-06-21 — MORNING DIGEST (overnight autonomous run; read this first)
 
 Productive night on the arena efficiency story (amax41, **GPU 2 only**; guardrails held —
