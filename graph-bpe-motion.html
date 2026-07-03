@@ -102,7 +102,7 @@ of generated motion). Its next milestones, in dependency order: <b>(a)</b> repla
 stand-in with a trained VQ-VAE and verify round-trip reconstruction — the quality ceiling for
 everything downstream; <b>(b)</b> a small autoregressive generator with the key ablation
 <i>BPE-motif tokens vs raw VQ tokens at equal compute budget</i>; <b>(c)</b> single character first,
-crowd deferred. It merges with World Commander only at Phase-3 embodiment, where cheap motion tokens
+crowd deferred. It merges with World Commander only when the embodiment direction wakes, where cheap motion tokens
 are what make a real-time generated executor affordable — until then the two share exactly one
 sentence in the proposal.</p>
 

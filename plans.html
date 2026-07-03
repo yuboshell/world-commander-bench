@@ -19,7 +19,7 @@
   <header class="mast">
     <h1>World Commander — Research Plans</h1>
     <p class="subtitle">One practical plan per project: objective, hypothesis, approach, experimental design, milestones, risks, venue. Grounded in the measured results and decisions to date.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-02, 7:55 AM MDT &middot; public</p>
+    <p class="upd"><b>Updated:</b> 2026-07-02, 8:20 PM MDT &middot; public</p>
   </header>
 
   <p class="topnav">
@@ -62,7 +62,7 @@
     <li><b>Venue.</b> ICML / NeurIPS (efficient inference). <b>Lead fit:</b> Enmao's field; Yubo owns the harness.</li>
   </ul>
 
-  <h2 id="p3">P3 — Game-state tokenizer <span style="color:#555">(planned)</span></h2>
+  <h2 id="p3">P3 — Game-state tokenizer <span style="color:#555">(dormant bud)</span></h2>
   <p class="para"><b>Objective.</b> Cut tokens per decision at equal command-following fidelity by replacing text serialization of game state with a learned discrete code.</p>
   <ul class="stages">
     <li><b>Hypothesis.</b> A learned tokenizer over structured state (entities, positions, event streams) reaches several-fold fewer tokens per decision than text serialization at equal fidelity, and the saving compounds: fewer tokens &rarr; lower latency <i>and</i> smaller KV cache.</li>
@@ -72,14 +72,14 @@
     <li><b>Milestones.</b> (1) Replay corpus + state schema; (2) tokenizer v0 (graph &rarr; codes, reconstruction validated); (3) harness integration and the frontier comparison.</li>
     <li><b>Reproduce first.</b> the Graph Tokenization pipeline on a small graph corpus, and the &Delta;-IRIS tokenizer on a toy environment.</li>
     <li><b>Risks / de-risking.</b> The LLM may not exploit learned codes without adaptation &mdash; budget for the adapter from the start; map/patch drift &mdash; hold out maps; losing human readability &mdash; keep a code&rarr;text decoder for debugging.</li>
-    <li><b>Venue.</b> ICLR / NeurIPS (representation + efficiency). <b>Lead:</b> Enmao; depends on the P1 harness.</li>
+    <li><b>Venue.</b> ICLR / NeurIPS (representation + efficiency). <b>Lead:</b> Enmao. Dormant until the benchmark harness exists and has exposed where tokens actually cost (the prerequisite is P1 experience, not just the idea).</li>
   </ul>
 
   <h2 id="p4">P4 — Command&rarr;coordination <span style="color:#555">(dormant bud)</span></h2>
   <p class="para"><b>Objective.</b> Turn one order into many agents' goals with a learned policy that scales past rule-based assignment.</p>
   <ul class="stages">
     <li><b>Hypothesis.</b> Rule-based assignment satisfies concrete orders at small N but degrades with crowd size and order abstraction ("hold the line" has no per-unit rule); a MARL policy conditioned on the interpreted order closes that gap at bounded compute.</li>
-    <li><b>Positioning.</b> MAPPO / QMIX are the standard cooperative-MARL baselines (SMAC benchmark); SMAC-R1 has an LLM write decision-tree scripts offline; CrowdMoGen plans a crowd with an LLM but offline. The delta: language-conditioned coordination, scored by order satisfaction under a compute budget.</li>
+    <li><b>Positioning.</b> MAPPO / QMIX are the standard cooperative-MARL baselines (SMAC benchmark); SMAC-R1 has an LLM write decision-tree scripts offline; CrowdMoGen plans a crowd with an LLM but offline; the trajectory-prediction line (Social-GAN &rarr; Trajectron++ &rarr; LED) and language-conditioned scene generation (LCTGen, MotionLM) ground the trajectory output option. The delta: language-conditioned coordination in a game, scored by order satisfaction under a compute budget.</li>
     <li><b>Approach.</b> First quantify the gap: rule-based assignment in the arena and SC2 squad scenarios, scored by per-order satisfaction as N grows. Then a learned layer (MAPPO/QMIX-family), reward = command satisfaction + cost penalties, curriculum from small N; the interpreter's structured intent is the policy's conditioning input. The output space is per-agent <b>goals</b> (discrete) or continuous <b>root trajectories</b> &mdash; the middle rung of the detail ladder, where the engine animates along the generated path (2026-07-02 discussion with Xirui Shi and Ji Yang).</li>
     <li><b>Experimental design.</b> Order satisfaction vs N (rules vs learned); coordination quality (collisions, coverage, formation error); training and inference compute reported &mdash; the budget axis stays.</li>
     <li><b>Milestones.</b> (1) Rule baseline + gap curve; (2) small-N MARL matching rules; (3) the scale study where rules break and the policy holds.</li>
@@ -88,7 +88,7 @@
     <li><b>Venue.</b> AAMAS or a NeurIPS/ICLR MARL track. <b>Lead:</b> Hongsong. Dormant until P1 exposes the coordination gap in data.</li>
   </ul>
 
-  <h2 id="p5">P5 — Crowd-motion executor <span style="color:#555">(parked — Phase 3)</span></h2>
+  <h2 id="p5">P5 — Crowd-motion executor <span style="color:#555">(dormant — long-term)</span></h2>
   <p class="para"><b>Objective.</b> Language-commanded, full-body crowds generated in real time on one consumer GPU. <span class="plan-meta">(Condensed from the detailed protocol in the docs repo, <code>plan/research-plan.md</code>.)</span></p>
   <ul class="stages">
     <li><b>Hypothesis.</b> A per-character real-time generator (the MotionLCM/MotionPCM class) plus a coordination layer can hold command satisfaction and motion realism while meeting an FPS/VRAM budget that scales to tens of characters &mdash; the budget-frontier curve <i>is</i> the contribution (the 0/81 corner of the survey).</li>
@@ -98,7 +98,7 @@
     <li><b>Milestones.</b> (1) Single character, real-time swap validated; (2) small crowd + coordination layer; (3) the budget-frontier study.</li>
     <li><b>Reproduce first.</b> MotionLCM's real-time demo end to end, then CrowdMoGen's planner + generator (both already in the works-to-reproduce table on the home page).</li>
     <li><b>Risks / de-risking.</b> Synthetic&rarr;real phrasing gap &mdash; test on the human set and measure the drop; abstract-intent grounding (the genuinely open part) &mdash; classify-then-act or reward-from-language, not supervision; crowd realism &mdash; the coordination layer plus collision/formation metrics.</li>
-    <li><b>Venue.</b> SIGGRAPH / CVPR (motion generation &amp; graphics). Parked until Phase 3; Motion BPE below is its on-ramp.</li>
+    <li><b>Venue.</b> SIGGRAPH / CVPR (motion generation &amp; graphics). Dormant (long-term); Motion BPE below is its on-ramp.</li>
   </ul>
 
   <h2 id="bpe">Motion BPE <span style="color:#555">(standalone parallel project)</span></h2>
@@ -111,7 +111,7 @@
     <li><b>Milestones.</b> (1) VQ-VAE + round-trip check; (2) generator + the BPE-vs-VQ ablation; (3) the differentiator analysis vs MotionGPT (reversibility, interpretability of motifs, budget).</li>
     <li><b>Reproduce first.</b> T2M-GPT's VQ-VAE (it is also the raw-VQ ablation baseline) and MoMask's residual VQ (the tokenizer upgrade path).</li>
     <li><b>Risks / de-risking.</b> Reconstruction ceiling too low &mdash; residual VQ (the MoMask recipe) as the upgrade path; motif reuse too sparse on small data &mdash; scale sequences/subjects before concluding; "BPE gain washes out after training" &mdash; that is exactly what the equal-budget ablation decides, and a null result is still publishable as an analysis.</li>
-    <li><b>Venue.</b> Motion-generation community (CVPR / ECCV / SIGGRAPH Asia). Merges with the program only at Phase-3 embodiment.</li>
+    <li><b>Venue.</b> Motion-generation community (CVPR / ECCV / SIGGRAPH Asia). Merges with the program only when the embodiment direction wakes.</li>
   </ul>
 
   <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
