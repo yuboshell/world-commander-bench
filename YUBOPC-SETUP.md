@@ -58,8 +58,10 @@ per-decision metrics with `WCB_SC2_METRICS=<path>.jsonl`. Report win-rate + late
 the Zenodo fetch pattern). Fetched 2026-07-03:
 - `SC2ReSet/2022_03_DH_SC2_Masters_Atlanta.zip` — 1,298 raw pro `.SC2Replay`
   files (one tournament of 74 packs / 4.5 GB total, Zenodo 14963356). Parse with
-  `sc2reader` (`load_level=4` exposes the human command stream: ~1k targeted
-  commands per player in a 10-min pro game — the command-bandwidth reference).
+  `sc2reader` (`load_level=4` exposes the human command stream). Measured over
+  the whole pack (`scripts/mine_replay_command_rates.py`, zero parse failures):
+  median 120 targeted commands/min per player, p90 149; chat ≈ 0.7 lines per
+  1,000 commands. CSV: `~/datasets/sc2/SC2ReSet/atlanta_command_rates.csv`.
 - `SC2EGSet/sc2egset_merged.zip` — the merged processed game-state dataset
   (9.47 GB, md5-verified, Zenodo 17829625; official loaders:
   `pip install sc2_datasets`). **Don't bulk-extract**: one 138 GB json of
