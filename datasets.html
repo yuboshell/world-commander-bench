@@ -32,7 +32,7 @@
 <header class="mast">
   <h1>World Commander &mdash; Dataset Reconnaissance (P1)</h1>
   <p class="subtitle">What StarCraft II data exists for RL and LLM work, what it looks like up close, and what Project&nbsp;1 must synthesize because no corpus supplies it.</p>
-  <p class="upd"><b>Updated:</b> 2026-07-04, 12:33 AM MDT &middot; public &middot; machine: yubopc</p>
+  <p class="upd"><b>Updated:</b> 2026-07-04, 1:12 AM MDT &middot; public &middot; machine: yubopc</p>
 </header>
 
 <p class="topnav">
@@ -54,8 +54,8 @@ every click and unit event but contains, per game, roughly one line of chat. So 
 <i>(language command, game state) &rarr; grounded action</i> &mdash; exists nowhere and must be synthesized;
 that pairing <b>is</b> P1's dataset contribution. The downloaded corpora still earn their disk space, as
 realism anchors: real state distributions for P3's tokenizer, and a measured human command bandwidth
-(median ~120, p90 ~150 targeted commands per minute over 2,596 pro player-games) that calibrates the
-deadline frontier.</p>
+(median ~119, p90 ~147 targeted commands per minute over 8,560 pro player-games, stable across four
+tournaments 2020&ndash;2022) that calibrates the deadline frontier.</p>
 
 <h2>1&ensp;What is now on this machine</h2>
 <table>
@@ -124,7 +124,10 @@ nearly identical (122 vs 118), so command volume does not separate them at this 
 at ~118/min &mdash; group addressing is as frequent as commanding. And the language sparsity now has scale:
 <b>0.70 chat lines per 1,000 commands; 34% of player-games contain no chat at all</b>. Median game length 638&nbsp;s.
 Full per-player CSV: <code>~/datasets/sc2/SC2ReSet/atlanta_command_rates.csv</code>
-(<code>scripts/mine_replay_command_rates.py</code>).</p>
+(<code>scripts/mine_replay_command_rates.py</code>). <b>Cross-tournament check</b> (three more packs: Winter
+2020, Winter 2021, Valencia 2022 &mdash; 4,280 replays in all, zero failures): per-pack medians 117&ndash;120/min,
+pooled median <b>119/min over 8,560 player-games</b> (p10 95, p90 147); chat 0.57&ndash;0.75 per 1,000 commands
+in every pack. The anchor is stable across tournaments and years.</p>
 <p class="hint">Reviewed sample staged at
 <code>~/datasets/sc2/SC2ReSet/samples/2022-Atlanta_Lambo-Z_vs_csfalcon-T_10min.SC2Replay</code>.</p>
 

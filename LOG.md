@@ -4,6 +4,36 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-07-04 (overnight) — yubopc prep for the server phase; bandwidth anchor measured at scale
+
+Autonomous overnight run, **no remote traffic** (guardrail after the 06-20
+suspension; local commits only, push queued for morning). Results:
+
+- **Env verified**: `llm-pysc2` conda env (py3.9.25) imports everything; pytest +
+  python-dotenv added; pysc2 finds the Battle.net install. Note: env pins
+  `openai==0.28` (LLM-PySC2-era API) while bench scripts use `openai>=1` lazily —
+  fine for mock/tests; served-model bench scripts need a separate env later.
+- **Suite green on Windows**: 50/50 tests; mock arena runs (50 commands, 0 misses).
+- **SC2 launch smoke after the patch**: 5.0.16.97425 (Base97425) launches via
+  pysc2 in 4.1 s, API pings, clean shutdown; all 48 llm maps visible. Base89165
+  also present (fetched by the 2022 replay playback). Win-rate requirement
+  (≥5.0.13) still satisfied.
+- **WSL2 probe**: Ubuntu sees the RTX 4060 (driver 580.88, libcuda present) —
+  local vLLM possible when a measurement campaign needs it; serving otherwise
+  moves to amax41 (power decision, 2026-07-04).
+- **SC2EGSet indexed**: all 23,476 games -> `games_index.csv` (31 min, 1 bad
+  record): 2016-2024, six matchups (PvZ 5,884 ... TvT 1,760), 188 maps, median
+  652 s; 54,876 chat messages vs 640.8 M gameEvents (~0.09 chat / 1,000 events).
+- **Bandwidth anchor n=1 -> n=8,560**: four SC2ReSet packs mined (Atlanta +
+  Winter 2020/2021 + Valencia; 4,280 replays, zero failures): pooled median
+  **119 targeted commands/min** (p10 95, p90 147), stable 117-120 across packs;
+  chat 0.57-0.75 per 1,000 commands. Report + setup docs updated accordingly.
+- New scripts: `build_egset_index.py`, `mine_replay_command_rates.py` (both
+  resumable). Data + per-pack CSVs under `~/datasets/sc2/` (see its README).
+
+Next (server phase): serve Qwen3-4B-AWQ on amax41, tunnel from yubopc, first
+`pvz_task1` / `2s3z` run with `WCB_SC2_METRICS`, then the drop-late clock.
+
 ## 2026-07-04 — Datasets page joins the hub (P1 dataset reconnaissance)
 
 New page `datasets.html`: the 2026-07-03 dataset-reconnaissance report — machine
