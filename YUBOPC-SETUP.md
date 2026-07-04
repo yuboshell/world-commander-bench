@@ -53,6 +53,24 @@ Arch is Ada (sm_89) — use a normal AWQ serve (no Turing `--enforce-eager` hack
 centers, the LLM is actually queried, and **win-rate becomes meaningful**. Log
 per-decision metrics with `WCB_SC2_METRICS=<path>.jsonl`. Report win-rate + latency.
 
+## Datasets on this machine
+`C:\Users\yuboh\datasets\sc2\` (not in git; its `README.md` records provenance +
+the Zenodo fetch pattern). Fetched 2026-07-03:
+- `SC2ReSet/2022_03_DH_SC2_Masters_Atlanta.zip` — 1,298 raw pro `.SC2Replay`
+  files (one tournament of 74 packs / 4.5 GB total, Zenodo 14963356). Parse with
+  `sc2reader` (`load_level=4` exposes the human command stream: ~1k targeted
+  commands per player in a 10-min pro game — the command-bandwidth reference).
+- `SC2EGSet/sc2egset_merged.zip` — the merged processed game-state dataset
+  (9.47 GB, md5-verified, Zenodo 17829625; official loaders:
+  `pip install sc2_datasets`). **Don't bulk-extract**: one 138 GB json of
+  23,476 games; random-access via its bundled byte-offsets index (details
+  in the datasets README).
+
+Role in the program: P1's core data is **synthesized** (scripted command streams
+with computable ground truth — no public corpus pairs language commands with game
+state); these corpora serve P3 state tokenization plus realism / command-bandwidth
+anchors for the deadline frontier.
+
 ## Then
 Layer on our real-time clock (wall-clock decision deadlines, drop late actions,
 VRAM ceiling) — the same primitives validated in the command arena. See `SC2.md`
