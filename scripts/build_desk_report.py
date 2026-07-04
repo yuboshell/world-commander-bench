@@ -18,10 +18,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from arena import viz   # noqa: E402
 
-NAV = ('<div class="nav">Environments: '
-       '<a href="index.html">Grid Arena (E1)</a> &middot; '
-       '<a href="sc2.html">StarCraft II (E2)</a> &middot; '
-       '<b>Embodiment (E3)</b></div>')
+NAV = ('<div style="font-size:.9rem;color:#666;border-bottom:1px solid #eee;padding-bottom:.6rem;margin-bottom:1rem">Reports: '
+       '<a href="home.html">Home</a> &middot; <a href="ideation.html">Ideation</a> &middot; '
+       '<a href="literature.html">Literature</a> &middot; <a href="plans.html">Plans</a> &middot; '
+       '<a href="datasets.html">Datasets</a> &middot; <a href="index.html">Grid Arena (E1)</a> &middot; '
+       '<a href="sc2.html">StarCraft II (E2)</a> &middot; <b>Embodiment (E3)</b> &middot; '
+       '<a href="motion.html">Crowd Motion (E4)</a> &middot; '
+       '<a href="graph-bpe-motion.html">Motion&nbsp;BPE</a></div>')</b></div>')
 
 CSS = """
 body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:880px;

@@ -4,6 +4,18 @@ Append-only record of work sessions. Newest first.
 
 ---
 
+## 2026-07-04 — Datasets page joins the hub (P1 dataset reconnaissance)
+
+New page `datasets.html`: the 2026-07-03 dataset-reconnaissance report — machine
+inventory (SC2ReSet slice + SC2EGSet merged, both checksum-verified), the two-era
+survey of what existing RL/LLM SC2 work uses, close-ups of a pro command stream and
+an SC2EGSet record, and the P1 record schema (action set / outcome predicate /
+human-rated tiers; replay back-translation noted as training-grade only). Added
+"Datasets" to the shared navbar on all ten pages (after Plans) and replaced the
+stale `NAV` in `scripts/build_desk_report.py` with the current bar per HUB-STYLE.
+Datasets live under `~/datasets/sc2/` on yubopc (23,476-game merged EGSet: never
+bulk-extract — 138 GB; stream via the offsets index).
+
 ## 2026-07-03 — Hosting docs updated: GitHub canonical again; suspension alert retired
 
 GitHub is back as the canonical host (`yuboshell/world-commander-bench`, remote
