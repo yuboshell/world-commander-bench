@@ -14,19 +14,12 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-03, 11:55 AM MDT</p>
+    <p class="upd"><b>Updated:</b> 2026-07-06, 12:00 AM MDT &middot; public overview</p>
   </header>
 
   <p class="topnav">
     <a href="home.html" class="active">Home</a> &nbsp;/&nbsp;
-    <a href="ideation.html">Ideation</a> &nbsp;/&nbsp;
-    <a href="literature.html">Literature</a> &nbsp;/&nbsp;
-    <a href="plans.html">Plans</a> &nbsp;/&nbsp; <a href="datasets.html">Datasets</a> &nbsp;/&nbsp;
-    <a href="index.html">Grid Arena (E1)</a> &nbsp;/&nbsp;
-    <a href="sc2.html">StarCraft II (E2)</a> &nbsp;/&nbsp;
-    <a href="embodiment.html">Embodiment (E3)</a> &nbsp;/&nbsp;
-    <a href="motion.html">Crowd Motion (E4)</a> &nbsp;/&nbsp;
-    <a href="graph-bpe-motion.html">Motion BPE</a>
+    <a href="ideation.html">Ideation</a>
   </p>
 
   <details class="fold">
@@ -101,73 +94,41 @@
   <p class="legend">Colours follow the tree: the <b>trunk</b> (brown) is the domain-agnostic shared pipeline (the budget wedge sits on the interpreter; coordination is the multi-agent layer); the <b>branches</b> (olive) are the domain-specific executors; the <b style="color:#2f8132">leaf</b> (green) is the task in progress &mdash; a box is added for each leaf as it grows; a <b>grey</b> box is a dormant bud, kept in view but not being grown.</p>
 
   <h2>Growing now</h2>
-  <p class="focus"><b>Leaf 1 &mdash; the macro command benchmark (coarse branch):</b> StarCraft II with the clock unpaused. The headline metric is <b>macro command-following fidelity</b> &mdash; did the executor build, expand, switch tech, and set army composition as ordered &mdash; across the deadline &times; VRAM frontier. Not win rate: units fight on autopilot, so win rate measures the game, not the executor (the 4B LLM's edge was ~+10 pp and not significant).</p>
+  <p class="focus"><b>Leaf 1 &mdash; the macro command benchmark (coarse branch):</b> StarCraft II with the clock unpaused. Headline metric: <b>macro command-following fidelity</b> (did the executor build, expand, switch tech, and set composition as ordered), not win rate &mdash; units fight on autopilot, so win rate measures the game, not the executor.</p>
+  <p class="para"><b>The sharp thesis the program now stands on:</b> a real-time command executor should <i>translate</i>, not <i>evaluate</i> &mdash; the model turns an order into a small typed program, and a deterministic interpreter does the state-dependent computation. This closes the macro gap that model scale, on its own, does not.</p>
   <ul class="stages">
-    <li><b>Milestone 1 (now, yubopc):</b> the SC2 macro-fidelity harness &mdash; the LLM executes a fixed scripted strategy under hard drop-late, isolating execution from strategy. No training needed.</li>
-    <li><b>Milestone 2 (next):</b> one efficiency method (KV-cache eviction / distilled commander / speculative actions) applied to whatever Milestone 1 shows as the binding cost, at equal fidelity &mdash; the paper's payload.</li>
-    <li><b>In reserve &mdash; the grid arena (amax):</b> preliminary frontier numbers already exist, so it is not a parallel milestone; it returns as the paper's ablation instrument (clean grounding, command-rate, and memory sweeps) once the SC2 result defines what needs isolating.</li>
+    <li><b>Milestone 1 (the benchmark) &mdash; substantially complete.</b> A command-following harness scored against computable ground truth, built and measured server-side, with one live-loop leg confirming the loop runs end to end. Central finding: micro grounding is solved; macro is a real capability gap; scaling the model buys vocabulary, not the state arithmetic macro needs.</li>
+    <li><b>Milestone 2 (the methods) &mdash; repositioned (2026-07-07).</b> Lead with <b>order&rarr;program</b> (translate, don't evaluate) and <b>semantic state-compaction</b> (compress the state representation, not the KV cache). A structure-aware cache press was demoted to a baseline: its token-pinning mechanism is anticipated by prior work, so the contribution is the closed-loop game setting and the translation/compaction architecture, not the press.</li>
+    <li><b>Next &mdash; one rigorous study, not more quick experiments.</b> A difficulty ladder for order&rarr;program (direct &rarr; derived count &rarr; conditional &rarr; selective &rarr; nested), a strong baseline, generalization tests, and confidence intervals &mdash; turning first evidence into a defensible result.</li>
   </ul>
-  <p class="legend">Dormant, kept in view: the fine executor (real-time generated motion, long-term) and crowd coordination. The <a href="graph-bpe-motion.html">Motion BPE</a> thread runs as a standalone parallel project and becomes the fine executor's on-ramp.</p>
+  <p class="para"><b>Direction check (how we judge we are productive):</b> goal-driven from the North Star; build a method only for a <i>measured, unsolved</i> difficulty, with novelty checked by reading neighbours' <i>methods</i>, not their abstracts; treat the benchmark and its findings as contributions in their own right, not just the method; and keep in mind that the novel <i>setting</i> &mdash; real-time, budgeted, command-following &mdash; is itself the contribution, so a higher number on someone else's leaderboard is evidence, not the goal.</p>
+  <p class="legend">Dormant, kept in view: the fine executor (real-time generated motion, long-term) and crowd coordination. The Motion BPE thread runs as a standalone parallel project and becomes the fine executor's on-ramp.</p>
 
   <h2>The projects</h2>
-  <p class="para">Each project is one paper-sized unit, and each must answer a question its community already values, whether or not that community cares about the game. Status mirrors the tree above; each project links to its <a href="plans.html">research plan</a> (objective, hypothesis, design, milestones, risks, venue).</p>
+  <p class="para">Each project is one paper-sized unit answering a question its community already values.
+  The program's position is the corner none of the surveyed lines occupy: across the 90-paper survey
+  (Literature), 52 works take free-form commands, 23 run in real time, 39 are
+  multi-agent, and 18 measure compute &mdash; <b>none combine all four</b>, and the closest five are
+  budget-blind. In one phrase: <b>efficient machine learning, evaluated in closed-loop games instead of
+  static corpora</b>. Status mirrors the tree above; each project's full plan (objective, hypothesis,
+  design, milestones, risks, venue) is on Plans, and the field map with all
+  clusters stays on Literature.</p>
   <table class="repro">
-    <tr><th>Project</th><th>Question</th><th>Community</th><th>Status</th></tr>
-    <tr><td><a href="plans.html#p1">P1 &mdash; Real-time command benchmark</a></td><td>What does command cost at game speed &mdash; macro command-following fidelity across the deadline &times; VRAM frontier?</td><td>LLM agents / efficient inference</td><td><b>active &mdash; Leaf 1</b></td></tr>
-    <tr><td><a href="plans.html#p2">P2 &mdash; Efficiency methods in-game</a></td><td>Which method (KV-cache eviction, distillation, speculative actions) preserves execution fidelity most cheaply in a live game loop?</td><td>efficient ML</td><td>next &mdash; Milestone 2</td></tr>
-    <tr><td><a href="plans.html#p3">P3 &mdash; Game-state tokenizer</a></td><td>Can a learned tokenizer cut tokens per decision at equal command-following fidelity?</td><td>efficient ML / representation</td><td>dormant bud</td></tr>
-    <tr><td><a href="plans.html#p4">P4 &mdash; Command&rarr;coordination</a></td><td>Can one order become many agents' goals and trajectories through a learned policy (RL / MARL) at crowd scale?</td><td>multi-agent RL</td><td>dormant bud</td></tr>
-    <tr><td><a href="plans.html#p5">P5 &mdash; Crowd-motion executor</a></td><td>Can language-commanded, full-body crowds run in real time on one consumer GPU?</td><td>motion generation / graphics</td><td>dormant &mdash; long-term</td></tr>
-    <tr><td><a href="plans.html#bpe">Motion BPE (standalone)</a></td><td>What does BPE buy over raw VQ motion tokens &mdash; reversible, training-free, variable-length motifs at a lower budget?</td><td>motion generation</td><td>parallel project</td></tr>
+    <tr><th>Project</th><th>Question <i>(community)</i></th><th>Key challenge</th><th>Reproduce first</th><th>Status</th></tr>
+    <tr><td>P1 &mdash; Real-time command benchmark</td><td>What does command cost at game speed &mdash; macro command-following fidelity across the deadline &times; VRAM frontier? <i>(LLM agents / efficient inference)</i></td><td>The live clock and the missing corpus, both solved by construction: fidelity is scored in-game against computable ground truth, and commands are synthesized (sim &rarr; LLM-paraphrase) &mdash; no annotation.</td><td>LLM-PySC2 (running); HLA + &pi;0 &mdash; the slow-commander / fast-executor split</td><td><b>Milestone 1 &mdash; substantially complete</b></td></tr>
+    <tr><td>P2 &mdash; Efficiency methods in-game</td><td>Which method (KV-cache eviction, distillation, speculative actions) preserves execution fidelity most cheaply in a live game loop? <i>(efficient ML)</i></td><td>Eviction validated on static text can discard outcome-changing information mid-game &mdash; score by fidelity, not perplexity.</td><td>OBCache, SnapKV, H2O</td><td><b>Milestone 2 &mdash; repositioned</b>: order&rarr;program + semantic compaction lead</td></tr>
+    <tr><td>P3 &mdash; Game-state tokenizer</td><td>Can a learned tokenizer cut tokens per decision at equal fidelity? <i>(efficient ML / representation)</i></td><td>Tokens per decision are the input-side cost the benchmark will expose.</td><td>Graph Tokenization (ICLR 2026, Diao)</td><td>dormant bud &mdash; wakes when the benchmark exposes the token cost</td></tr>
+    <tr><td>P4 &mdash; Command&rarr;coordination</td><td>Can one order become many agents' goals and trajectories through a learned policy at crowd scale? <i>(multi-agent RL)</i></td><td>Rule-based assignment stops scaling; a learned policy (RL / MARL) must take over, against the O(N&sup2;) interaction sim.</td><td>&mdash;</td><td>dormant bud</td></tr>
+    <tr><td>P5 &mdash; Crowd-motion executor</td><td>Can language-commanded, full-body crowds run in real time on one consumer GPU? <i>(motion generation / graphics)</i></td><td>Generation is ~16&times; slower than real time (E4 v0); distillation-class models (MotionLCM ~30&nbsp;ms) are the candidate fix.</td><td>MotionLCM &rarr; MotionPCM; MotionStreamer / FloodDiffusion; CrowdMoGen</td><td>dormant &mdash; long-term</td></tr>
+    <tr><td>Motion BPE (standalone)</td><td>What does BPE buy over raw VQ motion tokens &mdash; reversible, training-free, variable-length motifs at a lower budget? <i>(motion generation)</i></td><td>Show the motifs exist and pay for themselves in latency / memory.</td><td>&mdash;</td><td>parallel project</td></tr>
   </table>
-
-  <h2>Related work &amp; background</h2>
-  <p class="para">World Commander sits among several research lines; its position is the corner none of them occupy. An 89-paper survey (see <a href="literature.html">Literature</a>) groups the prior work into clusters:</p>
-  <ul class="stages">
-    <li><b>LLM agents in real-time games</b> &mdash; an LLM issuing commands in a strategy game while the clock runs. HLA (AAMAS 2024), AVA (arXiv 2026), Adaptive Command (arXiv 2025), VideoGameBench (arXiv 2025), AgileThinker (arXiv 2025); AlphaStar (Nature 2019) is the full-RL precedent.</li>
-    <li><b>Efficient LLM inference under budgets</b> &mdash; bounding latency and KV-cache memory at inference time. Speculative Actions (arXiv 2025), Pitfalls of KV Cache Compression (ACL 2026), OBCache (ICML 2026), H2O, SnapKV, StreamingLLM.</li>
-    <li><b>Vision-language-action models</b> &mdash; a slow reasoning backbone feeding a fast action head. &pi;0 (arXiv 2024), OpenVLA (arXiv 2024), Fast-in-Slow (arXiv 2025); NL&rarr;StarCraft II grounding (SPIE 2019) and CALVIN (RA-L 2022) for language-conditioned execution.</li>
-    <li><b>State representation &amp; world models</b> &mdash; compressing structured state into fewer tokens per decision. Graph Tokenization (Guo, Diao, ICLR 2026), IRIS / &Delta;-IRIS (ICLR 2023 / ICML 2024), VQ-VAE (NeurIPS 2017), WHAM (Nature 2025).</li>
-    <li><b>Crowd &amp; real-time motion generation</b> &mdash; text-driven and streaming full-body motion. CrowdMoGen (IJCV 2025), MotionLCM (ECCV 2024), MotionPCM (arXiv 2025), MotionStreamer (ICCV 2025), MotionBricks (SIGGRAPH 2026), InterGen (IJCV 2024). Foundations: T2M / HumanML3D (CVPR 2022, the field's benchmark), MDM (ICLR 2023), T2M-GPT (CVPR 2023), MotionGPT (NeurIPS 2023), MoMask (CVPR 2024).</li>
-    <li><b>Trajectory prediction &amp; crowd simulation</b> &mdash; the middle rung's literature: continuous root paths for many agents. Social Force (Phys. Rev. E 1995), Social-LSTM (CVPR 2016), Social-GAN (CVPR 2018), Trajectron++ (ECCV 2020), MID (CVPR 2022), LED (CVPR 2023, real-time), MotionLM (ICCV 2023, trajectories as tokens), LCTGen (CoRL 2023, language-conditioned).</li>
-  </ul>
-  <p class="para">Across the survey, 52 papers take free-form commands, 23 run in real time, 39 are multi-agent, and 18 measure compute &mdash; but <b>none combine all four</b>. The closest five (free-form, real-time, multi-agent) are every one budget-blind. That corner &mdash; free-form command of a real-time, multi-agent system under a compute budget &mdash; is what the program targets, in both executor domains. In one phrase: <b>efficient machine learning, evaluated in closed-loop games instead of static corpora</b> &mdash; the field follows the claim (equal quality at lower cost), and the setting is the one place that claim has never been tested.</p>
-
-  <h2>Challenges</h2>
-  <ul class="stages">
-    <li><b>The empty corner.</b> No surveyed paper combines free-form command, real time, many agents, and a compute budget &mdash; the program has to build the setting, not just a method.</li>
-    <li><b>Abstract-intent grounding.</b> Concrete commands ("move to the ridge") are measurable; abstract ones ("be aggressive", "look panicked") have no ground truth &mdash; the genuinely novel, hard part. Likely tools: classify-then-act, reward-from-language, or preference data, not supervision. (E4: abstract grounding rose 0.18&rarr;0.74 &mdash; first evidence it is tractable.)</li>
-    <li><b>The live clock.</b> Efficiency methods (KV-cache eviction, quantization) are validated only on static text; mid-game, discarding the wrong information changes the outcome, so quality must be scored in-game (grounding / win rate), not by perplexity.</li>
-    <li><b>No data.</b> The two corpora the program needs &mdash; command&rarr;coordination and command&rarr;crowd-motion &mdash; do not exist; both must be synthesized (sim &rarr; LLM-paraphrase &rarr; render), plus a small human-issued set as the honest test.</li>
-    <li><b>Coordination at crowd scale.</b> Turning one command into per-agent goals is rule-based at small N but needs a learned policy (RL / MARL) to scale; the O(N&sup2;) interaction sim is a known bottleneck.</li>
-    <li><b>The budget frontier.</b> Holding quality while bounding FPS, end-to-end latency, and VRAM on one consumer GPU &mdash; the trade-off the whole program is measured against.</li>
-  </ul>
-
-  <h2>Works to reproduce</h2>
-  <p class="para">Ordered by thread. The KV-cache and tokenization rows serve the active benchmark (<b>Leaf 1</b>) and its methods; the motion rows serve the parked fine executor and the standalone Motion BPE thread.</p>
-  <table class="repro">
-    <tr><th>Work</th><th>Venue</th><th>Why reproduce</th><th>Serves</th></tr>
-    <tr><td>MotionLCM</td><td>ECCV 2024</td><td>real-time (~30&nbsp;ms) controllable text-to-motion via latent-consistency distillation &mdash; the model to put in place of E4's OmniControl</td><td>fine executor (parked)</td></tr>
-    <tr><td>MotionPCM</td><td>arXiv 2025</td><td>phased-consistency upgrade: &gt;30&nbsp;FPS single-step, +38.9% FID over MotionLCM &mdash; strongest current real-time candidate</td><td>fine executor (parked)</td></tr>
-    <tr><td>MotionStreamer / FloodDiffusion</td><td>ICCV 2025 / arXiv 2025</td><td>streaming generation &mdash; commands arrive mid-motion; per-frame re-conditioning without restarting</td><td>fine executor (parked)</td></tr>
-    <tr><td>CrowdMoGen</td><td>IJCV 2025</td><td>LLM Crowd Scene Planner + collective generator &mdash; the closest "LLM commands a crowd"; offline, so the real-time angle is ours to add</td><td>P5 crowds</td></tr>
-    <tr><td>Graph Tokenization</td><td>ICLR 2026 (Diao)</td><td>reversible graph&rarr;tokens + BPE &mdash; the template for a game-state tokenizer</td><td>P3</td></tr>
-    <tr><td>OBCache, SnapKV, H2O</td><td>ICML 2026 / arXiv</td><td>KV-cache eviction to port into the in-game loop and score by win rate, not perplexity</td><td>P2</td></tr>
-    <tr><td>HLA, &pi;0</td><td>AAMAS 2024 / arXiv 2024</td><td>the slow-mind / fast-executor split to adapt for commander + executor</td><td>architecture</td></tr>
-  </table>
-
-  <details class="fold">
-  <summary>Recent decisions</summary>
-  <ul class="stages">
-    <li><b>2026-07-01 &mdash; executor axis = level of detail.</b> The two branches are distinguished by the executor's output &mdash; coarse discrete actions the engine actuates vs fine continuous motion the model generates &mdash; not by "units vs crowd" (a crowd is also units, and scale is a separate axis both share).</li>
-    <li><b>2026-07-01 &mdash; coarse first.</b> The discrete-action track leads: mature environments, no training needed, clean metrics. The fine track stays dormant (long-term).</li>
-    <li><b>2026-07-02 &mdash; win rate demoted to context.</b> The LLM's SC2 win-rate edge (~+10 pp) was not significant and shrank as n grew: its commands are largely redundant with auto-attack. Macro command-following fidelity is the unconfounded headline.</li>
-    <li><b>2026-07-02 &mdash; the arena is an instrument, not a benchmark.</b> It appears in the paper as a ground-truth probe and ablation, run once the main result defines what needs isolating &mdash; not as a parallel milestone. Effort concentrates on the SC2 macro task and the efficiency methods.</li>
-    <li><b>2026-07-02 &mdash; phases discarded; dormancy unified.</b> The Phase 1/2/3 numbering is dropped: the program is projects on a build order (benchmarks &rarr; methods &rarr; the real interface). P3 and P5 are dormant buds (P3 wakes when the benchmark exposes the binding cost; P5 is long-term); P2 stays next, as Milestone 2 is the first paper's payload.</li>
-    <li><b>2026-07-02 &mdash; trajectories join the axis as the middle rung.</b> From discussion with Xirui Shi and Ji Yang: full-body generation is too costly for games near-term, but a continuous <b>root path</b> is a few numbers per character per frame and the engine animates along it. The detail ladder is now discrete actions &rarr; trajectories &rarr; full-body motion.</li>
-    <li><b>2026-07-02 &mdash; Motion BPE stays standalone.</b> Its thesis (what BPE buys over raw VQ tokens: reversible, training-free, variable-length motifs, and a latency/memory win) targets the motion-generation community; it merges with this program only when the embodiment direction wakes.</li>
-  </ul>
-  </details>
+  <p class="para"><b>Program-level challenges</b> (owned by no single project): <b>abstract-intent
+  grounding</b> &mdash; concrete commands ("move to the ridge") are measurable, abstract ones ("be
+  aggressive") have no ground truth; likely tools are classify-then-act, reward-from-language, or
+  preference data (first tractability evidence: 0.18 &rarr; 0.74 in the E4 v0) &mdash; and <b>the budget
+  frontier</b> itself: holding quality while bounding FPS, end-to-end latency, and VRAM on one consumer
+  GPU, the trade-off every project is measured against.</p>
+  
 
   <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
 

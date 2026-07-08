@@ -1,3 +1,0 @@
-# Optional visualization extras (not needed for a plain arena run).
-# MP4 export also needs an `ffmpeg` binary on PATH.
-matplotlib>=3.7

@@ -38,24 +38,17 @@ section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
 <header class="mast">
   <h1>World Commander: Natural-Language Command of Agent Crowds in Real-Time Strategy Games Under Latency and Memory Budgets</h1>
   <p class="subtitle">The ideation page: where the program comes from and where it is going. The current state lives on the pages it points to.</p>
-  <p class="upd"><b>Updated:</b> 2026-07-04, 5:15 PM MDT &middot; public</p>
+  <p class="upd"><b>Updated:</b> 2026-07-06, 12:00 AM MDT &middot; public overview</p>
 </header>
 
 <p class="topnav">
-  <a href="home.html">Home</a> &nbsp;/&nbsp;
-  <a href="ideation.html" class="active">Ideation</a> &nbsp;/&nbsp;
-  <a href="literature.html">Literature</a> &nbsp;/&nbsp;
-  <a href="plans.html">Plans</a> &nbsp;/&nbsp; <a href="datasets.html">Datasets</a> &nbsp;/&nbsp;
-  <a href="index.html">Grid Arena (E1)</a> &nbsp;/&nbsp;
-  <a href="sc2.html">StarCraft II (E2)</a> &nbsp;/&nbsp;
-  <a href="embodiment.html">Embodiment (E3)</a> &nbsp;/&nbsp;
-  <a href="motion.html">Crowd Motion (E4)</a> &nbsp;/&nbsp;
-  <a href="graph-bpe-motion.html">Motion BPE</a>
-</p>
+    <a href="home.html">Home</a> &nbsp;/&nbsp;
+    <a href="ideation.html" class="active">Ideation</a>
+  </p>
 
 <section class="abstract">
 <div class="abs-h">Abstract</div>
-<p>World Commander is a research program in which a human commands crowds of agents in a real-time strategy game through natural language: the commander issues orders, from broad strategy down to individual unit moves, and a language model executes them as in-game actions while the game continues to run. The central question is how much this costs, in latency and memory, and how that cost can be reduced. The efficient-inference methods that could reduce it, such as cache eviction, quantization, and distillation, are at present evaluated only on static text benchmarks, never inside a game in progress, where discarding the wrong information can change the outcome. This program evaluates such methods in that setting, across environments of increasing difficulty, from a toy arena to StarCraft II, then to several human commanders at once, and in time a full game. As currently planned, its projects target results that adjacent research communities already value: a benchmark for the cost of real-time command, a compact encoding of game state, and, later, real-time motion for commanded crowds.</p>
+<p>World Commander is a research program in which a human commands crowds of agents in a real-time strategy game through natural language: the commander issues orders, from broad strategy down to individual unit moves, and a language model executes them as in-game actions while the game continues to run. The central question is how much this costs, in latency and memory, and how that cost can be reduced. The efficient-inference methods that could reduce it, such as cache eviction, quantization, and distillation, are at present evaluated only on static text benchmarks, never inside a game in progress, where discarding the wrong information can change the outcome. This program evaluates such methods in that setting, in StarCraft II, with a controlled diagnostic arena for the ablations the game cannot isolate, then with several human commanders at once, and in time a full game. As currently planned, its projects target results that adjacent research communities already value: a benchmark for the cost of real-time command, a compact encoding of game state, and, later, real-time motion for commanded crowds.</p>
 </section>
 
 <h2 id="sec-1">1. The idea</h2>
@@ -77,14 +70,14 @@ section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
 <h2 id="sec-2">2. Outlook</h2>
 <p>The long-term aim, several years away, is a new kind of game directed by natural-language command (Figure <a class="cite" href="#fig-1">1</a>) rather than by rapid manual input. StarCraft II is the proving ground rather than the destination; the same interface could front other games. Because each stage answers a question that an existing research community already cares about, the program yields results well before that game is realised.</p>
 
-<div class="pointer"><b>Where the rest lives.</b> This page keeps only the idea; the working content moved to the pages that own it: the paradigm, the projects, and the current focus are on <a href="home.html">Home</a>; each project's research plan (hypothesis, design, milestones, risks, venue) is on <a href="plans.html">Plans</a>; the related work and the full 89-reference survey are on <a href="literature.html">Literature</a>; the per-environment reports are E1&ndash;E4 in the navigation bar.</div>
+<div class="pointer"><b>Where the rest lives.</b> This page keeps only the idea; the working content moved to the pages that own it: the paradigm, the projects, and the current focus are on <a href="home.html">Home</a>; each project's research plan (hypothesis, design, milestones, risks, venue) is on Plans; the related work and the full 90-reference survey are on Literature; the per-environment reports are linked from the navigation bar (StarCraft II, Diagnostic, Embodiment, Crowd Motion).</div>
 
 <section class="refs">
 <h2>Reference</h2>
 <ol>
 <li id="ref-1">[1] Ubisoft. <em>Tom Clancy's EndWar</em>. 2008. <a href="https://en.wikipedia.org/wiki/Tom_Clancy%27s_EndWar">wikipedia.org</a></li>
 </ol>
-<p style="font-size:.92rem;color:#666">The full, filterable bibliography (89 references) lives on the <a href="literature.html">Literature</a> page.</p>
+<p style="font-size:.92rem;color:#666">The full, filterable bibliography (90 references) lives on the Literature page.</p>
 </section>
 
 <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
