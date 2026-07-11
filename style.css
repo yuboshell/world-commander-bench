@@ -16,8 +16,8 @@ h2 { font-family:'Lato', Verdana, Helvetica, sans-serif; font-size:22px; font-we
 h3 { font-family:'Lato', Verdana, Helvetica, sans-serif; font-size:16px; font-weight:700; margin:0; }
 
 /* Chalkboard SE (GEM's hand-drawn figure font, a macOS system font) — FIGURES ONLY (figure SVGs +
-   matplotlib plots), not headings/captions. Referenced by name (not bundled — Apple-licensed); falls back off-Mac. */
-figure svg, figure svg text { font-family:'Chalkboard SE', 'Comic Sans MS', sans-serif; }
+   matplotlib plots), not headings/captions. Referenced by name (not bundled — Apple-licensed); off-Mac it falls back to the body font (Yubo, 2026-07-11: no new fonts without permission). */
+figure svg, figure svg text { font-family:'Chalkboard SE','Lato',Verdana,Helvetica,sans-serif; }
 
 /* Code / program snippets — monospace (Monaco on macOS, like the CLI; portable fallbacks elsewhere). */
 pre, code, kbd, samp { font-family:'Monaco', 'Menlo', 'Cascadia Code', 'Consolas', monospace; }
@@ -93,15 +93,6 @@ table.repro th { background:#f7f8fa; font-weight:700; }
 @media screen and (max-width:480px) {
   h1 { font-size:24px; } h2 { font-size:18px; } h3 { font-size:15px; }
 }
-
-/* Public overview only: bundle Shantell Sans (SIL OFL 1.1; variable weight, latin subset) so the
-   hand-drawn figure font renders for every visitor; Chalkboard SE stays as the Mac fallback. */
-@font-face {
-  font-family:'Shantell Sans';
-  src:url('fonts/shantell-sans.woff2') format('woff2');
-  font-weight:300 800; font-style:normal; font-display:swap;
-}
-figure svg, figure svg text { font-family:'Chalkboard SE','Shantell Sans','Comic Sans MS',sans-serif; }
 
 /* Foldable sections (public overview): the summary carries the section's real h2, so heading
    styles (incl. responsive sizes) apply; folds start open — nothing hidden on first load. */

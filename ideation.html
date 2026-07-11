@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="googlebot" content="noindex, nofollow">
 <title>World Commander — Ideation</title>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet">
 <style>
   /* page-specific styles (generic base in style.css) */
@@ -27,7 +27,6 @@ a.cite { text-decoration:none; }
 a.cite:hover { text-decoration:underline; }
 section.refs ol { list-style:none; padding-left:0; margin:0; font-size:0.92rem; line-height:1.5; }
 section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
-.tcap { font-size:0.85rem; color:var(--ink); margin:3px 0 22px; text-align:left; }
 @media (max-width: 540px){ body{font-size:17px;} .wrap{padding:30px 16px 70px;} }
 </style>
 </head>
@@ -54,19 +53,6 @@ section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
 <figcaption><strong>Figure 2.1.</strong> The envisaged end state: a real-time strategy game directed by natural-language command rather than by manual input. <span class="credit">Image generated with GPT Image 2.</span></figcaption>
 </figure>
 
-<p style="margin-bottom:6px;"><b>The shift:</b> the commander decides; the model does the mechanical work.</p>
-<table style="width:100%;border-collapse:collapse;margin:0 0 4px;">
-  <tr>
-    <th style="width:50%;text-align:left;border:1px solid #ccc;padding:9px 12px;">Playing an RTS today</th>
-    <th style="width:50%;text-align:left;border:1px solid #ccc;padding:9px 12px;">With a commander</th>
-  </tr>
-  <tr>
-    <td style="border:1px solid #ccc;padding:9px 12px;font-size:.93rem;vertical-align:top;">Most effort is manual control &mdash; select units, find the command, issue hundreds of actions a minute. Deciding <i>what</i> to do is the small part; the rest is work the interface imposes.</td>
-    <td style="border:1px solid #ccc;padding:9px 12px;font-size:.93rem;vertical-align:top;">State the intent; the model performs the low-level steps; you observe, decide, and redirect &mdash; the coding-assistant model, applied to a strategy game.</td>
-  </tr>
-</table>
-<p class="tcap"><b>Table 2.1. The interaction shift.</b> Manual control today versus stating intent to a commander &mdash; the coding-assistant model, applied to a strategy game.</p>
-
 <figure id="fig-2">
 <img src="fig/hero.svg" alt="Two players each commanding their own crowd of agents by natural language." style="max-height:280px;">
 <figcaption><strong>Figure 2.2.</strong> The target capability, as a two-player schematic: each player commands their own crowd, and the language layer turns each command into coordinated action.</figcaption>
@@ -75,14 +61,12 @@ section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
 <figure style="margin:24px 0;">
 <div style="display:flex;gap:10px;flex-wrap:wrap;">
   <div style="flex:1;min-width:150px;border-top:3px solid #bbb;padding:9px 4px 0;"><b style="font-size:.9rem;">2008 &middot; EndWar <a class="cite" href="#ref-1">[1]</a></b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">Voice command in a game &mdash; but a fixed grammar of ~70 phrases. No free-form understanding.</div></div>
-  <div style="flex:1;min-width:150px;border-top:3px solid #bbb;padding:9px 4px 0;"><b style="font-size:.9rem;">Today</b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">Language models understand free-form commands &mdash; but are too slow to act while the game runs.</div></div>
-  <div style="flex:1;min-width:150px;border-top:3px solid #2f855a;padding:9px 4px 0;"><b style="font-size:.9rem;color:#1b1b1b;">This program</b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">Make command execution fast enough to play, under a latency and memory budget &mdash; and measure the cost.</div></div>
+  <div style="flex:1;min-width:150px;border-top:3px solid #bbb;padding:9px 4px 0;"><b style="font-size:.9rem;">Today</b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">Play is manual control &mdash; select units, find the command, issue hundreds of actions a minute; deciding is the small part. Language models understand free-form commands, but are too slow to act while the game runs.</div></div>
+  <div style="flex:1;min-width:150px;border-top:3px solid #2f855a;padding:9px 4px 0;"><b style="font-size:.9rem;color:#1b1b1b;">This program</b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">State the intent; the model performs the low-level steps &mdash; the coding-assistant interaction, applied to a strategy game. Make that fast enough to play, under a latency and memory budget &mdash; and measure the cost.</div></div>
   <div style="flex:1;min-width:150px;border-top:3px solid #bbb;padding:9px 4px 0;"><b style="font-size:.9rem;">Long-term</b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">A new kind of game directed by command, not manual input. StarCraft II is the proving ground, not the destination.</div></div>
 </div>
-<figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;"><strong>Figure 2.3. The arc.</strong> From fixed-grammar voice commands to free-form command under a real-time budget &mdash; the shortfall this program closes, and where it leads.</figcaption>
+<figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;"><strong>Figure 2.3. The arc &mdash; from manual control to command.</strong> The commander decides; the model does the mechanical work: from fixed-grammar voice commands, through today's manual interfaces and free-form-but-slow language models, to command execution under a real-time budget, and where it leads.</figcaption>
 </figure>
-
-<p><b>Why this is research, not just engineering.</b> The efficiency methods that could make command execution fast &mdash; cache eviction, quantization, speculative decoding &mdash; are measured today only on static text, never inside a game in progress, where discarding the wrong information changes the outcome. This program measures them there.</p>
 
 </details>
 
