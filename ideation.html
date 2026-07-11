@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet">
 <style>
   /* page-specific styles (generic base in style.css) */
-:root { --ink:#1b1b1b; --muted:#1b1b1b; --link:#1a5fb4; --rule:#b8b8b8; }
+:root { --ink:#1b1b1b; --muted:#1b1b1b; --link:#1772d0; --rule:#b8b8b8; }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 section.abstract { margin: 0 0 26px; padding: 0 9%; }
@@ -28,7 +28,7 @@ a.cite { text-decoration:none; }
 a.cite:hover { text-decoration:underline; }
 section.refs ol { list-style:none; padding-left:0; margin:0; font-size:0.92rem; line-height:1.5; }
 section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
-.pointer { border:1px solid var(--rule); background:#fafafa; border-radius:6px; padding:12px 18px; margin: 22px 0; font-size:0.95rem; }
+.tcap { font-size:0.85rem; color:var(--ink); margin:3px 0 22px; text-align:left; }
 @media (max-width: 540px){ body{font-size:17px;} .wrap{padding:30px 16px 70px;} }
 </style>
 </head>
@@ -37,47 +37,58 @@ section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
 
 <header class="mast">
   <h1>World Commander: Natural-Language Command of Agent Crowds in Real-Time Strategy Games Under Latency and Memory Budgets</h1>
-  <p class="subtitle">The ideation page: where the program comes from and where it is going. The current state lives on the pages it points to.</p>
-  <p class="upd"><b>Updated:</b> 2026-07-06, 12:00 AM MDT &middot; public overview</p>
+  <p class="subtitle">Where the program comes from, and where it is going.</p>
+  <p class="upd"><b>Updated:</b> 2026-07-11 &middot; public overview</p>
 </header>
 
 <p class="topnav">
-    <a href="home.html">Home</a> &nbsp;/&nbsp;
-    <a href="ideation.html" class="active">Ideation</a>
-  </p>
+  <a href="home.html">1&nbsp;Home</a> &nbsp;/&nbsp;
+  <a href="ideation.html" class="active">2&nbsp;Ideation</a>
+</p>
 
-<section class="abstract">
-<div class="abs-h">Abstract</div>
-<p>World Commander is a research program in which a human commands crowds of agents in a real-time strategy game through natural language: the commander issues orders, from broad strategy down to individual unit moves, and a language model executes them as in-game actions while the game continues to run. The central question is how much this costs, in latency and memory, and how that cost can be reduced. The efficient-inference methods that could reduce it, such as cache eviction, quantization, and distillation, are at present evaluated only on static text benchmarks, never inside a game in progress, where discarding the wrong information can change the outcome. This program evaluates such methods in that setting, in StarCraft II, with a controlled diagnostic arena for the ablations the game cannot isolate, then with several human commanders at once, and in time a full game. As currently planned, its projects target results that adjacent research communities already value: a benchmark for the cost of real-time command, a compact encoding of game state, and, later, real-time motion for commanded crowds.</p>
-</section>
-
-<h2 id="sec-1">1. The idea</h2>
-<p>In a real-time strategy game such as StarCraft II, most of a player's effort goes into manual control rather than strategy: selecting units, locating commands, and issuing hundreds of actions per minute. Deciding what to do is a small fraction of the effort; the remainder is mechanical work imposed by the interface.</p>
-<p>A different interaction model is already familiar from other settings. With a coding assistant, the human states an intent, the assistant performs the low-level steps, and the human reviews and redirects. Applied to a strategy game, the player becomes a commander who observes, decides, and issues orders, from broad strategy to individual moves, for the units to carry out (Figures <a class="cite" href="#fig-1">1</a> and <a class="cite" href="#fig-2">2</a>). A voice-commanded strategy game appeared as early as 2008 (Tom Clancy's EndWar <a class="cite" href="#ref-1">[1]</a>), but it recognised only a fixed grammar of roughly seventy phrases; what was missing was free-form language understanding. Modern language models provide it. What they still lack is speed: a model can interpret a command but is too slow to act while the game continues.</p>
+<h2>2.1&ensp;The idea</h2>
+<p>World Commander is a research program in which a human commands a crowd of agents in a real-time strategy game through natural language, and a language model carries the orders out as in-game actions while the game keeps running. It turns on one question: <b>how much does that cost in latency and memory, and how far can the cost be cut?</b></p>
 
 <figure id="fig-1">
 <img src="fig/command-station.png?v=2" alt="A real-time strategy game directed by natural-language command.">
-<figcaption><strong>Figure 1.</strong> The envisaged end state: a real-time strategy game directed by natural-language command rather than by manual input. <span class="credit">Image generated with GPT Image 2.</span></figcaption>
+<figcaption><strong>Figure 2.1.</strong> The envisaged end state: a real-time strategy game directed by natural-language command rather than by manual input. <span class="credit">Image generated with GPT Image 2.</span></figcaption>
 </figure>
+
+<p style="margin-bottom:6px;"><b>The shift:</b> the commander decides; the model does the mechanical work.</p>
+<table style="width:100%;border-collapse:collapse;margin:0 0 4px;">
+  <tr>
+    <th style="width:50%;text-align:left;border:1px solid #ccc;padding:9px 12px;">Playing an RTS today</th>
+    <th style="width:50%;text-align:left;border:1px solid #ccc;padding:9px 12px;">With a commander</th>
+  </tr>
+  <tr>
+    <td style="border:1px solid #ccc;padding:9px 12px;font-size:.93rem;vertical-align:top;">Most effort is manual control &mdash; select units, find the command, issue hundreds of actions a minute. Deciding <i>what</i> to do is the small part; the rest is work the interface imposes.</td>
+    <td style="border:1px solid #ccc;padding:9px 12px;font-size:.93rem;vertical-align:top;">State the intent; the model performs the low-level steps; you observe, decide, and redirect &mdash; the coding-assistant model, applied to a strategy game.</td>
+  </tr>
+</table>
+<p class="tcap"><b>Table 2.1. The interaction shift.</b> Manual control today versus stating intent to a commander &mdash; the coding-assistant model, applied to a strategy game.</p>
 
 <figure id="fig-2">
-<img src="fig/hero.svg" alt="Two players each commanding their own crowd of agents by natural language." style="max-height:300px;">
-<figcaption><strong>Figure 2.</strong> The target capability: agent crowds directed in real time by natural language; here, two players each command their own.</figcaption>
+<img src="fig/hero.svg" alt="Two players each commanding their own crowd of agents by natural language." style="max-height:280px;">
+<figcaption><strong>Figure 2.2.</strong> The target capability, as a two-player schematic: each player commands their own crowd, and the language layer turns each command into coordinated action.</figcaption>
 </figure>
 
-<p>The program therefore begins from a concrete question: how much does it cost, in latency and memory, for a language model to execute a commander's orders quickly enough to play, and how can that cost be reduced?</p>
+<figure style="margin:24px 0;">
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
+  <div style="flex:1;min-width:150px;border-top:3px solid #bbb;padding:9px 4px 0;"><b style="font-size:.9rem;">2008 &middot; EndWar <a class="cite" href="#ref-1">[1]</a></b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">Voice command in a game &mdash; but a fixed grammar of ~70 phrases. No free-form understanding.</div></div>
+  <div style="flex:1;min-width:150px;border-top:3px solid #bbb;padding:9px 4px 0;"><b style="font-size:.9rem;">Today</b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">Language models understand free-form commands &mdash; but are too slow to act while the game runs.</div></div>
+  <div style="flex:1;min-width:150px;border-top:3px solid #2f855a;padding:9px 4px 0;"><b style="font-size:.9rem;color:#1b1b1b;">This program</b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">Make command execution fast enough to play, under a latency and memory budget &mdash; and measure the cost.</div></div>
+  <div style="flex:1;min-width:150px;border-top:3px solid #bbb;padding:9px 4px 0;"><b style="font-size:.9rem;">Long-term</b><div style="font-size:.86rem;color:#1b1b1b;margin-top:4px;">A new kind of game directed by command, not manual input. StarCraft II is the proving ground, not the destination.</div></div>
+</div>
+<figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;"><strong>Figure 2.3. The arc.</strong> From fixed-grammar voice commands to free-form command under a real-time budget &mdash; the shortfall this program closes, and where it leads.</figcaption>
+</figure>
 
-<h2 id="sec-2">2. Outlook</h2>
-<p>The long-term aim, several years away, is a new kind of game directed by natural-language command (Figure <a class="cite" href="#fig-1">1</a>) rather than by rapid manual input. StarCraft II is the proving ground rather than the destination; the same interface could front other games. Because each stage answers a question that an existing research community already cares about, the program yields results well before that game is realised.</p>
-
-<div class="pointer"><b>Where the rest lives.</b> This page keeps only the idea; the working content moved to the pages that own it: the paradigm, the projects, and the current focus are on <a href="home.html">Home</a>; each project's research plan (hypothesis, design, milestones, risks, venue) is on Plans; the related work and the full 90-reference survey are on Literature; the per-environment reports are linked from the navigation bar (StarCraft II, Diagnostic, Embodiment, Crowd Motion).</div>
+<p><b>Why this is research, not just engineering.</b> The efficiency methods that could make command execution fast &mdash; cache eviction, quantization, speculative decoding &mdash; are measured today only on static text, never inside a game in progress, where discarding the wrong information changes the outcome. This program measures them there.</p>
 
 <section class="refs">
-<h2>Reference</h2>
+<h2>2.2&ensp;Reference</h2>
 <ol>
 <li id="ref-1">[1] Ubisoft. <em>Tom Clancy's EndWar</em>. 2008. <a href="https://en.wikipedia.org/wiki/Tom_Clancy%27s_EndWar">wikipedia.org</a></li>
 </ol>
-<p style="font-size:.92rem;color:#666">The full, filterable bibliography (90 references) lives on the Literature page.</p>
 </section>
 
 <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>

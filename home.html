@@ -14,16 +14,16 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-06, 12:00 AM MDT &middot; public overview</p>
+    <p class="upd"><b>Updated:</b> 2026-07-11, 2:05 AM MDT &middot; public overview</p>
   </header>
 
   <p class="topnav">
-    <a href="home.html" class="active">Home</a> &nbsp;/&nbsp;
-    <a href="ideation.html">Ideation</a>
+    <a href="home.html" class="active">1&nbsp;Home</a> &nbsp;/&nbsp;
+    <a href="ideation.html">2&nbsp;Ideation</a>
   </p>
 
   <details class="fold">
-  <summary>Members</summary>
+  <summary>1.0&ensp;Team</summary>
   <div class="members">
     <div class="member">
       <div class="avatar"><img src="people/yubo-huang.jpg" alt="Yubo Huang"></div>
@@ -31,7 +31,7 @@
         <div class="nm"><a href="https://yuboshell.github.io">Yubo Huang 黄昱博</a></div>
         <div class="line"><b>Affiliation:</b> University of Alberta</div>
         <div class="line"><b>Education:</b> MEng &amp; BS BUPT</div>
-        <div class="line"><b>Interests:</b> realizing the World Commander vision: real-time, natural-language command of agent crowds under latency and memory budgets</div>
+        <div class="line"><b>Interests:</b> multi-agent reinforcement learning, LLM agents, and efficient inference</div>
       </div>
     </div>
     <div class="member">
@@ -62,73 +62,189 @@
       </div>
     </div>
   </div>
-  <p class="para" style="margin:.9rem 0 .2rem"><b>Potential members</b> &mdash; have already advised this program:</p>
+  <p class="para" style="margin:.9rem 0 .2rem"><b>Potential team members</b> &mdash; have already advised this program:</p>
   <ul class="stages" style="margin-top:0">
     <li><a href="https://scholar.google.com/citations?user=9tgfcy8AAAAJ&amp;hl=en">Ji Yang 杨佶</a></li>
   </ul>
   </details>
 
-  <h2>The paradigm</h2>
+  <h2>1.1&ensp;Type an order &mdash; the interactive demo</h2>
+  <p class="para">The human-commander loop, live: orders are <b>typed into the game's own chat</b> while a
+  melee game of StarCraft II against the built-in AI runs. A 4-billion-parameter model translates each
+  order into a small typed program; a deterministic interpreter binds it against the live game state; two
+  gates sit in front of execution (executability = precondition check, vagueness = clarification request);
+  what passes is executed in the running game. Direct decoding answers the same orders side by side, for
+  comparison only.</p>
+  <figure style="margin:18px 0;">
+  <video controls preload="metadata" poster="demo_interactive_poster.jpg" style="width:100%;height:auto;display:block;border:1px solid #cbcbcb;border-radius:8px;">
+    <source src="demo_interactive_annotated.mp4" type="video/mp4">
+    Your browser can't play the video &mdash; <a href="demo_interactive_annotated.mp4">download it</a>.
+  </video>
+  <figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;padding:0 1%;"><strong>Figure 1.1. The interactive demo with its annotation panel.</strong> Left: the real game,
+  the typed orders and the harness's replies visible in the in-game chat. Right: a synchronized
+  annotation panel &mdash; the emitted program (raw JSON plus a readable form), the gate verdict as a badge,
+  the interpreter's evaluation on the live state, the direct-decoding comparison, and a session-so-far
+  timeline. The arc: a train order rejected by the precondition check (no Gateway yet); a Pylon and a
+  Gateway built and confirmed in-game; a vague order answered with a clarification request; then derived
+  counts computed by the interpreter &mdash; including a target already met, where the program correctly does
+  nothing while direct decoding acts (shown, not applied). Qwen3-4B on a consumer GPU (RTX 4060),
+  median 0.7&nbsp;s per decision.</figcaption>
+  </figure>
+
+  <h2>1.2&ensp;The paradigm</h2>
   <p class="para">A human commands agents in plain language; a language model turns the command into coordinated action &mdash; in real time, on a normal GPU.</p>
-  <div class="pipe">
-    <div class="box shared">Free-form / abstract<br>command</div><span class="arr">&rarr;</span>
-    <div class="box shared">Interpreter<br>(LLM)</div><span class="arr">&rarr;</span>
-    <div class="box shared">Coordination<br>assignment / MARL</div><span class="arr">&rarr;</span>
-    <div class="execs">
-      <div class="erow"><div class="box edge">Coarse: discrete actions<br>(game API)</div><span class="arr">&rarr;</span><div class="box grow">Macro command benchmark<br>Leaf 1 &middot; now</div></div>
-      <div class="erow"><div class="box edge">Medium: trajectories<br>(root paths)</div></div>
-      <div class="erow"><div class="box edge">Fine: continuous motion<br>(generated)</div><span class="arr">&rarr;</span><div class="box parked">Real-time motion executor<br>long-term &middot; dormant</div></div>
+
+  <style>
+  .pipe2{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:16px 0 8px;}
+  .pipe2 .node{flex:1;min-width:150px;border:1px solid #b9a988;background:#f2ebdf;border-radius:9px;padding:11px 13px;}
+  .pipe2 .node.accent{border-color:#9c8569;background:#e9ddc9;}
+  .pipe2 .node .t,.pipe2 .exec .et{font-weight:600;font-size:.95rem;}
+  .pipe2 .node .s{font-size:.8rem;color:#1b1b1b;margin-top:3px;line-height:1.35;}
+  .pipe2 .ar{display:flex;align-items:center;color:#1b1b1b;font-size:1.4rem;}
+  .pipe2 .exec{flex:1.5;min-width:210px;border:1px solid #93a259;background:#ecf0da;border-radius:9px;padding:9px 11px;}
+  .pipe2 .exec .et{margin-bottom:6px;}
+  .pipe2 .lvl{border-radius:6px;padding:6px 9px;margin:4px 0;font-size:.82rem;background:#fff;border:1px solid #d9ddc2;}
+  .pipe2 .cf{font-size:.72rem;color:#1b1b1b;margin-top:6px;font-style:italic;}
+  .pipe-legend{font-size:.78rem;color:#1b1b1b;margin-top:4px;display:flex;gap:15px;flex-wrap:wrap;}
+  /* figure accent (web-report-style): div-based diagram figures take the hand-drawn font too;
+     pre/code inside them stay Monaco via the shared element rule */
+  .pipe2,.pipe-legend,#o2p-demo,#lad-demo{font-family:'Shantell Sans','Chalkboard SE','Comic Sans MS',sans-serif;}
+  .pipe-legend span{display:inline-flex;align-items:center;gap:5px;}
+  .pipe-legend i{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid;}
+  </style>
+  <figure style="margin:18px 0;">
+  <div class="pipe2">
+    <div class="node"><div class="t">Free-form command</div><div class="s">plain language &mdash; concrete to abstract</div><div class="cf">cf. <a href="https://arxiv.org/abs/2404.10179" target="_blank" rel="noopener">SIMA (DeepMind 2024)</a>, <a href="https://arxiv.org/abs/2306.00937" target="_blank" rel="noopener">STEVE-1 (NeurIPS 2023)</a></div></div>
+    <div class="ar">&rarr;</div>
+    <div class="node accent"><div class="t">Interpreter (LLM)</div><div class="s">command &rarr; intent, under the latency &amp; memory budget</div><div class="cf">cf. <a href="https://arxiv.org/abs/2209.07753" target="_blank" rel="noopener">Code as Policies (ICRA 2023)</a>, <a href="https://arxiv.org/abs/2410.24164" target="_blank" rel="noopener">&pi;0 (RSS 2025)</a></div></div>
+    <div class="ar">&rarr;</div>
+    <div class="node"><div class="t">Coordination</div><div class="s">splits intent across agents &mdash; assignment / MARL</div><div class="cf">cf. <a href="https://arxiv.org/abs/2309.09971" target="_blank" rel="noopener">MindAgent (NAACL 2024)</a></div></div>
+    <div class="ar">&rarr;</div>
+    <div class="exec">
+      <div class="et">Executor</div>
+      <div class="lvl">Coarse &middot; discrete actions<div style="font-weight:400;font-size:.95em;color:#1b1b1b;margin-top:2px;">game API &mdash; StarCraft II</div><div class="cf">cf. <a href="https://www.nature.com/articles/s41586-019-1724-z" target="_blank" rel="noopener">AlphaStar (Nature 2019)</a></div></div>
+      <div class="lvl">Medium &middot; trajectories (root paths)</div>
+      <div class="lvl">Fine &middot; continuous motion (embodiment)<div class="cf">cf. <a href="https://arxiv.org/abs/2209.14916" target="_blank" rel="noopener">MDM (ICLR 2023)</a></div></div>
     </div>
   </div>
-  <ul class="stages">
-    <li><b>Free-form / abstract command</b> &mdash; the commander's order in plain language, from concrete ("attack the left flank") to abstract ("hold the line, stay aggressive").</li>
-    <li><b>Interpreter (LLM)</b> &mdash; turns that command into structured intent the agents can act on, fast enough for the live clock and within a memory budget.</li>
-    <li><b>Coordination (assignment / MARL)</b> &mdash; splits the intent across the many agents (who does what), by assignment rules or a learned multi-agent policy.</li>
-    <li><b>Executor &mdash; coarse (discrete actions):</b> issues high-level orders through the game API (move, attack, use an ability); the engine actuates them &mdash; the strategy-game domain (e.g. StarCraft II).</li>
-    <li><b>Executor &mdash; medium (trajectories):</b> generates each character's <b>root path</b> &mdash; where it goes, a few numbers per frame &mdash; and the engine's animation system fills in the limbs. The cheap continuous rung, adjacent to coordination (P4).</li>
-    <li><b>Executor &mdash; fine (continuous motion):</b> generates full-body motion itself, frame by frame (locomotion, gesture, holding formation) &mdash; the embodiment domain. All three levels are multi-agent; <b>scale</b> (few &rarr; crowd) is a separate axis.</li>
-  </ul>
+  <div class="pipe-legend">
+    <span><i style="background:#e9ddc9;border-color:#9c8569;"></i>shared pipeline</span>
+    <span><i style="background:#ecf0da;border-color:#93a259;"></i>executors</span>
+  </div>
+  <figcaption style="font-size:0.9rem; color:#1b1b1b; text-align:left; margin-top:12px; padding:0 1%;"><strong>Figure 1.2. The World Commander pipeline.</strong> A free-form command is interpreted by a language model (which carries the latency and memory budget), split across many agents by a coordination layer, and carried out by an executor at one of three levels of motor detail. All levels are multi-agent; <b>scale</b>, from a few agents to a crowd, is a separate axis. The program currently studies the coarse executor.</figcaption>
+  </figure>
 
-  <p class="para"><b>The program grows like a tree:</b> the shared pipeline is the <i>trunk</i>, the executors are its <i>branches</i>, and each task is a <i>leaf</i>. We grow one leaf at a time (the green box marks the one in progress).</p>
+  <h2>1.3&ensp;Current status</h2>
+  <p class="focus">The current project is the macro command benchmark: StarCraft II with the clock unpaused,
+  scored by <b>execution accuracy</b> &mdash; did the executor build, expand, switch tech, and set composition
+  as ordered &mdash; not win rate, since units fight on autopilot and win rate measures the game, not the
+  executor. The method we lead with is <b>semantic parsing into a typed program (order&rarr;program)</b>:
+  a real-time executor should <i>translate</i>, not <i>evaluate</i> &mdash; the model parses the order once,
+  and a deterministic interpreter does the state-dependent computation.</p>
 
-  <p class="legend">Colours follow the tree: the <b>trunk</b> (brown) is the domain-agnostic shared pipeline (the budget wedge sits on the interpreter; coordination is the multi-agent layer); the <b>branches</b> (olive) are the domain-specific executors; the <b style="color:#2f8132">leaf</b> (green) is the task in progress &mdash; a box is added for each leaf as it grows; a <b>grey</b> box is a dormant bud, kept in view but not being grown.</p>
+  <figure style="margin:22px 0;">
+  <div id="o2p-demo" style="border:1px solid #cbcbcb;border-radius:8px;background:#fafafa;padding:14px 16px;">
+    <div style="font-size:.82rem;color:#1b1b1b;margin-bottom:10px;">Pick an order, then drag the state slider.</div>
+    <div id="o2p-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="o2p-tab" data-k="direct">Direct order</button>
+      <button class="o2p-tab" data-k="count">Derived count</button>
+      <button class="o2p-tab" data-k="cond">Conditional</button>
+    </div>
+    <div style="margin:6px 0;"><span style="color:#1b1b1b;">Order</span><br><span id="o2p-order" style="font-weight:600;"></span></div>
+    <div style="margin:10px 0;"><span style="color:#1b1b1b;">Program</span>
+      <pre id="o2p-prog" style="margin:4px 0 0;padding:10px 12px;background:#eef1f4;border-radius:6px;overflow-x:auto;font-size:.86rem;line-height:1.45;white-space:pre;"></pre></div>
+    <div id="o2p-state-wrap" style="margin:12px 0;">
+      <span style="color:#1b1b1b;"><span id="o2p-state-label"></span> = </span><b id="o2p-state-val"></b>
+      <input id="o2p-slider" type="range" style="width:100%;margin-top:6px;">
+    </div>
+    <div style="margin:10px 0 2px;"><span style="color:#1b1b1b;">Bound action</span><br>
+      <span id="o2p-action" style="display:inline-block;margin-top:5px;padding:6px 12px;border-radius:6px;background:#e6f4ea;color:#1b1b1b;font-weight:600;"></span></div>
+  </div>
+  <figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;padding:0 1%;"><strong>Figure 1.3. Order to program, live.</strong> The same typed program, re-evaluated by the interpreter as you drag the state &mdash; the state-dependent work runs in code, not the model, which is why a small model matches a large one here. (A direct order carries no state, so no slider.)</figcaption>
+  </figure>
+  <script>
+  (function(){
+    var O={
+      direct:{order:"Train 5 Immortals.",
+        prog:'{ "op":"train", "unit":"Immortal", "n":5 }',
+        state:null, act:function(){return "train Immortal ×5";}},
+      count:{order:"Bring your Stalker count to 8.",
+        prog:'{ "op":"train", "unit":"Stalker",\n  "n":{ "op":"max", "a":0,\n        "b":{ "op":"sub", "a":8,\n              "b":{ "op":"count", "unit":"Stalker" } } } }',
+        state:{label:"current Stalkers",min:0,max:8,def:3},
+        act:function(s){var n=Math.max(0,8-s);return n===0?"train Stalker ×0  (already at 8 — no action)":"train Stalker ×"+n;}},
+      cond:{order:"If your supply margin is below 4, build a Pylon.",
+        prog:'{ "op":"when",\n  "cond":{ "op":"lt", "a":{"op":"margin"}, "b":4 },\n  "then":{ "op":"build", "struct":"Pylon", "n":1 } }',
+        state:{label:"supply margin",min:0,max:8,def:2},
+        act:function(s){return s<4?"build Pylon ×1":"no action  (margin ≥ 4)";}}
+    };
+    var cur="count", $=function(id){return document.getElementById(id);};
+    function update(){var o=O[cur];if(!o.state)return;var s=+$("o2p-slider").value;$("o2p-state-val").textContent=s;$("o2p-action").textContent=o.act(s);}
+    function render(){
+      var o=O[cur];
+      $("o2p-order").textContent=o.order; $("o2p-prog").textContent=o.prog;
+      if(o.state){$("o2p-state-wrap").style.display="";var sl=$("o2p-slider");sl.min=o.state.min;sl.max=o.state.max;$("o2p-state-label").textContent=o.state.label;update();}
+      else{$("o2p-state-wrap").style.display="none";$("o2p-action").textContent=o.act();}
+      var t=document.querySelectorAll(".o2p-tab");
+      for(var i=0;i<t.length;i++){var on=t[i].getAttribute("data-k")===cur;t[i].style.background=on?"#2f855a":"#e2e2e2";t[i].style.color=on?"#fff":"#1b1b1b";}
+    }
+    var t=document.querySelectorAll(".o2p-tab");
+    for(var i=0;i<t.length;i++){t[i].style.cssText="border:none;border-radius:6px;padding:6px 12px;font-size:.85rem;cursor:pointer;";
+      t[i].onclick=(function(k){return function(){cur=k;var o=O[k];if(o.state)$("o2p-slider").value=o.state.def;render();};})(t[i].getAttribute("data-k"));}
+    $("o2p-slider").value=O.count.state.def; $("o2p-slider").oninput=update; render();
+  })();
+  </script>
 
-  <h2>Growing now</h2>
-  <p class="focus"><b>Leaf 1 &mdash; the macro command benchmark (coarse branch):</b> StarCraft II with the clock unpaused. Headline metric: <b>macro command-following fidelity</b> (did the executor build, expand, switch tech, and set composition as ordered), not win rate &mdash; units fight on autopilot, so win rate measures the game, not the executor.</p>
-  <p class="para"><b>The sharp thesis the program now stands on:</b> a real-time command executor should <i>translate</i>, not <i>evaluate</i> &mdash; the model turns an order into a small typed program, and a deterministic interpreter does the state-dependent computation. This closes the macro gap that model scale, on its own, does not.</p>
-  <ul class="stages">
-    <li><b>Milestone 1 (the benchmark) &mdash; substantially complete.</b> A command-following harness scored against computable ground truth, built and measured server-side, with one live-loop leg confirming the loop runs end to end. Central finding: micro grounding is solved; macro is a real capability gap; scaling the model buys vocabulary, not the state arithmetic macro needs.</li>
-    <li><b>Milestone 2 (the methods) &mdash; repositioned (2026-07-07).</b> Lead with <b>order&rarr;program</b> (translate, don't evaluate) and <b>semantic state-compaction</b> (compress the state representation, not the KV cache). A structure-aware cache press was demoted to a baseline: its token-pinning mechanism is anticipated by prior work, so the contribution is the closed-loop game setting and the translation/compaction architecture, not the press.</li>
-    <li><b>Next &mdash; one rigorous study, not more quick experiments.</b> A difficulty ladder for order&rarr;program (direct &rarr; derived count &rarr; conditional &rarr; selective &rarr; nested), a strong baseline, generalization tests, and confidence intervals &mdash; turning first evidence into a defensible result.</li>
-  </ul>
-  <p class="para"><b>Direction check (how we judge we are productive):</b> goal-driven from the North Star; build a method only for a <i>measured, unsolved</i> difficulty, with novelty checked by reading neighbours' <i>methods</i>, not their abstracts; treat the benchmark and its findings as contributions in their own right, not just the method; and keep in mind that the novel <i>setting</i> &mdash; real-time, budgeted, command-following &mdash; is itself the contribution, so a higher number on someone else's leaderboard is evidence, not the goal.</p>
-  <p class="legend">Dormant, kept in view: the fine executor (real-time generated motion, long-term) and crowd coordination. The Motion BPE thread runs as a standalone parallel project and becomes the fine executor's on-ramp.</p>
-
-  <h2>The projects</h2>
-  <p class="para">Each project is one paper-sized unit answering a question its community already values.
-  The program's position is the corner none of the surveyed lines occupy: across the 90-paper survey
-  (Literature), 52 works take free-form commands, 23 run in real time, 39 are
-  multi-agent, and 18 measure compute &mdash; <b>none combine all four</b>, and the closest five are
-  budget-blind. In one phrase: <b>efficient machine learning, evaluated in closed-loop games instead of
-  static corpora</b>. Status mirrors the tree above; each project's full plan (objective, hypothesis,
-  design, milestones, risks, venue) is on Plans, and the field map with all
-  clusters stays on Literature.</p>
-  <table class="repro">
-    <tr><th>Project</th><th>Question <i>(community)</i></th><th>Key challenge</th><th>Reproduce first</th><th>Status</th></tr>
-    <tr><td>P1 &mdash; Real-time command benchmark</td><td>What does command cost at game speed &mdash; macro command-following fidelity across the deadline &times; VRAM frontier? <i>(LLM agents / efficient inference)</i></td><td>The live clock and the missing corpus, both solved by construction: fidelity is scored in-game against computable ground truth, and commands are synthesized (sim &rarr; LLM-paraphrase) &mdash; no annotation.</td><td>LLM-PySC2 (running); HLA + &pi;0 &mdash; the slow-commander / fast-executor split</td><td><b>Milestone 1 &mdash; substantially complete</b></td></tr>
-    <tr><td>P2 &mdash; Efficiency methods in-game</td><td>Which method (KV-cache eviction, distillation, speculative actions) preserves execution fidelity most cheaply in a live game loop? <i>(efficient ML)</i></td><td>Eviction validated on static text can discard outcome-changing information mid-game &mdash; score by fidelity, not perplexity.</td><td>OBCache, SnapKV, H2O</td><td><b>Milestone 2 &mdash; repositioned</b>: order&rarr;program + semantic compaction lead</td></tr>
-    <tr><td>P3 &mdash; Game-state tokenizer</td><td>Can a learned tokenizer cut tokens per decision at equal fidelity? <i>(efficient ML / representation)</i></td><td>Tokens per decision are the input-side cost the benchmark will expose.</td><td>Graph Tokenization (ICLR 2026, Diao)</td><td>dormant bud &mdash; wakes when the benchmark exposes the token cost</td></tr>
-    <tr><td>P4 &mdash; Command&rarr;coordination</td><td>Can one order become many agents' goals and trajectories through a learned policy at crowd scale? <i>(multi-agent RL)</i></td><td>Rule-based assignment stops scaling; a learned policy (RL / MARL) must take over, against the O(N&sup2;) interaction sim.</td><td>&mdash;</td><td>dormant bud</td></tr>
-    <tr><td>P5 &mdash; Crowd-motion executor</td><td>Can language-commanded, full-body crowds run in real time on one consumer GPU? <i>(motion generation / graphics)</i></td><td>Generation is ~16&times; slower than real time (E4 v0); distillation-class models (MotionLCM ~30&nbsp;ms) are the candidate fix.</td><td>MotionLCM &rarr; MotionPCM; MotionStreamer / FloodDiffusion; CrowdMoGen</td><td>dormant &mdash; long-term</td></tr>
-    <tr><td>Motion BPE (standalone)</td><td>What does BPE buy over raw VQ motion tokens &mdash; reversible, training-free, variable-length motifs at a lower budget? <i>(motion generation)</i></td><td>Show the motifs exist and pay for themselves in latency / memory.</td><td>&mdash;</td><td>parallel project</td></tr>
-  </table>
-  <p class="para"><b>Program-level challenges</b> (owned by no single project): <b>abstract-intent
-  grounding</b> &mdash; concrete commands ("move to the ridge") are measurable, abstract ones ("be
-  aggressive") have no ground truth; likely tools are classify-then-act, reward-from-language, or
-  preference data (first tractability evidence: 0.18 &rarr; 0.74 in the E4 v0) &mdash; and <b>the budget
-  frontier</b> itself: holding quality while bounding FPS, end-to-end latency, and VRAM on one consumer
-  GPU, the trade-off every project is measured against.</p>
-  
+  <figure style="margin:22px 0;">
+  <div id="lad-demo" style="border:1px solid #cbcbcb;border-radius:8px;background:#fafafa;padding:14px 16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+      <div style="font-size:.82rem;color:#1b1b1b;">Execution accuracy by order class (the frozen study; 95% bootstrap CIs) &mdash; <b><span style="display:inline-block;width:9px;height:9px;background:#b45f06;border-radius:2px;"></span> direct</b> <b><span style="display:inline-block;width:9px;height:9px;background:#7b5fa8;border-radius:2px;"></span> few-shot direct</b> <b><span style="display:inline-block;width:9px;height:9px;background:#2f855a;border-radius:2px;"></span> program</b>. Toggle the model size:</div>
+      <div id="lad-tabs" style="display:flex;gap:6px;">
+        <button class="lad-tab" data-i="0">1.7B</button><button class="lad-tab" data-i="1">4B</button><button class="lad-tab" data-i="2">8B</button>
+      </div>
+    </div>
+    <svg id="lad-svg" viewBox="0 0 680 300" style="width:100%;height:auto;"></svg>
+  </div>
+  <figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;padding:0 1%;"><strong>Figure 1.4. The frozen study &mdash; execution accuracy by order class, three paired arms.</strong> Bars: direct (orange), few-shot direct (purple), program (green); whiskers are bootstrap 95% CIs over n&asymp;274 paired commands per class; toggle the model size. The pre-registered decision rules all passed: the program arm's advantage on the state-dependent classes (composition, conditional, nested) holds at every scale with CIs excluding zero, and <b>1.7B with programs beats 8B decoding directly</b> on all three. The purple bars show the backfire: worked examples collapse the conditional classes at every scale (exemplar-branch parroting &mdash; the model answers the exemplar's branch instead of evaluating the state). "nested" &mdash; a conditional wrapping a derived count &mdash; was never exemplified in the program prompt: its 0.975&ndash;1.000 is compositional generalization.</figcaption>
+  </figure>
+  <script>
+  (function(){
+    var CLS=["build","train","expand","tech","composition","conditional","nested"];
+    var D={"1.7B":[[[0.980,0.963,0.993],[0.993,0.982,1.000],[1.000,1.000,1.000],[0.427,0.357,0.497],[0.380,0.326,0.438],[0.713,0.660,0.763],[0.746,0.696,0.796]],[[0.993,0.983,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[0.692,0.627,0.757],[0.478,0.420,0.536],[0.283,0.233,0.337],[0.175,0.132,0.221]],[[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[0.862,0.823,0.902],[1.000,1.000,1.000],[0.975,0.954,0.993]]],"4B":[[[0.973,0.953,0.990],[1.000,1.000,1.000],[1.000,1.000,1.000],[0.995,0.984,1.000],[0.587,0.529,0.645],[0.713,0.660,0.763],[0.739,0.689,0.789]],[[0.990,0.977,1.000],[0.996,0.989,1.000],[1.000,1.000,1.000],[0.692,0.627,0.757],[0.601,0.543,0.659],[0.283,0.233,0.337],[0.221,0.171,0.271]],[[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000]]],"8B":[[[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[0.623,0.565,0.681],[0.717,0.663,0.767],[0.736,0.686,0.786]],[[0.990,0.977,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[0.751,0.686,0.811],[0.485,0.427,0.543],[0.217,0.170,0.263],[0.179,0.136,0.225]],[[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[1.000,1.000,1.000],[0.996,0.989,1.000]]]};
+    var SCALES=["1.7B","4B","8B"], si=1, svg=document.getElementById("lad-svg");
+    var W=680,H=300,L=36,Rm=10,T=14,B=44,PW=W-L-Rm,PH=H-T-B;
+    var COLS=["#b45f06","#7b5fa8","#2f855a"];
+    function y(v){return T+PH*(1-v);}
+    function txt(x,yy,s,a,sz){return '<text x="'+x+'" y="'+yy+'" text-anchor="'+(a||"middle")+'" font-size="'+(sz||11)+'" fill="#1b1b1b">'+s+'</text>';}
+    function draw(){
+      var g="";
+      [0,.5,1].forEach(function(v){g+='<line x1="'+L+'" y1="'+y(v)+'" x2="'+(W-Rm)+'" y2="'+y(v)+'" stroke="#e6e6e6"/>'+txt(L-6,y(v)+3,v.toFixed(1),"end",10);});
+      var d=D[SCALES[si]];
+      if(!d){ svg.innerHTML=g+txt(W/2,H/2,"this scale's leg is running…",undefined,13); mark(); return; }
+      var n=CLS.length, gw=PW/n, bw=13, gap=3;
+      for(var i=0;i<n;i++){
+        var cx=L+gw*i+gw/2;
+        for(var a=0;a<3;a++){
+          var cell=d[a][i]; if(!cell) continue;
+          var x=cx-(1.5*bw+gap)+a*(bw+gap);
+          g+='<rect x="'+x+'" y="'+y(cell[0])+'" width="'+bw+'" height="'+(PH*cell[0])+'" fill="'+COLS[a]+'"/>';
+          var mx=x+bw/2;
+          g+='<line x1="'+mx+'" y1="'+y(cell[1])+'" x2="'+mx+'" y2="'+y(cell[2])+'" stroke="#1b1b1b" stroke-width="1.2"/>';
+          g+='<line x1="'+(mx-3)+'" y1="'+y(cell[1])+'" x2="'+(mx+3)+'" y2="'+y(cell[1])+'" stroke="#1b1b1b" stroke-width="1.2"/>';
+          g+='<line x1="'+(mx-3)+'" y1="'+y(cell[2])+'" x2="'+(mx+3)+'" y2="'+y(cell[2])+'" stroke="#1b1b1b" stroke-width="1.2"/>';
+        }
+        g+=txt(cx,H-B+16,CLS[i],undefined,10.5);
+      }
+      svg.innerHTML=g; mark();
+    }
+    function mark(){
+      var t=document.querySelectorAll(".lad-tab");
+      for(var j=0;j<t.length;j++){var on=+t[j].getAttribute("data-i")===si;t[j].style.background=on?"#333":"#e2e2e2";t[j].style.color=on?"#fff":"#1b1b1b";}
+    }
+    var t=document.querySelectorAll(".lad-tab");
+    for(var j=0;j<t.length;j++){t[j].style.cssText="border:none;border-radius:5px;padding:4px 10px;font-size:.8rem;cursor:pointer;";t[j].onclick=(function(k){return function(){si=k;draw();};})(+t[j].getAttribute("data-i"));}
+    draw();
+  })();
+  </script>
 
   <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
 
