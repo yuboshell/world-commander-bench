@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-11, 3:50 AM MDT &middot; public overview</p>
+    <p class="upd"><b>Updated:</b> 2026-07-11, 4:45 AM MDT &middot; public overview</p>
   </header>
 
   <p class="topnav">
@@ -70,26 +70,24 @@
 
   <details class="fold" open>
   <summary><h2 style="display:inline;margin:0;">1.1&ensp;Type an order &mdash; the interactive demo</h2></summary>
-  <p class="para">The human-commander loop, live: orders are <b>typed into the game's own chat</b> while a
-  melee game of StarCraft II against the built-in AI runs. A 4-billion-parameter model translates each
-  order into a small typed program; a deterministic interpreter binds it against the live game state; two
-  gates sit in front of execution (executability = precondition check, vagueness = clarification request);
-  what passes is executed in the running game. Direct decoding answers the same orders side by side, for
-  comparison only.</p>
   <figure style="margin:18px 0;">
+  <div class="loop" style="margin-bottom:10px;">
+    <div class="st"><b>1</b>an order typed in the game's own chat</div><div class="ar">&rarr;</div>
+    <div class="st"><b>2</b>the 4B model parses it into a typed program</div><div class="ar">&rarr;</div>
+    <div class="st"><b>3</b>the interpreter binds it to the live state</div><div class="ar">&rarr;</div>
+    <div class="st"><b>4</b>two gates: precondition &middot; clarification</div><div class="ar">&rarr;</div>
+    <div class="st ok"><b>5</b>the action executes in the running game</div>
+  </div>
   <video controls preload="metadata" poster="demo_interactive_poster.jpg" style="width:100%;height:auto;display:block;border:1px solid #cbcbcb;border-radius:8px;">
     <source src="demo_interactive_annotated.mp4" type="video/mp4">
     Your browser can't play the video &mdash; <a href="demo_interactive_annotated.mp4">download it</a>.
   </video>
-  <figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;padding:0 1%;"><strong>Figure 1.1. The interactive demo with its annotation panel.</strong> Left: the real game,
-  the typed orders and the harness's replies visible in the in-game chat. Right: a synchronized
-  annotation panel &mdash; the emitted program (raw JSON plus a readable form), the gate verdict as a badge,
-  the interpreter's evaluation on the live state, the direct-decoding comparison, and a session-so-far
-  timeline. The arc: a train order rejected by the precondition check (no Gateway yet); a Pylon and a
-  Gateway built and confirmed in-game; a vague order answered with a clarification request; then derived
-  counts computed by the interpreter &mdash; including a target already met, where the program correctly does
-  nothing while direct decoding acts (shown, not applied). Qwen3-4B on a consumer GPU (RTX 4060),
-  median 0.7&nbsp;s per decision.</figcaption>
+  <figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;padding:0 1%;"><strong>Figure 1.1. The interactive demo.</strong> Top: the path every order takes, live against the
+  built-in AI. In the video &mdash; left: the real game, orders and replies in its own chat; right: a synced
+  annotation panel (program, gate verdict, interpreter evaluation, direct-decoding comparison). The
+  session: a rejected order, two confirmed builds, a clarification request, and derived counts &mdash;
+  including a correct no-op that direct decoding gets wrong. Qwen3-4B on an RTX 4060, median
+  0.7&nbsp;s per decision.</figcaption>
   </figure>
 
   </details>
@@ -112,7 +110,12 @@
   .pipe-legend{font-size:.78rem;color:#1b1b1b;margin-top:4px;display:flex;gap:15px;flex-wrap:wrap;}
   /* figure accent (web-report-style): div-based diagram figures take the hand-drawn font too;
      pre/code inside them stay Monaco via the shared element rule */
-  .pipe2,.pipe-legend,#o2p-demo,#lad-demo{font-family:'Chalkboard SE','Lato',Verdana,Helvetica,sans-serif;}
+  .pipe2,.pipe-legend,.loop,#o2p-demo,#lad-demo{font-family:'Chalkboard SE','Lato',Verdana,Helvetica,sans-serif;}
+  .loop{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch;}
+  .loop .st{flex:1;min-width:118px;border:1px solid #cbcbcb;border-radius:7px;background:#fafafa;padding:7px 9px;font-size:.78rem;line-height:1.35;}
+  .loop .st.ok{border-color:#93a259;background:#ecf0da;}
+  .loop .st b{display:block;font-size:.72rem;margin-bottom:2px;}
+  .loop .ar{align-self:center;font-size:1.05rem;color:#1b1b1b;}
   .pipe-legend span{display:inline-flex;align-items:center;gap:5px;}
   .pipe-legend i{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid;}
   </style>
@@ -135,19 +138,21 @@
     <span><i style="background:#e9ddc9;border-color:#9c8569;"></i>shared pipeline</span>
     <span><i style="background:#ecf0da;border-color:#93a259;"></i>executors</span>
   </div>
-  <figcaption style="font-size:0.9rem; color:#1b1b1b; text-align:left; margin-top:12px; padding:0 1%;"><strong>Figure 1.2. The World Commander pipeline.</strong> A free-form command is interpreted by a language model (which carries the latency and memory budget), split across many agents by a coordination layer, and carried out by an executor at one of three levels of motor detail. All levels are multi-agent; <b>scale</b>, from a few agents to a crowd, is a separate axis. The program currently studies the coarse executor.</figcaption>
+  <figcaption style="font-size:0.9rem; color:#1b1b1b; text-align:left; margin-top:12px; padding:0 1%;"><strong>Figure 1.2. The World Commander pipeline.</strong> Free-form command &rarr; language model (carrying the latency and memory budget) &rarr; coordination across many agents &rarr; an executor at one of three levels of motor detail. All levels are multi-agent; scale is a separate axis. The program currently studies the coarse executor.</figcaption>
   </figure>
 
   </details>
 
   <details class="fold" open>
   <summary><h2 style="display:inline;margin:0;">1.3&ensp;Current status</h2></summary>
-  <p class="focus">The current project is the macro command benchmark: StarCraft II with the clock unpaused,
-  scored by <b>execution accuracy</b> &mdash; did the executor build, expand, switch tech, and set composition
-  as ordered &mdash; not win rate, since units fight on autopilot and win rate measures the game, not the
-  executor. The method we lead with is <b>semantic parsing into a typed program (order&rarr;program)</b>:
-  a real-time executor should <i>translate</i>, not <i>evaluate</i> &mdash; the model parses the order once,
-  and a deterministic interpreter does the state-dependent computation.</p>
+  <ul class="stages">
+    <li><b>The benchmark:</b> StarCraft II with the clock unpaused; the score is <b>execution
+    accuracy</b> &mdash; built, expanded, switched tech, set composition <i>as ordered</i> &mdash; not win
+    rate, which measures the game, not the executor.</li>
+    <li><b>The method &mdash; semantic parsing into a typed program (order&rarr;program):</b> translate,
+    don't evaluate &mdash; the model parses the order once; a deterministic interpreter does the
+    state-dependent computation.</li>
+  </ul>
 
   <figure style="margin:22px 0;">
   <div id="o2p-demo" style="border:1px solid #cbcbcb;border-radius:8px;background:#fafafa;padding:14px 16px;">
@@ -211,7 +216,7 @@
     </div>
     <svg id="lad-svg" viewBox="0 0 680 300" style="width:100%;height:auto;"></svg>
   </div>
-  <figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;padding:0 1%;"><strong>Figure 1.4. The frozen study &mdash; execution accuracy by order class, three paired arms.</strong> Bars: direct (orange), few-shot direct (purple), program (green); whiskers are bootstrap 95% CIs over n&asymp;274 paired commands per class; toggle the model size. The pre-registered decision rules all passed: the program arm's advantage on the state-dependent classes (composition, conditional, nested) holds at every scale with CIs excluding zero, and <b>1.7B with programs beats 8B decoding directly</b> on all three. The purple bars show the backfire: worked examples collapse the conditional classes at every scale (exemplar-branch parroting &mdash; the model answers the exemplar's branch instead of evaluating the state). "nested" &mdash; a conditional wrapping a derived count &mdash; was never exemplified in the program prompt: its 0.975&ndash;1.000 is compositional generalization.</figcaption>
+  <figcaption style="font-size:0.9rem;color:#1b1b1b;text-align:left;margin-top:12px;padding:0 1%;"><strong>Figure 1.4. The frozen study &mdash; execution accuracy by order class, three paired arms.</strong> Bars: direct (orange), few-shot direct (purple), program (green); whiskers = bootstrap 95% CIs (n&asymp;274 per class); toggle the model size. All pre-registered rules passed: the program advantage on the state-dependent classes holds at every scale, and <b>1.7B with programs beats 8B decoding directly</b>. Purple shows the few-shot backfire (exemplar-branch parroting); "nested", never exemplified in the program prompt, is compositional generalization.</figcaption>
   </figure>
   <script>
   (function(){
