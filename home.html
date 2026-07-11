@@ -5,7 +5,7 @@
   <title>World Commander</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
   <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet">
 </head>
 <body>
@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-11, 2:55 AM MDT &middot; public overview</p>
+    <p class="upd"><b>Updated:</b> 2026-07-11, 3:25 AM MDT &middot; public overview</p>
   </header>
 
   <p class="topnav">
@@ -23,7 +23,7 @@
   </p>
 
   <details class="fold">
-  <summary><h2>1.0&ensp;Team</h2></summary>
+  <summary><h2 style="display:inline;margin:0;">1.0&ensp;Team</h2></summary>
   <div class="members">
     <div class="member">
       <div class="avatar"><img src="people/yubo-huang.jpg" alt="Yubo Huang"></div>
@@ -69,7 +69,7 @@
   </details>
 
   <details class="fold" open>
-  <summary><h2>1.1&ensp;Type an order &mdash; the interactive demo</h2></summary>
+  <summary><h2 style="display:inline;margin:0;">1.1&ensp;Type an order &mdash; the interactive demo</h2></summary>
   <p class="para">The human-commander loop, live: orders are <b>typed into the game's own chat</b> while a
   melee game of StarCraft II against the built-in AI runs. A 4-billion-parameter model translates each
   order into a small typed program; a deterministic interpreter binds it against the live game state; two
@@ -95,7 +95,7 @@
   </details>
 
   <details class="fold" open>
-  <summary><h2>1.2&ensp;The paradigm</h2></summary>
+  <summary><h2 style="display:inline;margin:0;">1.2&ensp;The paradigm</h2></summary>
   <p class="para">A human commands agents in plain language; a language model turns the command into coordinated action &mdash; in real time, on a normal GPU.</p>
 
   <style>
@@ -112,7 +112,7 @@
   .pipe-legend{font-size:.78rem;color:#1b1b1b;margin-top:4px;display:flex;gap:15px;flex-wrap:wrap;}
   /* figure accent (web-report-style): div-based diagram figures take the hand-drawn font too;
      pre/code inside them stay Monaco via the shared element rule */
-  .pipe2,.pipe-legend,#o2p-demo,#lad-demo{font-family:'Shantell Sans','Chalkboard SE','Comic Sans MS',sans-serif;}
+  .pipe2,.pipe-legend,#o2p-demo,#lad-demo{font-family:'Chalkboard SE','Shantell Sans','Comic Sans MS',sans-serif;}
   .pipe-legend span{display:inline-flex;align-items:center;gap:5px;}
   .pipe-legend i{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid;}
   </style>
@@ -141,7 +141,7 @@
   </details>
 
   <details class="fold" open>
-  <summary><h2>1.3&ensp;Current status</h2></summary>
+  <summary><h2 style="display:inline;margin:0;">1.3&ensp;Current status</h2></summary>
   <p class="focus">The current project is the macro command benchmark: StarCraft II with the clock unpaused,
   scored by <b>execution accuracy</b> &mdash; did the executor build, expand, switch tech, and set composition
   as ordered &mdash; not win rate, since units fight on autopilot and win rate measures the game, not the
