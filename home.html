@@ -14,7 +14,7 @@
   <header class="mast">
     <h1>World Commander</h1>
     <p class="subtitle">Natural-language command of agent crowds in real time, under latency and memory budgets.</p>
-    <p class="upd"><b>Updated:</b> 2026-07-11, 5:20 AM MDT &middot; public overview</p>
+    <p class="upd"><b>Updated:</b> 2026-07-11, 6:05 AM MDT &middot; public overview</p>
   </header>
 
   <p class="topnav">
@@ -30,7 +30,7 @@
       <div class="minfo">
         <div class="nm"><a href="https://yuboshell.github.io">Yubo Huang 黄昱博</a></div>
         <div class="line"><b>Affiliation:</b> University of Alberta</div>
-        <div class="line"><b>Education:</b> MEng &amp; BS BUPT</div>
+        <div class="line"><b>Education:</b> MEng &amp; BS, Beijing University of Posts and Telecommunications</div>
         <div class="line"><b>Interests:</b> multi-agent reinforcement learning, LLM agents, and efficient inference</div>
       </div>
     </div>
@@ -39,8 +39,8 @@
       <div class="minfo">
         <div class="nm"><a href="https://www.diaoenmao.com">Enmao Diao 刁恩茂</a></div>
         <div class="line"><b>Affiliation:</b> DreamSoul, China</div>
-        <div class="line"><b>Education:</b> PhD Duke, MS Harvard, BS Georgia Tech</div>
-        <div class="line"><b>Interests:</b> distributed machine learning, efficient machine learning, signal processing, artificial intelligence</div>
+        <div class="line"><b>Education:</b> PhD, Duke University; MS, Harvard University; BS, Georgia Institute of Technology</div>
+        <div class="line"><b>Interests:</b> distributed machine learning, efficient machine learning, signal processing, and artificial intelligence</div>
       </div>
     </div>
     <div class="member">
@@ -48,7 +48,7 @@
       <div class="minfo">
         <div class="nm"><a href="https://scholar.google.com/citations?user=knhDWA8AAAAJ&amp;hl=en">Hongsong Tang 唐洪松</a></div>
         <div class="line"><b>Affiliation:</b> Tencent Timi Studio</div>
-        <div class="line"><b>Education:</b> PhD &amp; BS BUPT</div>
+        <div class="line"><b>Education:</b> PhD &amp; BS, Beijing University of Posts and Telecommunications</div>
         <div class="line"><b>Interests:</b> reinforcement learning, large language models, distributed systems, and game theory</div>
       </div>
     </div>
@@ -57,8 +57,8 @@
       <div class="minfo">
         <div class="nm"><a href="https://www.linkedin.com/in/xirui-shi-4625022b1/">Xirui Shi 施稀睿</a></div>
         <div class="line"><b>Affiliation:</b> University of Alberta, Amii</div>
-        <div class="line"><b>Education:</b> PhD University of Alberta, BE Sun Yat-sen University</div>
-        <div class="line"><b>Interests:</b> continual reinforcement learning, embodied AI, vision-language-action models, movement primitives</div>
+        <div class="line"><b>Education:</b> PhD, University of Alberta; BE, Sun Yat-sen University</div>
+        <div class="line"><b>Interests:</b> continual reinforcement learning, embodied AI, vision-language-action models, and movement primitives</div>
       </div>
     </div>
   </div>
@@ -116,20 +116,23 @@
   .loop .ar{align-self:center;font-size:1.05rem;color:#1b1b1b;}
   .pipe-legend span{display:inline-flex;align-items:center;gap:5px;}
   .pipe-legend i{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid;}
+  a.cite{text-decoration:none;} a.cite:hover{text-decoration:underline;}
+  section.refs ol{list-style:none;padding-left:0;margin:0;font-size:.92rem;line-height:1.5;}
+  section.refs li{margin:0 0 9px;padding-left:2.6em;text-indent:-2.6em;}
   </style>
   <figure style="margin:18px 0;">
   <div class="pipe2">
-    <div class="node"><div class="t">Free-form command</div><div class="s">plain language &mdash; concrete to abstract</div><div class="cf">cf. <a href="https://arxiv.org/abs/2404.10179" target="_blank" rel="noopener">SIMA (DeepMind 2024)</a>, <a href="https://arxiv.org/abs/2306.00937" target="_blank" rel="noopener">STEVE-1 (NeurIPS 2023)</a></div></div>
+    <div class="node"><div class="t">Free-form command</div><div class="s">plain language &mdash; concrete to abstract</div><div class="cf">cf. SIMA <a class="cite" href="#ref-1">[1]</a>, STEVE-1 <a class="cite" href="#ref-2">[2]</a></div></div>
     <div class="ar">&rarr;</div>
-    <div class="node accent"><div class="t">Interpreter (LLM)</div><div class="s">command &rarr; intent, under the latency &amp; memory budget</div><div class="cf">cf. <a href="https://arxiv.org/abs/2209.07753" target="_blank" rel="noopener">Code as Policies (ICRA 2023)</a>, <a href="https://arxiv.org/abs/2410.24164" target="_blank" rel="noopener">&pi;0 (RSS 2025)</a></div></div>
+    <div class="node accent"><div class="t">Interpreter (LLM)</div><div class="s">command &rarr; intent, under the latency &amp; memory budget</div><div class="cf">cf. Code as Policies <a class="cite" href="#ref-3">[3]</a>, &pi;0 <a class="cite" href="#ref-4">[4]</a></div></div>
     <div class="ar">&rarr;</div>
-    <div class="node"><div class="t">Coordination</div><div class="s">splits intent across agents &mdash; assignment / MARL</div><div class="cf">cf. <a href="https://arxiv.org/abs/2309.09971" target="_blank" rel="noopener">MindAgent (NAACL 2024)</a></div></div>
+    <div class="node"><div class="t">Coordination</div><div class="s">splits intent across agents &mdash; assignment / MARL</div><div class="cf">cf. MindAgent <a class="cite" href="#ref-5">[5]</a></div></div>
     <div class="ar">&rarr;</div>
     <div class="exec">
       <div class="et">Executor</div>
-      <div class="lvl">Coarse &middot; discrete actions<div style="font-weight:400;font-size:.95em;color:#1b1b1b;margin-top:2px;">game API &mdash; StarCraft II</div><div class="cf">cf. <a href="https://www.nature.com/articles/s41586-019-1724-z" target="_blank" rel="noopener">AlphaStar (Nature 2019)</a></div></div>
+      <div class="lvl">Coarse &middot; discrete actions<div style="font-weight:400;font-size:.95em;color:#1b1b1b;margin-top:2px;">game API &mdash; StarCraft II</div><div class="cf">cf. AlphaStar <a class="cite" href="#ref-6">[6]</a></div></div>
       <div class="lvl">Medium &middot; trajectories (root paths)</div>
-      <div class="lvl">Fine &middot; continuous motion (embodiment)<div class="cf">cf. <a href="https://arxiv.org/abs/2209.14916" target="_blank" rel="noopener">MDM (ICLR 2023)</a></div></div>
+      <div class="lvl">Fine &middot; continuous motion (embodiment)<div class="cf">cf. MDM <a class="cite" href="#ref-7">[7]</a></div></div>
     </div>
   </div>
   <div class="pipe-legend">
@@ -257,6 +260,21 @@
   </script>
 
   </details>
+
+  <section class="refs">
+  <details class="fold">
+  <summary><h2 style="display:inline;margin:0;">1.4&ensp;Reference</h2></summary>
+  <ol>
+  <li id="ref-1">[1] SIMA Team (Google DeepMind). <em>Scaling Instructable Agents Across Many Simulated Worlds</em>. arXiv, 2024. <a href="https://arxiv.org/abs/2404.10179" target="_blank" rel="noopener">arxiv.org</a></li>
+  <li id="ref-2">[2] Lifshitz et al. <em>STEVE-1: A Generative Model for Text-to-Behavior in Minecraft</em>. NeurIPS 2023. <a href="https://arxiv.org/abs/2306.00937" target="_blank" rel="noopener">arxiv.org</a></li>
+  <li id="ref-3">[3] Liang et al. <em>Code as Policies: Language Model Programs for Embodied Control</em>. ICRA 2023. <a href="https://arxiv.org/abs/2209.07753" target="_blank" rel="noopener">arxiv.org</a></li>
+  <li id="ref-4">[4] Black et al. (Physical Intelligence). <em>&pi;0: A Vision-Language-Action Flow Model for General Robot Control</em>. RSS 2025. <a href="https://arxiv.org/abs/2410.24164" target="_blank" rel="noopener">arxiv.org</a></li>
+  <li id="ref-5">[5] Gong et al. <em>MindAgent: Emergent Gaming Interaction</em>. NAACL 2024 Findings. <a href="https://arxiv.org/abs/2309.09971" target="_blank" rel="noopener">arxiv.org</a></li>
+  <li id="ref-6">[6] Vinyals et al. <em>Grandmaster Level in StarCraft II Using Multi-Agent Reinforcement Learning</em>. Nature, 2019. <a href="https://www.nature.com/articles/s41586-019-1724-z" target="_blank" rel="noopener">nature.com</a></li>
+  <li id="ref-7">[7] Tevet et al. <em>MDM: Human Motion Diffusion Model</em>. ICLR 2023. <a href="https://arxiv.org/abs/2209.14916" target="_blank" rel="noopener">arxiv.org</a></li>
+  </ol>
+  </details>
+  </section>
 
   <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>
 
