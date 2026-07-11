@@ -46,7 +46,8 @@ section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
   <a href="ideation.html" class="active">2&nbsp;Ideation</a>
 </p>
 
-<h2>2.1&ensp;The idea</h2>
+<details class="fold" open>
+<summary><h2>2.1&ensp;The idea</h2></summary>
 <p>World Commander is a research program in which a human commands a crowd of agents in a real-time strategy game through natural language, and a language model carries the orders out as in-game actions while the game keeps running. It turns on one question: <b>how much does that cost in latency and memory, and how far can the cost be cut?</b></p>
 
 <figure id="fig-1">
@@ -84,11 +85,15 @@ section.refs li { margin:0 0 9px; padding-left: 2.6em; text-indent:-2.6em; }
 
 <p><b>Why this is research, not just engineering.</b> The efficiency methods that could make command execution fast &mdash; cache eviction, quantization, speculative decoding &mdash; are measured today only on static text, never inside a game in progress, where discarding the wrong information changes the outcome. This program measures them there.</p>
 
+</details>
+
 <section class="refs">
-<h2>2.2&ensp;Reference</h2>
+<details class="fold" open>
+<summary><h2>2.2&ensp;Reference</h2></summary>
 <ol>
 <li id="ref-1">[1] Ubisoft. <em>Tom Clancy's EndWar</em>. 2008. <a href="https://en.wikipedia.org/wiki/Tom_Clancy%27s_EndWar">wikipedia.org</a></li>
 </ol>
+</details>
 </section>
 
 <p class="attribution">Design from <a href="https://jonbarron.info" target="_blank" rel="noopener">Jon Barron's website</a>, via <a href="https://github.com/leonidk/leonidk.github.io" target="_blank" rel="noopener">Leonid Keselman's Jekyll fork</a>.</p>

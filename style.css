@@ -102,3 +102,7 @@ table.repro th { background:#f7f8fa; font-weight:700; }
   font-weight:300 800; font-style:normal; font-display:swap;
 }
 figure svg, figure svg text { font-family:'Shantell Sans','Chalkboard SE','Comic Sans MS',sans-serif; }
+
+/* Foldable sections (public overview): the summary carries the section's real h2, so heading
+   styles (incl. responsive sizes) apply; folds start open — nothing hidden on first load. */
+details.fold > summary h2 { display:inline; margin:0; }
